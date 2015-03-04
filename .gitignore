@@ -1,0 +1,8 @@
+jose-code/
+*.swp
+*.log
+*.aux
+*.pdf
+*.dvi
+*.bbl
+*.blg

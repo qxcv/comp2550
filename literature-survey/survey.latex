@@ -1,0 +1,20 @@
+\documentclass[11pt]{article}
+\usepackage{natbib}
+
+\begin{document}
+    \title{A Survey of Map-Matching Algorithms\\
+    {\Large COMP2550 Literature Survey}}
+    \author{Sam Toyer\\\em{u5568237@anu.edu.au}}
+    \date{\today}
+
+    \maketitle
+
+    \abstract{Something!}
+
+    \section{Introduction}
+
+    Some text \cite{something15}
+
+    \bibliography{citations}{}
+    \bibliographystyle{plain}
+\end{document}
