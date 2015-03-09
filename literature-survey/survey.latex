@@ -1,30 +1,130 @@
 \documentclass[11pt]{article}
+% Note: Steve doesn't use super or sort&compress (although AFAICT he does
+% compress). Uses a mixture of citet and cite in-text. Having said that, he
+% doesn't express a strong preference; some papers use all citep with no numeric
+% citations!
 \usepackage[super,square,comma,sort&compress]{natbib}
 % Uncomment the following to get inline links to references.
-% \usepackage{hyperref}
+\usepackage{hyperref}
 \usepackage{multicol}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
 \begin{document}
-    \title{A Survey of Map-Matching Algorithms\\
+    \title{A Survey of Map Matching Algorithms\\
     {\Large COMP2550 Literature Survey}}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
 
     \maketitle
 
-    \abstract{Something!}
+    \abstract{
+        Map matching is the process of taking a series of observations of a
+        vehicle's environment---for instance, Global Positioning System (GPS)
+        measurements of the vehicle's latitude and longitude, or the distance
+        travelled by the vehicle's rear wheels in a fixed time period---and
+        attempting to fit the path described by those observations onto a
+        digital map. In this survey, we explore the current state-of-the-art in
+        online map matching algorithms, and evaluate the reported efficacy and
+        applicability of these algorithms to the problem of map matching on
+        low-detail maps, with a view to applications in computer vision.
+    }
 
 \begin{multicols}{2}
     \section{Introduction}
+        % XXX: I don't like how long-winded this is. Get to the point!
+        % Also, since the entire point of this paragraph is to motivate the
+        % problem, I should include examples of where map-matching is used, and
+        % note that it is used in the specific computer vision application which
+        % I wish to study.
+        Whilst contemporary satellite-based navigation systems like GPS can be
+        used to estimate the coordinates of a vehicle just about anywhere on the
+        surface of the earth, the inaccuracy inherent in these systems can still
+        be significant for some applications, especially in built-up areas:
+        \citet{modsching2006field} report mean errors of up to 15m in some urban
+        environments, for instance. For objects which are assumed to be on
+        roadways, these errors can be dramatically reduced by considering the
+        information present in freely available digital street maps like those
+        produced by the OpenStreetMap\footnotemark project. The task of an
+        online map matching algorithm is to take noisy or biased observations
+        from a localisation or odometry system and attempt to find the most
+        accurate projection of the object being tracked onto a given digital
+        map.
 
-    \section{Existing methods}
+        \footnotetext{\url{http://www.openstreetmap.org/}}
 
-    \subsection{Geometric and topological heuristics}
+        For the purposes of this survey, we will divide map matching algorithms
+        up into three categories: firstly, we will consider basic heuristic
+        algorithms which employ simple geometric and topological features of the
+        road network. Next, we will look at more sophisticated algorithms which
+        take advantage of several such heuristics, either by using a simple
+        weighting or through more complex methods like Dempster-Shafer theory
+        and fuzzy logic. Finally, we will consider more advanced probabilistic
+        algorithms, and give particular consideration to those which are capable
+        of estimating the possible positions of a vehicle on several road
+        segments at a time, or of localising the vehicle at the lane-level.
 
-    \subsection{Two-stage localisation algorithms}
+    \section{Basic heuristic algorithms}
+        % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
+        % some other methods. Just really basic turn-of-the-century stuff.
+        Initial solutions to the map matching problem used simple geometric
+        methods which only considered the position of the vehicle relative to
+        the road segments making up a digital map. Later algorithms also took
+        into account the topology of the road graph and the location history of
+        the vehicle to try and match the ``shape'' of the vehicle's path to the
+        map. Whilst these approaches offer mediocre performance on their
+        own\cite{quddus2007current}, we nonetheless consider some of them in
+        this section, as they form the basis for many of the more advanced
+        algorithms which constitute the state-of-the-art today.
 
-    \subsection{Multi-hypothesis probabilistic methods}
+        \citet{white2000some} offer an excellent summary of several such basic
+        algorithms, and we will briefly summarise two of them here.
+
+        The first algorithm \citet{white2000some} consider, dubbed
+        \textit{point-to-curve matching}, simply finds the nearest road segment
+        in a digital map and calculates the orthogonal projection of the most
+        recent GPS measurement onto that segment. As the authors point out, this
+        algorithm not only fails to make use of historical data, vehicle
+        heading, vehicle velocity, topological information and so on, but also
+        results in a highly unstable output at intersections, where the reported
+        GPS reading may be approximately equidistant to two or more road
+        segments.
+
+        As a result of the deficiencies in this algorithm, the authors propose
+        two augmentations of it. The first considers the difference between the
+        vehicle's heading and the alignment of the given street segments, and
+        discards segments with too great a difference between the vehicle's
+        heading and the segment's orientation. The second defines ``nearby''
+        roads by their driving distance along the map from the current estimated
+        vehicle position, rather than by their straight-line distance from the
+        most recent GPS reading.
+        % TODO: Be more critical of above.
+
+        The final algorithm \citet{white2000some} consider,
+        \textit{curve-to-curve matching}, attempts to incorporate both
+        historical position data and map topology. It begins by constructing a
+        piecewise linear curve from the $n$ most recent GPS measurements for the
+        vehicle. It then locates nodes in the road graph within a certain
+        distance of the most recent GPS measurement. For each of these nodes, it
+        constructs additional piecewise linear curves of the same length as that
+        produced from the vehicle's positioning history, each of which follow
+        the road network outwards from the node in question. Finally, it
+        considers the area between each of the curves on the map and
+        the curve representing the vehicle's path, and selects the curve with
+        the lowest such area. The output of the algorithm is a projection of the
+        vehicle's current GPS position onto the best curve.
+
+        % TODO: Document performance, mention that the algorithm is nonetheless
+        % used in later approaches.
+
+    \section{Combining multiple heuristics}
+        % This section: algorithms using a weighting of heuristics, or merging
+        % heuristics together using DS theory or fuzzy logic (there are *many*
+        % such localisation systems)
+        \citet{quddus2006high} propose a complex method of merging odometry, heading
+        information, connectivity, GPS data and GPS uncertainty measurements to
+        select road segments.
+
+    \section{Probabilistic methods}
 
     \section{Quantitative comparison of results}
 
@@ -36,11 +136,10 @@
     % distribution over vehicle states), as opposed to the traditional method
     % where we select a promising segment and localise on it.
 
-    Some text\cite{white2000some}, some more text\cite{brubaker2013lost}, some
-    extra text\cite{quddus2007current} and another
-    citation\cite{newson2009hidden,el2005road}.
+    \citet{white2000some}
+    % XXX: Just there so that references show up. Delete later.
 
     \bibliography{citations}{}
-    \bibliographystyle{abbrv}
+    \bibliographystyle{abbrvnat}
 \end{multicols}
 \end{document}
