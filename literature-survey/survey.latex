@@ -1,20 +1,44 @@
 \documentclass[11pt]{article}
 \usepackage{natbib}
+\usepackage{multicol}
+\usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
 \begin{document}
     \title{A Survey of Map-Matching Algorithms\\
     {\Large COMP2550 Literature Survey}}
-    \author{Sam Toyer\\\em{u5568237@anu.edu.au}}
+    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
 
     \maketitle
 
     \abstract{Something!}
 
+\begin{multicols}{2}
     \section{Introduction}
 
-    Some text \cite{something15}
+    \section{Existing methods}
+
+    \subsection{Geometric and topological heuristics}
+
+    \subsection{Two-stage localisation algorithms}
+
+    \subsection{Multi-hypothesis probabilistic methods}
+
+    \section{Quantitative comparison of results}
+
+    \section{Conclusion}
+
+    % I especially want to write about multi-hypothesis methods, where we're not
+    % entirely sure what segment we're on, so we maintain a probability
+    % distribution over segments (or a segment-independent probability
+    % distribution over vehicle states), as opposed to the traditional method
+    % where we select a promising segment and localise on it.
+
+    Some text\cite{white2000some}, some more text\cite{brubaker2013lost}, some
+    extra text\cite{quddus2007current} and another
+    citation\cite{newson2009hidden}.
 
     \bibliography{citations}{}
-    \bibliographystyle{plain}
+    \bibliographystyle{abbrv}
+\end{multicols}
 \end{document}
