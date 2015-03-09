@@ -1,5 +1,7 @@
 \documentclass[11pt]{article}
-\usepackage{natbib}
+\usepackage[super,square,comma,sort&compress]{natbib}
+% Uncomment the following to get inline links to references.
+% \usepackage{hyperref}
 \usepackage{multicol}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
@@ -36,7 +38,7 @@
 
     Some text\cite{white2000some}, some more text\cite{brubaker2013lost}, some
     extra text\cite{quddus2007current} and another
-    citation\cite{newson2009hidden}.
+    citation\cite{newson2009hidden,el2005road}.
 
     \bibliography{citations}{}
     \bibliographystyle{abbrv}
