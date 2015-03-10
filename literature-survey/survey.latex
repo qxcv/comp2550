@@ -26,7 +26,7 @@
         digital map. In this survey, we explore the current state-of-the-art in
         online map matching algorithms, and evaluate the reported efficacy and
         applicability of these algorithms to the problem of map matching on
-        low-detail maps, with a view to applications in computer vision.
+        low-detail maps.
     }
 
 \begin{multicols}{2}
@@ -115,16 +115,90 @@
 
         % TODO: Document performance, mention that the algorithm is nonetheless
         % used in later approaches.
+        % In a limited evaluation of their various approaches to map matching over
+        % routes of 170--600m, \citet{white2000some} report that point-to-curve
+        % matching and curve-to-curve matching achieve middling results, as
+        % illustrated in Table~\ref{tab:comparison}. Nonetheless
 
     \section{Combining multiple heuristics}
         % This section: algorithms using a weighting of heuristics, or merging
         % heuristics together using DS theory or fuzzy logic (there are *many*
         % such localisation systems)
-        \citet{quddus2006high} propose a complex method of merging odometry, heading
-        information, connectivity, GPS data and GPS uncertainty measurements to
-        select road segments.
+        Heuristics like those mentioned in the previous section can be combined
+        using a number of schemes to produce improved map-matching algorithms.
+        These more advanced algorithms typically follow a three-step process:
+
+        \begin{enumerate}
+            \item Firstly, the algorithm estimates the vehicle's global position.
+            This estimate can come directly from a GPS sensor, but it is often
+            worthwhile to smooth out raw GPS data using an Extended Kalman
+            Filter (EKF), as described in XXX. This generally requires access to
+            vehicle odometry data.
+            \item Next, the algorithm attempts to find the specific road
+            segment which the vehicle is travelling on.
+            \item Finally, the algorithm produces a best guess as to where the
+            vehicle is within the road segment.
+        \end{enumerate}
+
+        % Things I'll mention here:
+        %  - One or two examples of manually weighted heuristic approaches.
+        %  Probably Ochieng et. al. and the paper Jose put on the project page.
+        %  Possibly use Velaga et. al.'s 2009 paper instead of Ochieng's since
+        %  that's more recent.
+        %  - One or two examples of DS theory
+        %  - One or two examples of fuzzy logic
+
+        Fuzzy logic is another commonly used method of incorporating multiple
+        heuristics for map matching. The basic building-block of fuzzy logic is
+        the fuzzy set. % XXX TODO
+
+        \citet{ren2012fuzzy} implement a fuzzy logic-based system for localising
+        an electric wheelchair on a network of footpaths. Their filtering
+        algorithm operates in one of two modes: when believed to be travelling
+        along a particular segment, their algorithm uses point-to-curve matching
+        to localise the wheelchair. When near a junction, or when the heading of
+        the vehicle differs greatly from that of the footpath segment which the
+        vehicle is believed to be on, the system iterates through all nearby
+        footpath links and applies a four rule fuzzy inference system to select
+        the most promising link. Despite using only GPS information and the data
+        in a simple digital map as their algorithm inputs, they manage to locate
+        the correct link 87--94\% of time time, although they do not provide
+        information on positional error.
+
+        % XXX: Need to define EKFs beforehand
+        % Also, should  talk about limitations of their technique
+        \citet{quddus2006high} propose a more effective, but significantly more
+        complex, fuzzy-logic based method which merges odometry, heading
+        information, connectivity, and GPS fixes smoothed using an EKF. Their
+        link detection mechanism operates in one of three modes: one for
+        determining the initial link when no map-matched positions are
+        available, one for determining subsequent links when travelling between
+        junctions, and one for determining subsequent links at junctions. Each
+        of these modes uses a separate set of fuzzy inference rules, which take
+        into account GPS precision as reported by the receiver, the vehicle's
+        speed, heading and position relative to the link, distance and direction
+        to the nearest junction, and the vehicle's change in heading over time.
+        The authors report a correct link identification rate of 99.2\% using
+        this algorithm, as noted in Table~\ref{tab:comparison}.
+
+        \citet{quddus2006high} also utilise a slightly more sophisticated method
+        for determining the location of a vehicle within a specific link. First,
+        they perform point-to-curve matching to produce one estimate of the
+        vehicle's position. Next, they use vehicle's previously estimated
+        position on the link, its speed and the heading of the link to provide
+        another position estimate. These two estimates are then merged to
+        produce a final estimate by weighting them according to their
+        approximate variance.
 
     \section{Probabilistic methods}
+        % Things I'll mention here:
+        %  - Thiebaux and Lamb (possibly; low priority because it's a primitive
+        %    method). If I don't include this, I will feel sad that there was
+        %    nobody pointing out that we can treat the road network as a HMM :(
+        %  - A couple of particle filter approaches. I feel that the EMap work
+        %    is particularly relevant here because it shows what can be done
+        %    with more accurate maps.
+        %  - The GMM approach from Lost!
 
     \section{Quantitative comparison of results}
 
