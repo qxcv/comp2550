@@ -10,6 +10,24 @@
 \usepackage{tabularx}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
+% Big collection of notes and TODOs, since I don't want to insert these all
+% throughout the text:
+%  - First paragraph of the introduction is needlessly long-winded, as is the
+%  abstract.
+%  - In the task sheet, we're explicitly told "Your report should not summarise
+%  each paper individually. Rather it should distil the main messages and
+%  commonalities into a form that would be useful to a researcher approaching
+%  the field for the first time. Think about what you would have liked to have
+%  read when you started on this research topic." I've actually just summarised
+%  some papers, and I should rewrite the offending sections so that they're not
+%  paper-specific.
+%  - Need to summarise performance measures and write up a comparison of
+%  MM performance in a table.
+%  - Should be more critical of different methods so that the reader understands
+%  what kind of challenges they're likely to face. Actual papers aren't very
+%  helpful here, so I'll really have infer a lot of these weaknesses and read
+%  between the lines in subsequent papers for others.
+
 \begin{document}
     \title{A Survey of Map Matching Algorithms\\
     {\Large COMP2550 Literature Survey}}
@@ -31,11 +49,6 @@
     }
 
     \section{Introduction}
-        % XXX: I don't like how long-winded this is. Get to the point!
-        % Also, since the entire point of this paragraph is to motivate the
-        % problem, I should include examples of where map-matching is used, and
-        % note that it is used in the specific computer vision application which
-        % I wish to study.
         Whilst contemporary satellite-based navigation systems like GPS can be
         used to estimate the coordinates of a vehicle just about anywhere on the
         surface of the earth, the inaccuracy inherent in these systems can still
@@ -116,27 +129,23 @@
         the lowest such area. The output of the algorithm is a projection of the
         vehicle's current GPS position onto the best curve.
 
-        % TODO: Document performance, mention that the algorithm is nonetheless
-        % used in later approaches.
-        % In a limited evaluation of their various approaches to map matching over
-        % routes of 170--600m, \citet{white2000some} report that point-to-curve
-        % matching and curve-to-curve matching achieve middling results, as
-        % illustrated in Table~\ref{tab:comparison}. Nonetheless
-
     \section{Combining multiple heuristics}
         % This section: algorithms using a weighting of heuristics, or merging
         % heuristics together using DS theory or fuzzy logic (there are *many*
         % such localisation systems)
-        Heuristics like those mentioned in the previous section can be combined
-        using a number of schemes to produce improved map-matching algorithms.
-        These more advanced algorithms typically follow a three-step process:
+        Simple heuristics like those mentioned in the previous section can be
+        combined using a number of schemes to produce improved map-matching
+        algorithms. These more advanced algorithms typically follow a three-step
+        process:
 
         \begin{enumerate}
-            \item Firstly, the algorithm estimates the vehicle's global position.
-            This estimate can come directly from a GPS sensor, but it is often
-            worthwhile to smooth out raw GPS data using an Extended Kalman
-            Filter (EKF), as described in XXX. This generally requires access to
-            vehicle odometry data.
+            \item Firstly, the algorithm estimates the vehicle's global
+            position. This estimate can come directly from a GPS sensor, but is
+            often combined with odometry data and passed through an Extended
+            Kalman Filter (EKF) in order to improve accuracy. This step is
+            independent of the choice of map matching algorithm, so we will
+            treat the precise positioning method used as a black box for the
+            remainder of this survey.
             \item Next, the algorithm attempts to find the specific road
             segment which the vehicle is travelling on.
             \item Finally, the algorithm produces a best guess as to where the
@@ -173,21 +182,22 @@
 
         Each of the above rules will use some predefined method to find the
         degree to which $d$ is ``short'' or ``long'' and the degree to which $s$
-        is ``medium'' or ``fast'', then combine these together and use them to
-        find the degree to which $r_i$ is ``likely'' or ``unlikely''. These
-        degrees of applicability for each term are then combined back into a
-        real number using some chosen method, and this number is taken to
-        represent how likely it is that the vehicle is on segment $r_i$.
+        is ``medium'' or ``fast'', then combine the weights for these labels
+        together and use them to find the degree to which $r_i$ is ``likely'' or
+        ``unlikely''. These degree to which each label is applicable is then
+        combined back into a real number using one of several method, and this
+        number is taken to represent how likely it is that the vehicle is on
+        segment $r_i$.
 
-        The precise way in which input variables are mapped onto terms like
-        ``fast'' and ``slow'', as well as the way in which these mappings are
-        combined to produce a result, varies from application to application.
-        However, the common quality of fuzzy logic MM systems is that they allow
-        the designer to incorporate their own domain knowledge into MM system in
-        a natural way using inference rules like those given above.
+        The precise way in which input variables are mapped onto labels like
+        ``fast'' and ``slow'', as well as the way in which these labels are
+        combined to produce a numerical result, varies from application to
+        application. However, the common quality of fuzzy logic MM systems is
+        that they allow the designer to incorporate their own domain knowledge
+        into MM system in a natural way using inference rules like those given
+        above.
 
         % XXX: Need to define EKFs beforehand
-        % Also, should  talk about limitations of their technique
         \citet{quddus2006high} propose a highly effective, fuzzy-logic based
         method which merges odometry, heading information, connectivity, and GPS
         fixes smoothed using an EKF. Their link detection mechanism operates in
@@ -211,13 +221,14 @@
         produce a final estimate by weighting them according to their
         approximated variance.
 
-        Despite having many of the flaws as the simple heuristic methods
-        explored at the beginning of this section---for instance, a high level
-        of dependence on the initial road segment chosen during map matching,
-        and a large number of parameters which are difficult to optimise
-        automatically---fuzzy logic map matching methods have shown good
-        performance in testing, and are quite efficient relative to the
-        probabilistic methods which we will turn our attention to next.
+        Fuzzy logic algorithms have many of the same flaws as the weighted
+        heuristic ones mentioned at the beginning of this section; like weighted
+        algorithms, fuzzy logic algorithms have a large number of parameters and
+        design decisions which can be difficult to optimise, and are often
+        determined through trial and error. Fuzzy logic algorithms also require
+        a high degree of domain knowledge and experimentation to write inference
+        rules, which are not required in simple weighted models. Nevertheless,
+        fuzzy logic has yielded excellent results in map matching.
 
     \section{Probabilistic methods}
         % I especially want to write about multi-hypothesis methods, where we're not
