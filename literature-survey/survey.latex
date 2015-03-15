@@ -12,21 +12,47 @@
 
 % Big collection of notes and TODOs, since I don't want to insert these all
 % throughout the text:
-%  - First paragraph of the introduction is needlessly long-winded, as is the
-%  abstract.
-%  - In the task sheet, we're explicitly told "Your report should not summarise
-%  each paper individually. Rather it should distil the main messages and
-%  commonalities into a form that would be useful to a researcher approaching
-%  the field for the first time. Think about what you would have liked to have
-%  read when you started on this research topic." I've actually just summarised
-%  some papers, and I should rewrite the offending sections so that they're not
-%  paper-specific.
-%  - Need to summarise performance measures and write up a comparison of
-%  MM performance in a table.
-%  - Should be more critical of different methods so that the reader understands
-%  what kind of challenges they're likely to face. Actual papers aren't very
-%  helpful here, so I'll really have infer a lot of these weaknesses and read
-%  between the lines in subsequent papers for others.
+% - First paragraph of the introduction is needlessly long-winded, as is the
+%   abstract. May need to delete these entirely, as Steve said that we don't
+%   need a foreword if it's explaining things that are already obvious to our
+%   audience (e.g. a review on GPU parallel processing for a general CS audience
+%   doesn't need an explanation of what parallel processing is, but might
+%   benefit from a brief explanation on how GPUs parallelise work).
+% - Apparently we can cite surveys and reviews to reduce the length of our
+%   bibliography. We just have to include the magic words "see <THING> and
+%   references therein".
+% - Bibliography isn't counted towards page limit, and page limit is just a
+%   guideline, but Steve DOES value conciseness and WILL penalise you if you
+%   write over the word limit without reason.
+% - It's good to mix and match existing research paths and speculate on what
+%   people can do in the future.
+% - In the task sheet, we're explicitly told "Your report should not summarise
+%   each paper individually. Rather it should distil the main messages and
+%   commonalities into a form that would be useful to a researcher approaching
+%   the field for the first time. Think about what you would have liked to have
+%   read when you started on this research topic." I've actually just summarised
+%   some papers, and I should rewrite the offending sections so that they're not
+%   paper-specific.
+% - Need to summarise performance measures and write up a comparison of MM
+%   performance in a table.
+% - Should be more critical of different methods so that the reader understands
+%   what kind of challenges they're likely to face. Actual papers aren't very
+%   helpful here, so I'll really have infer a lot of these weaknesses and read
+%   between the lines in subsequent papers for others. Here are a couple of
+%   things I haven't mentioned yet which are common problems:
+%    - There are no common data sets or performance measures for assessing map
+%    matching algorithms. This makes it really difficult to compare performance,
+%    and impossible to reproduce reported results.
+%    - Most algorithms either fail to solve the kidnapped robot problem or solve
+%    it with an unacceptable performance penalty (resorting to initial matching,
+%    which could take half a minute or more).
+% - Might help to re-categorise the algorithms I've been considering into just
+%   "heuristic" (uses some simple measures which correlate positively or
+%   negatively with appropriate segments, and combines these using simple
+%   weightings and/or basic algorithms) and "probabilistic" (approaches which
+%   start from a probability distribution over segments or positions and attempt
+%   to maximise either the posterior over positions or the likelihood over
+%   segments or something similar).
 
 \begin{document}
     \title{A Survey of Map Matching Algorithms\\
@@ -80,7 +106,7 @@
         of estimating the possible positions of a vehicle on several road
         segments at a time, or of localising the vehicle at the lane-level.
 
-    \section{Basic heuristic algorithms}
+    \section{Heuristic algorithms}
         % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
         % some other methods. Just really basic turn-of-the-century stuff.
         Initial solutions to the map matching problem used simple geometric
@@ -129,14 +155,9 @@
         the lowest such area. The output of the algorithm is a projection of the
         vehicle's current GPS position onto the best curve.
 
-    \section{Combining multiple heuristics}
-        % This section: algorithms using a weighting of heuristics, or merging
-        % heuristics together using DS theory or fuzzy logic (there are *many*
-        % such localisation systems)
-        Simple heuristics like those mentioned in the previous section can be
-        combined using a number of schemes to produce improved map-matching
-        algorithms. These more advanced algorithms typically follow a three-step
-        process:
+        Simple heuristics can be combined using a number of schemes to produce
+        improved map-matching algorithms. These more advanced algorithms
+        typically follow a three-step process:
 
         \begin{enumerate}
             \item Firstly, the algorithm estimates the vehicle's global
@@ -146,11 +167,36 @@
             independent of the choice of map matching algorithm, so we will
             treat the precise positioning method used as a black box for the
             remainder of this survey.
-            \item Next, the algorithm attempts to find the specific road
-            segment which the vehicle is travelling on.
-            \item Finally, the algorithm produces a best guess as to where the
-            vehicle is within the road segment.
+            \item \label{itm:seg} Next, the algorithm attempts to find the
+            specific road segment which the vehicle is travelling on.
+            \item \label{itm:intra} Finally, the algorithm produces a best guess
+            as to where the vehicle is within the road segment. This step is
+            often as simple as a point-to-curve projection for the road segment
+            from (\ref{itm:seg}).
         \end{enumerate}
+
+        Step \ref{itm:seg} is generally the most complex part of the matching
+        process, as an incorrectly identified road segment will lead to a poor
+        estimate of position. This step is often split into several different
+        ``modes'', depending on the state of the vehicle. For instance, if it is
+        not known which road segment the vehicle was travelling on in the
+        previous time segment, then the algorithm may take precautions---like
+        waiting until reported GPS error is below a threshold---in order to
+        ensure that the first matched segment is correct. If the first segment
+        is not correct, then it is likely that subsequently identified segments
+        will not be correct either, as map matching algorithms often choose not
+        to consider segments which are not neighbours of the previously matched
+        segment. A similar issue occurs at junctions, where the vehicle can turn
+        onto one of several different road segments, and the consequences for
+        incorrectly inferring which segment the vehicle has branched onto are
+        similar to those for incorrectly inferring the initial segment.
+
+        % TODO: Write down which papers take this approach, and then say
+        % "...since this is so simple, we won't consider it for the reminder of
+        % this section."
+        On the other hand, step \ref{itm:intra} is frequently quite simple, and
+        usually consists of a simple projection of the last GPS fix onto the
+        matched road segment.
 
         % Things I'll mention here:
         %  - One or two examples of manually weighted heuristic approaches.
@@ -197,7 +243,8 @@
         into MM system in a natural way using inference rules like those given
         above.
 
-        % XXX: Need to define EKFs beforehand
+        % Should probably comment on the fact that Quddus et al.'s work is
+        % probably not reproducible because of the complexity of the algorithm.
         \citet{quddus2006high} propose a highly effective, fuzzy-logic based
         method which merges odometry, heading information, connectivity, and GPS
         fixes smoothed using an EKF. Their link detection mechanism operates in
@@ -230,12 +277,47 @@
         rules, which are not required in simple weighted models. Nevertheless,
         fuzzy logic has yielded excellent results in map matching.
 
-    \section{Probabilistic methods}
+    \section{Probabilistic algorithms}
         % I especially want to write about multi-hypothesis methods, where we're not
         % entirely sure what segment we're on, so we maintain a probability
         % distribution over segments (or a segment-independent probability
         % distribution over vehicle states), as opposed to the traditional method
         % where we select a promising segment and localise on it.
+        Probabilistic algorithms approach map-matching as a problem of trying to
+        find a probability distribution over all possible positions of a vehicle
+        on the road network, given the available sensor data. This distribution
+        can be approximated using a number of techniques, and the resultant
+        approximation used to provide a reasonable estimate as to the location
+        of the vehicle on the map, as well as a measure of certainty for this
+        estimate.
+
+        The most common probabilistic technique for map matching is particle
+        filtering. A particle filter approximates a vehicle's position on the
+        road using a fixed number of ``particles'' at different locations, each
+        representing a different possible location for the vehicle. Each
+        particle has an associated weight, which intuitively indicates how well
+        that particle corresponds to the set of sensory inputs to the system.
+        Initially, the particles are scattered uniformly throughout some region,
+        and all weights are equal. At each time step, the particle filter does
+        the following, as described at length in \citet{pf2002}:
+
+        \begin{enumerate}
+            \item Each particle's weight is updated using the likelihood of the
+            most recently acquired sensor data, under the hypothesis that the
+            true location of the vehicle is that of the given particle.
+            \item A new set of $N$ particles is then sampled, with replacement,
+            from the old set of $N$ particles according to the particles'
+            weights. The weights of the particles are then set to be uniform.
+            \item Finally, the state of each particle is advanced according to a
+            model of the vehicle's motion. Some noise may be added during this
+            process to ensure that subsequent re-sampling steps do not eliminate
+            all but the most probable particle state.
+        \end{enumerate}
+
+        There are several advantages to this approach. Firstly, the particle
+        filter only needs to know how the system has changed from one state to
+        the next, and so can be implemented using pure odometry, which is
+        advantageous in environments where GPS is not reliable.
 
         % Things I'll mention here:
         %  - A couple of particle filter approaches. I feel that the EMap work
@@ -246,7 +328,8 @@
 
         \todo[inline]{GMM approach from Lost!}
 
-    \section{Quantitative evaluation of results}
+    \section{Evaluation of existing results}
+        \label{tab:comparison}
         \begin{table*}[t]
             \begin{tabularx}{\textwidth}{|X|X|X|}
                 \hline
