@@ -329,17 +329,41 @@
         \todo[inline]{GMM approach from Lost!}
 
     \section{Evaluation of existing results}
-        \label{tab:comparison}
+        Unfortunately, the only established and consistently available metric
+        for evaluating map matching algorithms is the proportion of road
+        segments which are correctly identified. Other metrics like along-track
+        error and cross-track error are seldom available, and even when they
+        are, the data and code used to produce them is not readily available,
+        making it difficult to compare algorithms presented in different papers.
+
         \begin{table*}[t]
-            \begin{tabularx}{\textwidth}{|X|X|X|}
+            \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|X|}
                 \hline
-                Foo & Bar & Baz\\
+                Paper & Sensors & Family & Identification \% & ATE & XTE &
+                HE\\
                 \hline
-                Something & else & here\\
-                Something & other & here\\
+                \citet{quddus2006high} & GPS, gyro, XXX & Fuzzy logic & XX.XX\%
+                & XXm & XXm & XXm\\
                 \hline
             \end{tabularx}
+
+            \caption{
+                Performance data for map matching algorithms mentioned in
+                    this survey. In some cases, multiple measures of performance data are
+                    available, in which case each measure is followed by a reference to
+                    the paper in which that measure appeared. Columns list, in
+                    order: paper in which the algorithm appeared, sensors
+                    required by the algorithm, algorithm family, correct segment
+                    identification percentage, along-track error (ATE), cross-track
+                    error (XTE) and horizontal error (HE).
+            }
+
+            \label{tab:comparison}
         \end{table*}
+
+        Nevertheless, the available performance data for the papers mentioned in
+        this survey, mostly self-reported is summarised in
+        Table~\ref{tab:comparison}.
 
     \section{Conclusion}
         \todo[inline]{Summarise results}
