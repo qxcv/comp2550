@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[11pt,twocolumn]{article}
 % Note: Steve doesn't use super or sort&compress (although AFAICT he does
 % compress). Uses a mixture of citet and cite in-text. Having said that, he
 % doesn't express a strong preference; some papers use all citep with no numeric
@@ -6,7 +6,8 @@
 \usepackage[super,square,comma,sort&compress]{natbib}
 % Uncomment the following to get inline links to references.
 \usepackage{hyperref}
-\usepackage{multicol}
+\usepackage{todonotes}
+\usepackage{tabularx}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
 \begin{document}
@@ -29,7 +30,6 @@
         low-detail maps.
     }
 
-\begin{multicols}{2}
     \section{Introduction}
         % XXX: I don't like how long-winded this is. Get to the point!
         % Also, since the entire point of this paragraph is to motivate the
@@ -52,6 +52,10 @@
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
+        \missingfigure{Illustration of how a road network is represented in a
+        digital map, and what a map matched route looks like when projected onto
+        that network.}
+
         For the purposes of this survey, we will divide map matching algorithms
         up into three categories: firstly, we will consider basic heuristic
         algorithms which employ simple geometric and topological features of the
@@ -67,7 +71,6 @@
         % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
         % some other methods. Just really basic turn-of-the-century stuff.
         Initial solutions to the map matching problem used simple geometric
-        methods which only considered the position of the vehicle relative to
         the road segments making up a digital map. Later algorithms also took
         into account the topology of the road graph and the location history of
         the vehicle to try and match the ``shape'' of the vehicle's path to the
@@ -96,8 +99,8 @@
         heading and the segment's orientation. The second defines ``nearby''
         roads by their driving distance along the map from the current estimated
         vehicle position, rather than by their straight-line distance from the
-        most recent GPS reading.
-        % TODO: Be more critical of above.
+        most recent GPS reading.\todo[inline]{Offer criticism of this approach,
+        or possible delete it since it will not be useful later.}
 
         The final algorithm \citet{white2000some} consider,
         \textit{curve-to-curve matching}, attempts to incorporate both
@@ -147,39 +150,57 @@
         %  that's more recent.
         %  - One or two examples of DS theory
         %  - One or two examples of fuzzy logic
+        \todo[inline]{Weighting algorithms. Ochieng et. al. is a good choice, as
+        is \citet{velaga2009developing}}
 
         Fuzzy logic is another commonly used method of incorporating multiple
-        heuristics for map matching. The basic building-block of fuzzy logic is
-        the fuzzy set. % XXX TODO
+        heuristics for map matching. Fuzzy logic systems consider a variety of
+        numerical inputs---for instance, distance to a road segment $d$ or speed
+        of a vehicle $s$---and \textit{fuzzify} these according to
+        \textit{membership functions} which map a numerical input like velocity
+        to a degree of applicability of some particular classification, like
+        ``fast'' or ``slow''. It can then apply a number of simple inference
+        rules like the following, which attempt to determine how likely it is
+        that a vehicle is on a given road segment $r_i$:
 
-        \citet{ren2012fuzzy} implement a fuzzy logic-based system for localising
-        an electric wheelchair on a network of footpaths. Their filtering
-        algorithm operates in one of two modes: when believed to be travelling
-        along a particular segment, their algorithm uses point-to-curve matching
-        to localise the wheelchair. When near a junction, or when the heading of
-        the vehicle differs greatly from that of the footpath segment which the
-        vehicle is believed to be on, the system iterates through all nearby
-        footpath links and applies a four rule fuzzy inference system to select
-        the most promising link. Despite using only GPS information and the data
-        in a simple digital map as their algorithm inputs, they manage to locate
-        the correct link 87--94\% of time time, although they do not provide
-        information on positional error.
+        \begin{center}
+            \setlength{\tabcolsep}{2pt}
+            \begin{tabular}{llllll}
+                If & $d$ is short & and & $s$ is fast & then & $r_i$ is unlikely\\
+                If & $d$ is long & and & $s$ is medium & then & $r_i$ is likely
+            \end{tabular}
+        \end{center}
+
+        Each of the above rules will use some predefined method to find the
+        degree to which $d$ is ``short'' or ``long'' and the degree to which $s$
+        is ``medium'' or ``fast'', then combine these together and use them to
+        find the degree to which $r_i$ is ``likely'' or ``unlikely''. These
+        degrees of applicability for each term are then combined back into a
+        real number using some chosen method, and this number is taken to
+        represent how likely it is that the vehicle is on segment $r_i$.
+
+        The precise way in which input variables are mapped onto terms like
+        ``fast'' and ``slow'', as well as the way in which these mappings are
+        combined to produce a result, varies from application to application.
+        However, the common quality of fuzzy logic MM systems is that they allow
+        the designer to incorporate their own domain knowledge into MM system in
+        a natural way using inference rules like those given above.
 
         % XXX: Need to define EKFs beforehand
         % Also, should  talk about limitations of their technique
-        \citet{quddus2006high} propose a more effective, but significantly more
-        complex, fuzzy-logic based method which merges odometry, heading
-        information, connectivity, and GPS fixes smoothed using an EKF. Their
-        link detection mechanism operates in one of three modes: one for
-        determining the initial link when no map-matched positions are
-        available, one for determining subsequent links when travelling between
-        junctions, and one for determining subsequent links at junctions. Each
-        of these modes uses a separate set of fuzzy inference rules, which take
-        into account GPS precision as reported by the receiver, the vehicle's
-        speed, heading and position relative to the link, distance and direction
-        to the nearest junction, and the vehicle's change in heading over time.
-        The authors report a correct link identification rate of 99.2\% using
-        this algorithm, as noted in Table~\ref{tab:comparison}.
+        \citet{quddus2006high} propose a highly effective, fuzzy-logic based
+        method which merges odometry, heading information, connectivity, and GPS
+        fixes smoothed using an EKF. Their link detection mechanism operates in
+        one of three modes: one for determining the initial link when no
+        map-matched positions are available, one for determining subsequent
+        links when travelling between junctions, and one for determining
+        subsequent links at junctions. Each of these modes uses a separate set
+        of fuzzy inference rules, which take into account GPS precision as
+        reported by the receiver, the vehicle's speed, heading and position
+        relative to the link, distance and direction to the nearest junction,
+        and the vehicle's change in heading over time. The authors report a
+        correct link identification rate of 99.2\% using this algorithm, as
+        noted in Table~\ref{tab:comparison}.
 
         \citet{quddus2006high} also utilise a slightly more sophisticated method
         for determining the location of a vehicle within a specific link. First,
@@ -188,32 +209,47 @@
         position on the link, its speed and the heading of the link to provide
         another position estimate. These two estimates are then merged to
         produce a final estimate by weighting them according to their
-        approximate variance.
+        approximated variance.
+
+        Despite having many of the flaws as the simple heuristic methods
+        explored at the beginning of this section---for instance, a high level
+        of dependence on the initial road segment chosen during map matching,
+        and a large number of parameters which are difficult to optimise
+        automatically---fuzzy logic map matching methods have shown good
+        performance in testing, and are quite efficient relative to the
+        probabilistic methods which we will turn our attention to next.
 
     \section{Probabilistic methods}
+        % I especially want to write about multi-hypothesis methods, where we're not
+        % entirely sure what segment we're on, so we maintain a probability
+        % distribution over segments (or a segment-independent probability
+        % distribution over vehicle states), as opposed to the traditional method
+        % where we select a promising segment and localise on it.
+
         % Things I'll mention here:
-        %  - Thiebaux and Lamb (possibly; low priority because it's a primitive
-        %    method). If I don't include this, I will feel sad that there was
-        %    nobody pointing out that we can treat the road network as a HMM :(
         %  - A couple of particle filter approaches. I feel that the EMap work
         %    is particularly relevant here because it shows what can be done
-        %    with more accurate maps.
+        %    with more accurate maps. First approach I'll cover will be PF
         %  - The GMM approach from Lost!
+        \todo[inline]{Particle filtering}
 
-    \section{Quantitative comparison of results}
+        \todo[inline]{GMM approach from Lost!}
+
+    \section{Quantitative evaluation of results}
+        \begin{table*}[t]
+            \begin{tabularx}{\textwidth}{|X|X|X|}
+                \hline
+                Foo & Bar & Baz\\
+                \hline
+                Something & else & here\\
+                Something & other & here\\
+                \hline
+            \end{tabularx}
+        \end{table*}
 
     \section{Conclusion}
-
-    % I especially want to write about multi-hypothesis methods, where we're not
-    % entirely sure what segment we're on, so we maintain a probability
-    % distribution over segments (or a segment-independent probability
-    % distribution over vehicle states), as opposed to the traditional method
-    % where we select a promising segment and localise on it.
-
-    \citet{white2000some}
-    % XXX: Just there so that references show up. Delete later.
+        \todo[inline]{Summarise results}
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
-\end{multicols}
 \end{document}
