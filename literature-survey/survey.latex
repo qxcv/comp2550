@@ -102,11 +102,8 @@
         algorithms which employ simple geometric and topological features of the
         road network. Next, we will look at more sophisticated algorithms which
         take advantage of several such heuristics, either by using a simple
-        weighting or through more complex methods like Dempster-Shafer theory
-        and fuzzy logic. Finally, we will consider more advanced probabilistic
-        algorithms, and give particular consideration to those which are capable
-        of estimating the possible positions of a vehicle on several road
-        segments at a time, or of localising the vehicle at the lane-level.
+        weighting or through more complex methods like fuzzy logic. Finally, we
+        will consider probabilistic map matching algorithms.
 
     \section{Heuristic algorithms}
         % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
@@ -123,43 +120,34 @@
         \citet{white2000some} offer an excellent summary of several such basic
         algorithms, and we will briefly summarise two of them here.
 
-        The first algorithm \citet{white2000some} consider, dubbed
-        \textit{point-to-curve matching}, simply finds the nearest road segment
-        in a digital map and calculates the orthogonal projection of the most
-        recent GPS measurement onto that segment. As the authors point out, this
-        algorithm not only fails to make use of historical data, vehicle
+        The first algorithm from \citet{white2000some} which we will consider,
+        dubbed \textit{point-to-curve matching}, simply finds the nearest road
+        segment in a digital map and calculates the orthogonal projection of the
+        most recent GPS measurement onto that segment. As the authors point out,
+        this algorithm not only fails to make use of historical data, vehicle
         heading, vehicle velocity, topological information and so on, but also
         results in a highly unstable output at intersections, where the reported
         GPS reading may be approximately equidistant to two or more road
         segments.
 
-        As a result of the deficiencies in this algorithm, the authors propose
-        two augmentations of it. The first considers the difference between the
-        vehicle's heading and the alignment of the given street segments, and
-        discards segments with too great a difference between the vehicle's
-        heading and the segment's orientation. The second defines ``nearby''
-        roads by their driving distance along the map from the current estimated
-        vehicle position, rather than by their straight-line distance from the
-        most recent GPS reading.\todo[inline]{Offer criticism of this approach,
-        or possible delete it since it will not be useful later.}
+        The second algorithm which we will consider, \textit{curve-to-curve
+        matching}, attempts to incorporate both historical position data and map
+        topology. It begins by constructing a piecewise linear curve from the
+        $n$ most recent GPS measurements for the vehicle. It then locates nodes
+        in the road graph within a certain distance of the most recent GPS
+        measurement. For each of these nodes, it constructs additional piecewise
+        linear curves of the same length as that produced from the vehicle's
+        positioning history, each of which follow the road network outwards from
+        the node in question. Finally, it considers the area between each of the
+        curves on the map and the curve representing the vehicle's path, and
+        selects the curve with the lowest such area. The output of the algorithm
+        is a projection of the vehicle's current GPS position onto the best
+        curve.
 
-        The final algorithm \citet{white2000some} consider,
-        \textit{curve-to-curve matching}, attempts to incorporate both
-        historical position data and map topology. It begins by constructing a
-        piecewise linear curve from the $n$ most recent GPS measurements for the
-        vehicle. It then locates nodes in the road graph within a certain
-        distance of the most recent GPS measurement. For each of these nodes, it
-        constructs additional piecewise linear curves of the same length as that
-        produced from the vehicle's positioning history, each of which follow
-        the road network outwards from the node in question. Finally, it
-        considers the area between each of the curves on the map and
-        the curve representing the vehicle's path, and selects the curve with
-        the lowest such area. The output of the algorithm is a projection of the
-        vehicle's current GPS position onto the best curve.
-
-        Simple heuristics can be combined using a number of schemes to produce
-        improved map-matching algorithms. These more advanced algorithms
-        typically follow a three-step process:
+        Simple matching methods like point-to-curve and curve-to-curve can be
+        combined using a number of schemes to produce improved map matching
+        algorithms. These more advanced algorithms typically follow a three-step
+        process:
 
         \begin{enumerate}
             \item Firstly, the algorithm estimates the vehicle's global
@@ -280,7 +268,7 @@
         fuzzy logic has yielded excellent results in map matching.
 
     \section{Probabilistic algorithms}
-        Probabilistic algorithms approach map-matching as a problem of trying to
+        Probabilistic algorithms approach map matching as a problem of trying to
         find a probability distribution over all possible positions of a vehicle
         on the road network, given the available sensor data. This distribution
         can be approximated using a number of techniques, and the resultant
@@ -352,13 +340,6 @@
         distinguishable using odometry alone.
 
     \section{Evaluation of existing results}
-        Unfortunately, the only established and consistently available metric
-        for evaluating map matching algorithms is the proportion of road
-        segments which are correctly identified. Other metrics like along-track
-        error and cross-track error are seldom available, and even when they
-        are, the data and code used to produce them is not readily available,
-        making it difficult to compare algorithms presented in different papers.
-
         \begin{table*}[t]
             \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|X|}
                 \hline
@@ -383,6 +364,13 @@
 
             \label{tab:comparison}
         \end{table*}
+
+        At present, the only established and consistently available metric for
+        evaluating map matching algorithms is the proportion of road segments
+        which are correctly identified. Other metrics like along-track error and
+        cross-track error are seldom available, and even when they are, the data
+        and code used to produce them is not readily available, making it
+        difficult to compare algorithms presented in different papers.
 
         Nevertheless, the available performance data for the papers mentioned in
         this survey, mostly self-reported is summarised in
