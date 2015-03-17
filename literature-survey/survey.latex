@@ -53,6 +53,8 @@
 %   start from a probability distribution over segments or positions and attempt
 %   to maximise either the posterior over positions or the likelihood over
 %   segments or something similar).
+% - Need to use MM as an acronym for map matching. Will save half a page, at the
+%   least :P
 
 \begin{document}
     \title{A Survey of Map Matching Algorithms\\
@@ -278,11 +280,6 @@
         fuzzy logic has yielded excellent results in map matching.
 
     \section{Probabilistic algorithms}
-        % I especially want to write about multi-hypothesis methods, where we're not
-        % entirely sure what segment we're on, so we maintain a probability
-        % distribution over segments (or a segment-independent probability
-        % distribution over vehicle states), as opposed to the traditional method
-        % where we select a promising segment and localise on it.
         Probabilistic algorithms approach map-matching as a problem of trying to
         find a probability distribution over all possible positions of a vehicle
         on the road network, given the available sensor data. This distribution
@@ -314,19 +311,45 @@
             all but the most probable particle state.
         \end{enumerate}
 
-        There are several advantages to this approach. Firstly, the particle
-        filter only needs to know how the system has changed from one state to
-        the next, and so can be implemented using pure odometry, which is
-        advantageous in environments where GPS is not reliable.
+        Particle filters are employed in a similar manner by
+        \citet{toledo2009fusing} and \citet{selloum2009lane}. The algorithms
+        presented in each of these papers incorporate map data by forcing a
+        particle's weight to zero whenever its distance to the nearest road
+        centerline exceeds a half a standard lane width, ensuring that they will
+        be eliminated at the next resampling step. The algorithms also
+        incorporate data from onboard gyroscopes and odometers in order to
+        advance update the state of each particle, and can use GPS data when it
+        is available, which is a boon in environments where GPS signals are
+        patchy.
 
-        % Things I'll mention here:
-        %  - A couple of particle filter approaches. I feel that the EMap work
-        %    is particularly relevant here because it shows what can be done
-        %    with more accurate maps. First approach I'll cover will be PF
-        %  - The GMM approach from Lost!
-        \todo[inline]{Particle filtering}
+        One common disadvantage to these approaches is that they rely on the
+        availability of ``enhanced maps'' (or ``Emaps''), which use clothoids
+        (also known as Euler or Cornu spirals) to represent road segments, and
+        are thus able to more accurately express the path of curved roads. The
+        algorithms also rely on information about lane widths, although this can
+        be estimated from national road standards if necessary. Another drawback
+        is that particle filters can cease to function properly when a large
+        number of particles have their weights clamped to zero during an update
+        step, as happens when a particle leaves the road, and neither paper
+        addresses this weakness in detail.
 
-        \todo[inline]{GMM approach from Lost!}
+        Another more recent approach to probabilistic map matching, which still
+        requires knowledge of lane location and direction, but dispenses with
+        the requirement for lane width, is given by \citet{brubaker2013lost}.
+        Rather than approximating the vehicle's location distribution using
+        particles, \citet{brubaker2013lost} use a mixture of weighted Gaussian
+        distributions assigned to each road segment. At each time step, these
+        Gaussians are updated using both simulated vehicle dynamics and visual
+        odometry. The vehicle's location can then be inferred from the mode of
+        the position distribution.
+
+        Despite not using GPS data, in one test this algorithm was reported to
+        be able to go from a uniform distribution over 2000km of roads to a
+        positioning estimate within 3m of ground truth after only 20s of
+        observations. The chief weakness of this approach is that it sometimes
+        fails to localise the vehicle when there exist multiple possible routes
+        on a map with approximately the same shape, as such routes are not
+        distinguishable using odometry alone.
 
     \section{Evaluation of existing results}
         Unfortunately, the only established and consistently available metric
