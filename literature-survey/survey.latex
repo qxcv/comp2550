@@ -198,6 +198,16 @@
         %  that's more recent.
         %  - One or two examples of DS theory
         %  - One or two examples of fuzzy logic
+
+        % Current papers:
+        %  - Maybe Ochieng et al. if I can, since they got encouraging results.
+        %  Ugh, not sure though. Greenfeld would be perfect here.
+        %  - Velaga et al. (2009) is a good choice for illustrating the
+        %  potential (and difficulty!) of learning parameters in weighted
+        %  algorithms.
+        % - Not sure whether I should include more recent work from Quddus and
+        %   co. It's really just re-hashing old ideas /over and over and over/
+        %   at this point.
         \todo[inline]{Weighting algorithms. Ochieng et. al. is a good choice, as
         is \citet{velaga2009developing}}
 
