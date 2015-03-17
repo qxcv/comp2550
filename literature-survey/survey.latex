@@ -144,6 +144,10 @@
         is a projection of the vehicle's current GPS position onto the best
         curve.
 
+        % XXX: Either here or later I should contrast these methods with methods
+        % which use heading data and other information, since inclusion of
+        % heading data is such a massive boon.
+
         Simple matching methods like point-to-curve and curve-to-curve can be
         combined using a number of schemes to produce improved map matching
         algorithms. These more advanced algorithms typically follow a three-step
@@ -184,9 +188,10 @@
         % TODO: Write down which papers take this approach, and then say
         % "...since this is so simple, we won't consider it for the reminder of
         % this section."
-        On the other hand, step \ref{itm:intra} is frequently quite simple, and
-        usually consists of a simple projection of the last GPS fix onto the
-        matched road segment.
+        On the other hand, step \ref{itm:intra} is generally simple, and usually
+        consists of a simple projection of the last GPS fix onto the matched
+        road segment. As such, we will not consider it for the remainder of this
+        section so that we can focus on the more complex link selection process.
 
         % Things I'll mention here:
         %  - One or two examples of manually weighted heuristic approaches.
@@ -248,15 +253,6 @@
         and the vehicle's change in heading over time. The authors report a
         correct link identification rate of 99.2\% using this algorithm, as
         noted in Table~\ref{tab:comparison}.
-
-        \citet{quddus2006high} also utilise a slightly more sophisticated method
-        for determining the location of a vehicle within a specific link. First,
-        they perform point-to-curve matching to produce one estimate of the
-        vehicle's position. Next, they use vehicle's previously estimated
-        position on the link, its speed and the heading of the link to provide
-        another position estimate. These two estimates are then merged to
-        produce a final estimate by weighting them according to their
-        approximated variance.
 
         Fuzzy logic algorithms have many of the same flaws as the weighted
         heuristic ones mentioned at the beginning of this section; like weighted
