@@ -80,16 +80,14 @@
         Whilst contemporary satellite-based navigation systems like GPS can be
         used to estimate the coordinates of a vehicle just about anywhere on the
         surface of the earth, the inaccuracy inherent in these systems can still
-        be significant for some applications, especially in built-up areas:
-        \citet{modsching2006field} report mean errors of up to 15m in some urban
-        environments, for instance. For objects which are assumed to be on
-        roadways, these errors can be dramatically reduced by considering the
-        information present in freely available digital street maps like those
-        produced by the OpenStreetMap\footnotemark project. The task of an
-        online map matching algorithm is to take noisy or biased observations
-        from a localisation or odometry system and attempt to find the most
-        accurate projection of the object being tracked onto a given digital
-        map.
+        be significant for some applications, especially in built-up areas. For
+        objects which are assumed to be on roadways, these errors can be reduced
+        by considering the information present in freely available digital
+        street maps like those produced by the OpenStreetMap\footnotemark
+        project. The task of an online map matching algorithm is to take noisy
+        or biased observations from a localisation or odometry system and
+        attempt to find the most accurate projection of the object being tracked
+        onto a given digital map.
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
