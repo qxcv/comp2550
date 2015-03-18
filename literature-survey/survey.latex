@@ -3,7 +3,7 @@
 % compress). Uses a mixture of citet and cite in-text. Having said that, he
 % doesn't express a strong preference; some papers use all citep with no numeric
 % citations!
-\usepackage[super,square,comma,sort&compress]{natbib}
+\usepackage[round]{natbib}
 % Uncomment the following to get inline links to references.
 \usepackage{hyperref}
 \usepackage{todonotes}
@@ -55,6 +55,9 @@
 %   segments or something similar).
 % - Need to use MM as an acronym for map matching. Will save half a page, at the
 %   least :P
+% - Using "Lane-Level Integrity Provision for Navigation and Map Matching With GNSS, Dead
+%   Reckoning, and Enhanced Maps" instead of the other Toledo-Moreo et al. paper
+%   might be more charitable.
 
 \begin{document}
     \title{A Survey of Map Matching Algorithms\\
@@ -183,33 +186,36 @@
         incorrectly inferring which segment the vehicle has branched onto are
         similar to those for incorrectly inferring the initial segment.
 
-        % TODO: Write down which papers take this approach, and then say
-        % "...since this is so simple, we won't consider it for the reminder of
-        % this section."
+        % XXX: Actually, might want to consider algorithms which use, say, a
+        % per-segment Kalman filter or some other more advanced mechanism (e.g.
+        % Fouque, Bonnifait & Betaille '08). Only cover if I have space (looking
+        % unlikely at this point).
         On the other hand, step \ref{itm:intra} is generally simple, and usually
         consists of a simple projection of the last GPS fix onto the matched
         road segment. As such, we will not consider it for the remainder of this
         section so that we can focus on the more complex link selection process.
 
-        % Things I'll mention here:
-        %  - One or two examples of manually weighted heuristic approaches.
-        %  Probably Ochieng et. al. and the paper Jose put on the project page.
-        %  Possibly use Velaga et. al.'s 2009 paper instead of Ochieng's since
-        %  that's more recent.
-        %  - One or two examples of DS theory
-        %  - One or two examples of fuzzy logic
+        \citet{ochieng2003map} propose an algorithm which is typical of more
+        advanced map matching procedures. Upon initialisation, it selects an
+        initial link based primarily on link distance from the vehicle's
+        Kalman-filtered position estimate. It then enters into a subsequent
+        matching phase, during which it either projects GPS coordinates onto a
+        previously selected link. If the vehicle begins to turn or nears a
+        junction, the algorithm re-enters its initial link selection phase to
+        detect which road segment the vehicle has entered.
 
-        % Current papers:
-        %  - Maybe Ochieng et al. if I can, since they got encouraging results.
-        %  Ugh, not sure though. Greenfeld would be perfect here.
-        %  - Velaga et al. (2009) is a good choice for illustrating the
-        %  potential (and difficulty!) of learning parameters in weighted
-        %  algorithms.
-        % - Not sure whether I should include more recent work from Quddus and
-        %   co. It's really just re-hashing old ideas /over and over and over/
-        %   at this point.
-        \todo[inline]{Weighting algorithms. Ochieng et. al. is a good choice, as
-        is \citet{velaga2009developing}}
+        One of the drawbacks to this approach is that it involves a lot of
+        ``magic numbers''; for instance, heading difference thresholds are
+        required to determine when the vehicle is turning, and distance
+        thresholds are required to determine when the vehicle is near a
+        junction. \citeauthor{ochieng2003map} tweak these constants manually,
+        but this method is labor-intensive, and may need to be repeated for
+        different environments, like rural or suburban environments, in which
+        different thresholds may be advantageous.
+
+        \citet{velaga2009developing} address this issue by proposing a weighted
+        map matching algorithm with an accompanying optimisation procedure for
+        finding weights. % TODO
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
@@ -329,11 +335,11 @@
         requires knowledge of lane location and direction, but dispenses with
         the requirement for lane width, is given by \citet{brubaker2013lost}.
         Rather than approximating the vehicle's location distribution using
-        particles, \citet{brubaker2013lost} use a mixture of weighted Gaussian
-        distributions assigned to each road segment. At each time step, these
-        Gaussians are updated using both simulated vehicle dynamics and visual
-        odometry. The vehicle's location can then be inferred from the mode of
-        the position distribution.
+        particles, \citeauthor{brubaker2013lost} use a mixture of weighted
+        Gaussian distributions assigned to each road segment. At each time step,
+        these Gaussians are updated using both simulated vehicle dynamics and
+        visual odometry. The vehicle's location can then be inferred from the
+        mode of the position distribution.
 
         Despite not using GPS data, in one test this algorithm was reported to
         be able to go from a uniform distribution over 2000km of roads to a
@@ -345,7 +351,7 @@
 
     \section{Evaluation of existing results}
         \begin{table*}[t]
-            \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|X|}
+            \begin{tabularx}{\textwidth}{|X|X|X|l|l|l|l|}
                 \hline
                 Paper & Sensors & Family & Identification \% & ATE & XTE &
                 HE\\
@@ -384,5 +390,5 @@
         \todo[inline]{Summarise results}
 
     \bibliography{citations}{}
-    \bibliographystyle{abbrvnat}
+    \bibliographystyle{plainnat}
 \end{document}
