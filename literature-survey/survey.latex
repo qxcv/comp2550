@@ -1,13 +1,23 @@
 \documentclass[11pt,twocolumn]{article}
-% Note: Steve doesn't use super or sort&compress (although AFAICT he does
-% compress). Uses a mixture of citet and cite in-text. Having said that, he
-% doesn't express a strong preference; some papers use all citep with no numeric
-% citations!
+
 \usepackage[round]{natbib}
-% Uncomment the following to get inline links to references.
+
 \usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+    % See
+    % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
 \usepackage{todonotes}
+
 \usepackage{tabularx}
+\usepackage{multirow}
+
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
 % Big collection of notes and TODOs, since I don't want to insert these all
@@ -121,7 +131,7 @@
         \citet{white2000some} offer an excellent summary of several such basic
         algorithms, and we will briefly summarise two of them here.
 
-        The first algorithm from \citet{white2000some} which we will consider,
+        The first algorithm from \citeauthor{white2000some} which we will consider,
         dubbed \textit{point-to-curve matching}, simply finds the nearest road
         segment in a digital map and calculates the orthogonal projection of the
         most recent GPS measurement onto that segment. As the authors point out,
@@ -215,17 +225,17 @@
 
         \citet{velaga2009developing} address this issue by proposing a weighted
         map matching algorithm with an accompanying optimisation procedure for
-        finding weights. % TODO
+        finding weights.
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
         numerical inputs---for instance, distance to a road segment $d$ or speed
-        of a vehicle $s$---and \textit{fuzzify} these according to
-        \textit{membership functions} which map a numerical input like velocity
-        to a degree of applicability of some particular classification, like
-        ``fast'' or ``slow''. It can then apply a number of simple inference
-        rules like the following, which attempt to determine how likely it is
-        that a vehicle is on a given road segment $r_i$:
+        of a vehicle $s$---and ``fuzzify'' these according to membership
+        functions which map a numerical input like velocity to a degree of
+        applicability of some particular classification, like ``fast'' or
+        ``slow''. It can then apply a number of simple inference rules like the
+        following, which attempt to determine how likely it is that a vehicle is
+        on a given road segment $r_i$:
 
         \begin{center}
             \setlength{\tabcolsep}{2pt}
@@ -294,7 +304,7 @@
         that particle corresponds to the set of sensory inputs to the system.
         Initially, the particles are scattered uniformly throughout some region,
         and all weights are equal. At each time step, the particle filter does
-        the following, as described at length in \citet{pf2002}:
+        the following, as described at length by \citet{pf2002}:
 
         \begin{enumerate}
             \item Each particle's weight is updated using the likelihood of the
@@ -351,14 +361,33 @@
 
     \section{Evaluation of existing results}
         \begin{table*}[t]
-            \begin{tabularx}{\textwidth}{|X|X|X|l|l|l|l|}
+            % TODO: Finish this table
+            \begin{tabularx}{\textwidth}{X|X|X|l|l|l|l}
+                Paper & Extra information & Algorithm type & Identification \% &
+                ATE & XTE & HE\\
                 \hline
-                Paper & Sensors & Family & Identification \% & ATE & XTE &
-                HE\\
-                \hline
-                \citet{quddus2006high} & GPS, gyro, XXX & Fuzzy logic & XX.XX\%
-                & XXm & XXm & XXm\\
-                \hline
+
+                \multirow{2}{2.5cm}{\citet{white2000some}} &
+                \multirow{2}{2.5cm}{S} & Point-to-curve & I & A & X & H\\
+
+                & & Curve-to-curve & I & A & X & H\\
+
+                \citet{pf2002} & S & Particle filter & I & A & X & H\\
+
+                \citet{ochieng2003map} & S & Heuristic & I & A & X & H\\
+
+                \citet{quddus2006high} & S & Fuzzy logic & I & A & X & H\\
+
+                \citet{toledo2009fusing} & Lane data & Particle filter & I & A &
+                X & H\\
+
+                \citet{selloum2009lane} & Lane data & Particle filter & I & A &
+                X & H\\
+
+                \citet{velaga2009developing} & S & Heuristic & I & A & X & H\\
+
+                \citet{brubaker2013lost} & Visual odometry, lane data & Gaussian
+                mixture & I & A & X & H\\
             \end{tabularx}
 
             \caption{
@@ -390,5 +419,5 @@
         \todo[inline]{Summarise results}
 
     \bibliography{citations}{}
-    \bibliographystyle{plainnat}
+    \bibliographystyle{abbrvnat}
 \end{document}
