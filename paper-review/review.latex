@@ -1,0 +1,14 @@
+\documentclass[11pt,twocolumn]{article}
+\usepackage{todonotes}
+\usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
+
+\begin{document}
+    \title{Paper review\\ % XXX title
+    {\Large COMP2550 Paper Review}}
+    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
+    \date{\today}
+
+    \maketitle
+
+    TODO
+\end{document}

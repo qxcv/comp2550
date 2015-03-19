@@ -104,10 +104,6 @@
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
-        \missingfigure{Illustration of how a road network is represented in a
-        digital map, and what a map matched route looks like when projected onto
-        that network.}
-
         For the purposes of this survey, we will divide map matching algorithms
         up into three categories: firstly, we will consider basic heuristic
         algorithms which employ simple geometric and topological features of the
@@ -223,9 +219,27 @@
         different environments, like rural or suburban environments, in which
         different thresholds may be advantageous.
 
-        \citet{velaga2009developing} address this issue by proposing a weighted
-        map matching algorithm with an accompanying optimisation procedure for
-        finding weights.
+        \citet{velaga2009developing} present a similar algorithm, albeit one
+        which uses a linear combination of normalised features related to
+        vehicle heading, link heading, distance along link and link connectivity
+        to select new links when the vehicle turns or reaches a junction. As a
+        result of their use of weighting for link features, their algorithm is
+        even more dependent on tunable constants than that of
+        \citeauthor{ochieng2003map}, and \citeauthor{velaga2009developing}
+        address this issue by proposing an accompanying optimisation procedure
+        for finding weights.
+
+        Optimising weights in a highly stateful algorithm is challenging, as the
+        most useful error function for a given set of weights---the proportion
+        of mismatched roads---can generally only be computed by performing a
+        complete run of the map-matching algorithm over the available data.
+        \citeauthor{velaga2009developing} handle this by assuming that map
+        matching error can be approximated by a simple function of the weights
+        used by their algorithm. Once this approximation to the error function
+        is found using an optimisation algorithm,
+        \citeauthor{velaga2009developing} choose the weights used by their map
+        matching algorithm to be the set of weights which minimise this
+        learnt approximation.
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
@@ -409,11 +423,22 @@
         which are correctly identified. Other metrics like along-track error and
         cross-track error are seldom available, and even when they are, the data
         and code used to produce them is not readily available, making it
-        difficult to compare algorithms presented in different papers.
+        difficult to compare algorithms presented in different
+        papers\footnotemark. Nevertheless, the available performance data for
+        the papers mentioned in this survey, mostly self-reported is summarised
+        in Table~\ref{tab:comparison}.
 
-        Nevertheless, the available performance data for the papers mentioned in
-        this survey, mostly self-reported is summarised in
-        Table~\ref{tab:comparison}.
+        \footnotetext{
+            Future research in map matching could benefit greatly from
+            standardised map matching benchmarking methods. At the very least,
+            reporting link matching accuracy and along-track error would assist
+            other researchers in making meaningful comparisons between
+            algorithms, as would the use of publicly available data sets like
+            that produced by \citet{newson2009hidden}.\footnotemark
+        }
+
+        \footnotetext
+        {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
 
     \section{Conclusion}
         \todo[inline]{Summarise results}
