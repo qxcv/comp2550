@@ -375,16 +375,17 @@
         distinguishable using odometry alone.
 
     \section{Evaluation of existing results}
-
         At present, the only established and consistently available metric for
         evaluating map matching algorithms is the proportion of road segments
         which are correctly identified. Other metrics like along-track error and
         cross-track error are seldom available, and even when they are, the data
         and code used to produce them is not readily available, making it
         difficult to compare algorithms presented in different
-        papers\footnotemark. Nevertheless, the available performance data for
-        the papers mentioned in this survey, mostly self-reported is summarised
-        in Table~\ref{tab:comparison} of the appendix.
+        papers\footnotemark. Furthermore, some benchmarks are performed on
+        extremely limited datasets, and should be interpreted within the context
+        provided in the their respective papers. In spite of these caveats, the
+        available performance data for the algorithms mentioned in this survey
+        is summarised in Table~\ref{tab:comparison} of the appendix.
 
         \footnotetext{
             Future research in map matching could benefit greatly from
@@ -397,6 +398,8 @@
 
         \footnotetext
         {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
+
+        \todo[inline]{Something}
 
     \section{Conclusion}
         \todo[inline]{Summarise results}
@@ -489,13 +492,14 @@
 
             \caption{
                 Performance data for map matching algorithms mentioned in this
-                survey, as reported by respective paper authors except where
-                marked otherwise. Column contents, in order: paper in which the
-                algorithm appeared, sensors required by the algorithm, algorithm
-                family, correct segment identification percentage, along-track
-                error (ATE), cross-track error (XTE) and horizontal error
-                relative to ground truth from an augmented GPS system (HE).
-                \,\sdag\ denotes figures from \citet{quddus2006high}.
+                survey, as reported by their respective authors (except where
+                marked with a superscript dagger\sdag, in which case figures
+                are from from \citet{quddus2006high}). Column contents are, from
+                left to right: paper in which the algorithm appeared, sensors
+                required by the algorithm, algorithm family, correct segment
+                identification percentage, along-track error (ATE), cross-track
+                error (XTE) and horizontal error relative to ground truth from
+                an augmented GPS system (HE).
             }
 
             \label{tab:comparison}
