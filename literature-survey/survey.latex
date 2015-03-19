@@ -409,7 +409,6 @@
     \appendix
     \section*{Appendix: Algorithm performance data}
         \begin{table}[h]
-            % TODO: Finish this table
             {\small
             \begin{tabularx}{\textwidth}{X|X|X|l|l|l|l}
                 Paper & Extra information & Algorithm type & Identification \% &
@@ -472,21 +471,20 @@
                 -\\
 
                 \citet{velaga2009developing} &
-                S &
+                GPS, gyro &
                 Heuristic &
-                I &
-                A &
-                X &
-                H\\
+                95.9--96.7\% &
+                7.36m (95\%) &
+                9m (95\%) &
+                9.8m (95\%)\\
 
                 \citet{brubaker2013lost} &
                 Visual odometry, lane data &
-                Gaussian
-                mixture &
-                I &
-                A &
-                X &
-                H\\
+                Gaussian mixture model &
+                - &
+                - &
+                - &
+                2.4m (mean)\\
             \end{tabularx}}
 
             \caption{
@@ -497,8 +495,7 @@
                 family, correct segment identification percentage, along-track
                 error (ATE), cross-track error (XTE) and horizontal error
                 relative to ground truth from an augmented GPS system (HE).
-                Numbers in brackets represent error percentiles. \,\sdag\
-                denotes figures from \citet{quddus2006high}.
+                \,\sdag\ denotes figures from \citet{quddus2006high}.
             }
 
             \label{tab:comparison}
