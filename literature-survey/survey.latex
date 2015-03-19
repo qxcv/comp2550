@@ -1,7 +1,6 @@
-\documentclass[11pt,twocolumn]{article}
+\documentclass[11pt]{article}
 
 \usepackage[round]{natbib}
-
 \usepackage{hyperref}
 \usepackage{xcolor}
 \hypersetup{
@@ -12,14 +11,15 @@
     citecolor={blue!50!black},
     urlcolor={blue!80!black}
 }
-
 \usepackage{todonotes}
-
 \usepackage{tabularx}
 \usepackage{multirow}
-
+\usepackage{multicol}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
+% See http://tex.stackexchange.com/questions/2441/how-to-add-a-forced-line-break-inside-a-table-cell
+\newcommand{\vcell}[2][c]{\begin{tabular}[1]{@{}l@{}}#2\end{tabular}}
+\newcommand{\sdag}{\textsuperscript{\textdagger}}
 % Big collection of notes and TODOs, since I don't want to insert these all
 % throughout the text:
 % - First paragraph of the introduction is needlessly long-winded, as is the
@@ -89,6 +89,7 @@
         low-detail maps.
     }
 
+\begin{multicols}{2}
     \section{Introduction}
         Whilst contemporary satellite-based navigation systems like GPS can be
         used to estimate the coordinates of a vehicle just about anywhere on the
@@ -374,49 +375,6 @@
         distinguishable using odometry alone.
 
     \section{Evaluation of existing results}
-        \begin{table*}[t]
-            % TODO: Finish this table
-            \begin{tabularx}{\textwidth}{X|X|X|l|l|l|l}
-                Paper & Extra information & Algorithm type & Identification \% &
-                ATE & XTE & HE\\
-                \hline
-
-                \multirow{2}{2.5cm}{\citet{white2000some}} &
-                \multirow{2}{2.5cm}{S} & Point-to-curve & I & A & X & H\\
-
-                & & Curve-to-curve & I & A & X & H\\
-
-                \citet{pf2002} & S & Particle filter & I & A & X & H\\
-
-                \citet{ochieng2003map} & S & Heuristic & I & A & X & H\\
-
-                \citet{quddus2006high} & S & Fuzzy logic & I & A & X & H\\
-
-                \citet{toledo2009fusing} & Lane data & Particle filter & I & A &
-                X & H\\
-
-                \citet{selloum2009lane} & Lane data & Particle filter & I & A &
-                X & H\\
-
-                \citet{velaga2009developing} & S & Heuristic & I & A & X & H\\
-
-                \citet{brubaker2013lost} & Visual odometry, lane data & Gaussian
-                mixture & I & A & X & H\\
-            \end{tabularx}
-
-            \caption{
-                Performance data for map matching algorithms mentioned in
-                    this survey. In some cases, multiple measures of performance data are
-                    available, in which case each measure is followed by a reference to
-                    the paper in which that measure appeared. Columns list, in
-                    order: paper in which the algorithm appeared, sensors
-                    required by the algorithm, algorithm family, correct segment
-                    identification percentage, along-track error (ATE), cross-track
-                    error (XTE) and horizontal error (HE).
-            }
-
-            \label{tab:comparison}
-        \end{table*}
 
         At present, the only established and consistently available metric for
         evaluating map matching algorithms is the proportion of road segments
@@ -426,7 +384,7 @@
         difficult to compare algorithms presented in different
         papers\footnotemark. Nevertheless, the available performance data for
         the papers mentioned in this survey, mostly self-reported is summarised
-        in Table~\ref{tab:comparison}.
+        in Table~\ref{tab:comparison} of the appendix.
 
         \footnotetext{
             Future research in map matching could benefit greatly from
@@ -445,4 +403,104 @@
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
+\end{multicols}
+
+    \clearpage
+    \appendix
+    \section*{Appendix: Algorithm performance data}
+        \begin{table}[h]
+            % TODO: Finish this table
+            {\small
+            \begin{tabularx}{\textwidth}{X|X|X|l|l|l|l}
+                Paper & Extra information & Algorithm type & Identification \% &
+                ATE & XTE & HE\\
+                \hline
+
+                \multirow{2}{2.5cm}{\citet{white2000some}} &
+                \multirow{2}{2.5cm}{GPS} &
+                Point-to-curve &
+                \vcell{53.4--67.7\%\\
+                76.8\%\sdag} &
+                29.5m (95\%)\sdag &
+                10.1m (95\%)\sdag &
+                32.0m (95\%)\sdag\\
+
+                & & Curve-to-curve &
+                61.7--72.6\% &
+                - &
+                - &
+                -\\
+
+                \citet{pf2002} &
+                Wheel speeds, lane data &
+                Particle filter &
+                - &
+                - &
+                - &
+                -\\
+
+                \citet{ochieng2003map} &
+                GPS, gyro, odometer &
+                Heuristic &
+                100\% &
+                - &
+                - &
+                -\\
+
+                \citet{quddus2006high} &
+                GPS, gyro, odometer &
+                Fuzzy logic &
+                99.2\% &
+                4.2m (95\%) &
+                3.2m (95\%) &
+                5.5m (95\%)\\
+
+                \citet{toledo2009fusing} &
+                GPS, lane data, gyro, odometer &
+                Particle filter &
+                - &
+                - &
+                - &
+                1.9m (95\%)\\
+
+                \citet{selloum2009lane} &
+                GPS, lane data, gyro, odometer &
+                Particle filter &
+                73\% &
+                - &
+                - &
+                -\\
+
+                \citet{velaga2009developing} &
+                S &
+                Heuristic &
+                I &
+                A &
+                X &
+                H\\
+
+                \citet{brubaker2013lost} &
+                Visual odometry, lane data &
+                Gaussian
+                mixture &
+                I &
+                A &
+                X &
+                H\\
+            \end{tabularx}}
+
+            \caption{
+                Performance data for map matching algorithms mentioned in this
+                survey, as reported by respective paper authors except where
+                marked otherwise. Column contents, in order: paper in which the
+                algorithm appeared, sensors required by the algorithm, algorithm
+                family, correct segment identification percentage, along-track
+                error (ATE), cross-track error (XTE) and horizontal error
+                relative to ground truth from an augmented GPS system (HE).
+                Numbers in brackets represent error percentiles. \,\sdag\
+                denotes figures from \citet{quddus2006high}.
+            }
+
+            \label{tab:comparison}
+        \end{table}
 \end{document}
