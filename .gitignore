@@ -2,7 +2,7 @@ jose-code/
 *.swp
 *.log
 *.aux
-*.pdf
+literature-survey/*.pdf
 *.dvi
 *.bbl
 *.blg
