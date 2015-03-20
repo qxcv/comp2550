@@ -116,14 +116,14 @@
     \section{Heuristic algorithms}
         % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
         % some other methods. Just really basic turn-of-the-century stuff.
-        Initial solutions to the map matching problem used simple geometric
-        the road segments making up a digital map. Later algorithms also took
-        into account the topology of the road graph and the location history of
-        the vehicle to try and match the ``shape'' of the vehicle's path to the
-        map. Whilst these approaches offer mediocre performance on their
-        own\cite{quddus2007current}, we nonetheless consider some of them in
-        this section, as they form the basis for many of the more advanced
-        algorithms which constitute the state-of-the-art today.
+        Initial solutions to the map matching problem used simple geometric the
+        road segments making up a digital map. Later algorithms also took into
+        account the topology of the road graph and the location history of the
+        vehicle to try and match the ``shape'' of the vehicle's path to the map.
+        Whilst these approaches offer middling performance on their own
+        \citep{quddus2007current}, we nonetheless consider some of them in this
+        section, as they form the basis for many of the more advanced algorithms
+        which constitute the state-of-the-art today.
 
         \citet{white2000some} offer an excellent summary of several such basic
         algorithms, and we will briefly summarise two of them here.
@@ -241,6 +241,19 @@
         \citeauthor{velaga2009developing} choose the weights used by their map
         matching algorithm to be the set of weights which minimise this
         learnt approximation.
+
+        \citet{velaga2012improving} achieve a small increase in performance of
+        this algorithm through two augmentations. Firstly, they adopt a genetic
+        algorithm for optimising their weights, and re-tune some of the manually
+        derived thresholds used by their algorithm to match their larger data
+        set. Secondly, they use junction density in the proximity of the vehicle
+        to determine whether the vehicle is in a rural, suburban or urban
+        environment, and choose a different set of weights for their algorithm
+        based on this observation. The change in weights and thresholds yields
+        minimal improvement on their previous algorithm, but produces an
+        improvement in link identification accuracy of around two percentage
+        points when combined with their environment-specific weight selection
+        approach, as stated in Table~\ref{tab:comparison}.
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
@@ -366,40 +379,86 @@
         visual odometry. The vehicle's location can then be inferred from the
         mode of the position distribution.
 
-        Despite not using GPS data, in one test this algorithm was reported to
-        be able to go from a uniform distribution over 2000km of roads to a
+        Despite only requiring odometry data, which can be derived either using
+        computer vision methods or from GPS fixes, this algorithm was reported
+        to be able to go from a uniform distribution over 2000km of roads to a
         positioning estimate within 3m of ground truth after only 20s of
         observations. The chief weakness of this approach is that it sometimes
         fails to localise the vehicle when there exist multiple possible routes
         on a map with approximately the same shape, as such routes are not
         distinguishable using odometry alone.
 
-    \section{Evaluation of existing results}
+    \section{Examination of existing results and future research directions}
         At present, the only established and consistently available metric for
         evaluating map matching algorithms is the proportion of road segments
         which are correctly identified. Other metrics like along-track error and
         cross-track error are seldom available, and even when they are, the data
         and code used to produce them is not readily available, making it
-        difficult to compare algorithms presented in different
-        papers\footnotemark. Furthermore, some benchmarks are performed on
-        extremely limited datasets, and should be interpreted within the context
-        provided in the their respective papers. In spite of these caveats, the
-        available performance data for the algorithms mentioned in this survey
-        is summarised in Table~\ref{tab:comparison} of the appendix.
+        difficult to compare algorithms presented in different papers.
+        Furthermore, some benchmarks are performed on extremely limited
+        datasets, and should be interpreted within the context provided in the
+        their respective papers. In spite of these caveats, the available
+        performance data for the algorithms mentioned in this survey is
+        summarised in Table~\ref{tab:comparison} of the appendix.
 
-        \footnotetext{
-            Future research in map matching could benefit greatly from
-            standardised map matching benchmarking methods. At the very least,
-            reporting link matching accuracy and along-track error would assist
-            other researchers in making meaningful comparisons between
-            algorithms, as would the use of publicly available data sets like
-            that produced by \citet{newson2009hidden}.\footnotemark
-        }
+        Future research in map matching could benefit greatly from standardised
+        map matching benchmarking methods. At the very least, reporting link
+        matching accuracy and horizontal positioning error would assist other
+        researchers in making meaningful comparisons between algorithms, as
+        would the use of publicly available data sets like that produced by
+        \citet{newson2009hidden}.\footnotemark
 
         \footnotetext
         {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
 
         \todo[inline]{Something}
+
+        % Things I want to say:
+        % - There has not been enough research into making probabilistic
+        %   algorithms perform well with low-quality street data.
+        % - Further, it would be interesting to see the effect of certain
+        %   pre-processing steps on map matching accuracy. Brubaker et al. run a
+        %   cubic interpolation process on their map data before running it
+        %   through their algorithm, and IIRC some other researchers do
+        %   something similar. However, it's not clear how this affects map
+        %   matching accuracy, if at all. Other assumptions, like lane width,
+        %   would also be interesting to evaluate empirically.
+        % - So, a summary of the first two points would be: we now have OSM, so
+        %   we should be looking at ways to use oodles of relatively simple map
+        %   data effectively instead of relying on highly specialised clothoid
+        %   models or "secret sauce" maps obtained from commercial sources.
+        % - Hybrid heuristic algorithms currently appear to  give the best
+        %   performance, but are difficult to tune and are highly sensitive to
+        %   initial positioning fixes. How could this be addressed?
+        % - The fact that high performance heuristic algorithms /all/ use some
+        %   sort of modal process for matching at junctions and on links is
+        %   suspicious. Is there any reason why we can't get away with one mode?
+        %   Doing so would greatly simplify optimisation, do away with initial
+        %   link dependence /and/ fix the problem of subsequent matches becoming
+        %   wonky after one mismatch. I suspect the answer to this question is
+        %   "no, you can't, because real-time map matching will require a run
+        %   from beginning to start since future predictions are reliant on past
+        %   ones". However, it doesn't make sense that this should be the case;
+        %   why can't we just make our process reliant on past fixes rather than
+        %   past matches? After all, relying on past matches rather than fixes
+        %   is really just throwing out oodles of information. Something like
+        %   Newson & Krum's HMM would be interesting in this regard However, it
+        %   doesn't make sense that this should be the case; why can't we just
+        %   make our process reliant on past fixes rather than past matches?
+        %   After all, relying on past matches rather than fixes is really just
+        %   throwing out oodles of information. Something like a sliding window
+        %   version of Newson & Krum's HMM would be interesting in this regard.
+        % - So, maybe my conclusion should be something like "Heuristic
+        %   approaches yield the best performance, but more research is needed
+        %   into automatically tuning these approaches to yield the best
+        %   possible performance".
+        % - I want to see a fuzzy model with some sort of automatic tuning.
+        %   Wasn't there a field for neural fuzzy models or something like that?
+        % - Best plausible reported results are for a fuzzy logic model, but I
+        %   can't find anybody else who has achieved the same results using
+        %   fuzzy logic. This suggests that fuzzy logic algorithms are quite
+        %   difficult to produce, and may not have a significant advantage over
+        %   other topological methods.
 
     \section{Conclusion}
         \todo[inline]{Summarise results}
@@ -481,8 +540,17 @@
                 9m (95\%) &
                 9.8m (95\%)\\
 
+                % TODO
+                \citet{velaga2012improving} &
+                GPS, gyro &
+                Heuristic &
+                97.8\% &
+                2.11m$\pm$1.52m &
+                3.19m$\pm$2.59m &
+                4.19m$\pm$2.47m\\
+
                 \citet{brubaker2013lost} &
-                Visual odometry, lane data &
+                GPS odometry, lane data &
                 Gaussian mixture model &
                 - &
                 - &
@@ -492,14 +560,17 @@
 
             \caption{
                 Performance data for map matching algorithms mentioned in this
-                survey, as reported by their respective authors (except where
-                marked with a superscript dagger\sdag, in which case figures
-                are from from \citet{quddus2006high}). Column contents are, from
-                left to right: paper in which the algorithm appeared, sensors
-                required by the algorithm, algorithm family, correct segment
-                identification percentage, along-track error (ATE), cross-track
-                error (XTE) and horizontal error relative to ground truth from
-                an augmented GPS system (HE).
+                survey, as reported by their respective authors except where
+                indicated otherwise. Figures marked with a superscript
+                dagger\sdag\ are taken from \citet{quddus2006high}. Column
+                contents are, from left to right: paper in which the algorithm
+                appeared, sensors required by the algorithm, algorithm family,
+                correct segment identification percentage, along-track error
+                (ATE), cross-track error (XTE) and horizontal error relative to
+                ground truth from an augmented GPS system (HE). Positioning
+                errors are either given as percentiles, means and standard
+                deviations (mean$\pm$standard deviation), or just means, as
+                indicated.
             }
 
             \label{tab:comparison}
