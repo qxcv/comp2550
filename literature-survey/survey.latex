@@ -1,8 +1,7 @@
 \documentclass[11pt]{article}
 
-\usepackage[round]{natbib}
-\usepackage{hyperref}
-\usepackage{xcolor}
+\usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling}
+
 \hypersetup{
     % See
     % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
@@ -11,15 +10,17 @@
     citecolor={blue!50!black},
     urlcolor={blue!80!black}
 }
-\usepackage{todonotes}
-\usepackage{tabularx}
-\usepackage{multirow}
-\usepackage{multicol}
+
+\usepackage[round]{natbib}
+
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
 
 % See http://tex.stackexchange.com/questions/2441/how-to-add-a-forced-line-break-inside-a-table-cell
 \newcommand{\vcell}[2][c]{\begin{tabular}[1]{@{}l@{}}#2\end{tabular}}
 \newcommand{\sdag}{\textsuperscript{\textdagger}}
+
+\setlength{\droptitle}{-5em}
+
 % Big collection of notes and TODOs, since I don't want to insert these all
 % throughout the text:
 % - First paragraph of the introduction is needlessly long-winded, as is the
@@ -102,12 +103,12 @@
         digital map.
 
         For the purposes of this survey, we will divide map matching algorithms
-        up into three categories: firstly, we will consider basic heuristic
-        algorithms which employ simple geometric and topological features of the
-        road network. Next, we will look at more sophisticated algorithms which
-        take advantage of several such heuristics, either by using a simple
-        weighting or through more complex methods like fuzzy logic. Finally, we
-        will consider probabilistic map matching algorithms.
+        up into two categories: first, we will consider heuristic algorithms
+        which combine simple geometric and topological features of segments in
+        the road network in order to localise the vehicle. Second, we will
+        consider probabilistic map matching algorithms, which model the
+        vehicle's position as a probability distribution over all roads and
+        localise the vehicle by finding regions of high probability mass.
 
     \section{Heuristic algorithms}
         Initial solutions to the map matching problem used simple geometric the
@@ -495,7 +496,21 @@
         {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
 
     \section{Conclusion}
-        \todo[inline]{Summarise results}
+        In this survey, we explored two broad categories of map matching
+        algorithms: heuristic algorithms, which use combinations of simple
+        features like a vehicle's distance from a road link or its heading
+        relative to a link in order to localise the vehicle, and probabilistic
+        algorithms, which try to model a probability distribution of possible
+        vehicle positions over the road network. The first category included
+        simple algorithms like point-to-curve and curve-to-curve, more advanced
+        weighted algorithms and fuzzy logic-based algorithms, whilst the second
+        category included algorithms based on particle filtering and Gaussian
+        mixture models. We then concluded with a brief summary of reported
+        performance data for state-of-the-art algorithms, and suggested some
+        promising directions for future research, including further
+        investigation of fuzzy logic methods, research into automated
+        optimisation of weights used in map matching algorithms, and the use of
+        freely available map data.
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
