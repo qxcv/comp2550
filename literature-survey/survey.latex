@@ -19,8 +19,6 @@
 \newcommand{\vcell}[2][c]{\begin{tabular}[1]{@{}l@{}}#2\end{tabular}}
 \newcommand{\sdag}{\textsuperscript{\textdagger}}
 
-\setlength{\droptitle}{-5em}
-
 % Big collection of notes and TODOs, since I don't want to insert these all
 % throughout the text:
 % - Bibliography isn't counted towards page limit, and page limit is just a
@@ -60,27 +58,28 @@
         positioning error inherent in these systems can be problematic in some
         applications, especially in built-up areas where buildings interfere
         with signals. For vehicles which are assumed to be on roadways, these
-        errors can be reduced by considering the information present in digital
-        street maps. The task of a map matching algorithm is to take noisy or
-        biased observations from a localisation or odometry system and attempt
-        to find the most accurate projection of these measurements onto a given
-        digital map.
+        errors can be reduced by restricting the possible positions of a vehicle
+        to the roads listed on a digital map. The task of a map matching
+        algorithm is to take noisy or biased observations from a localisation or
+        odometry system and attempt to find the most accurate projection of
+        these measurements onto a given digital map.
 
         For the purposes of this survey, we will divide map matching algorithms
-        into two categories: firstly we will consider heuristic algorithms which
-        combine simple geometric and topological features of the road network in
-        order to localise the vehicle. Secondly we will consider probabilistic
-        map matching algorithms, which model the vehicle's position as a
-        probability distribution over all roads and localise the vehicle by
-        finding regions of high probability density.
+        into two categories. Firstly, we will consider heuristic algorithms
+        which combine simple geometric and topological features of the road
+        network in order to localise the vehicle. Secondly, we will consider
+        probabilistic map matching algorithms, which model the vehicle's
+        position as a probability distribution over all roads and localise the
+        vehicle by finding the mode of this distribution.
 
     \section{Heuristic algorithms}
         Initial solutions to the map matching problem utilised only simple
         geometric heuristics, like the distance to each road segment, to
         localise vehicles. Later algorithms also took into account the topology
         of the road graph and the location history of the vehicle to try and
-        match the ``shape'' of the vehicle's path to the map. Whilst these
-        approaches offer middling performance on their own
+        match the ``shape'' of the vehicle's path to the map.
+
+        Whilst these early approaches offer middling performance on their own
         \citep{quddus2007current}, we nonetheless consider some of them in this
         section, as they form the basis for many of the more advanced algorithms
         which constitute the state-of-the-art today.
@@ -92,25 +91,25 @@
         matching}, simply finds the nearest road segment in a digital map and
         calculates the orthogonal projection of the most recent GPS measurement
         onto that segment. As \citeauthor{white2000some} point out, this
-        algorithm not only fails to make use of the vehicle's past position, its
-        heading, its velocity, and so on, but also results in a highly unstable
+        algorithm not only fails to make use of the vehicle's heading, velocity,
+        past positions, and so on, but it also results in a highly unstable
         match at intersections, where the reported GPS reading may be
         approximately equidistant to two or more road segments.
 
         The second algorithm which we will consider, \textit{curve-to-curve
         matching}, attempts to incorporate both historical position data and map
-        topology. It begins by constructing a piecewise linear curve from recent
-        GPS fixes. For each road junction near the most recent of these fixes,
-        it constructs additional piecewise linear curves of the same length as
-        that produced from the vehicle's positioning history, each of which
-        follow the road network outwards from the junction in question. Finally,
-        it considers the area between each of the curves on the map and the
-        curve representing the vehicle's path, and selects the route
-        corresponding to the curve with the smallest area. The output of the
-        algorithm is a projection of the most recent GPS fix onto the best
-        curve. This yields better performance than point-to-curve matching, as
-        shown in Table~\ref{tab:comparison}, but at a greater computational
-        cost.
+        topology. It begins by drawing a piecewise linear curve through a fixed
+        number of recent GPS fixes. For each road junction near the most recent
+        of these fixes, it constructs additional piecewise linear curves of the
+        same length as the curve produced from the vehicle's positioning
+        history, each of which follow the road network outwards from the
+        junction in question. Finally, it considers the area between each of the
+        curves on the map and the curve representing the vehicle's path, and
+        selects the route corresponding to the curve with the smallest area. The
+        output of the algorithm is a projection of the most recent GPS fix onto
+        the best curve. This yields better performance than point-to-curve
+        matching, as shown in Table~\ref{tab:comparison}, but at a greater
+        computational cost.
 
         Simple matching methods like point-to-curve and curve-to-curve can be
         combined using a number of schemes to produce improved map matching
@@ -120,7 +119,7 @@
         \begin{enumerate}
             \item Firstly, the algorithm estimates the vehicle's global
             position. This estimate can come directly from a GPS sensor, but is
-            often combined with odometry data and passed through an Extended
+            often paired with odometry data and passed through an Extended
             Kalman Filter (EKF) in order to smooth out noise. This step is
             independent of the choice of map matching algorithm, so we will
             treat it as a black box for the remainder of this survey.
@@ -130,49 +129,49 @@
             as to where the vehicle is within the selected road segment.
         \end{enumerate}
 
-        Step \ref{itm:seg} is generally the most complex part of the matching
-        process, as an incorrectly identified road segment will lead to a poor
-        estimate of position. This step is often split into several different
-        ``modes'', depending on the state of the vehicle. For instance, if it is
-        not known which road segment the vehicle was travelling on during the
-        previous time step, then the algorithm may take additional
-        precautions---like waiting until reported GPS error is below a fixed
-        threshold---in order to ensure that the first segment match is correct.
-        If the first match is not correct, then it is likely that subsequently
-        identified segments will not be correct either, as map matching
-        algorithms often choose not to consider segments which are not
-        neighbours of the previously matched segment. A similar issue occurs at
-        junctions, where the vehicle can turn onto one of several different road
-        segments, and the consequences for incorrectly inferring which segment
-        the vehicle has branched onto are similar to those for incorrectly
-        inferring the initial segment.
+        Step \ref{itm:seg} is the most complex part of the matching process, as
+        an incorrectly identified road segment will lead to a poor estimate of
+        position. This step is often split into several different ``modes'',
+        depending on the state of the vehicle. For instance, if it is not known
+        which road segment the vehicle was travelling on during the previous
+        time step, then the algorithm may take additional precautions---like
+        waiting until reported GPS error is below a fixed threshold---in order
+        to ensure that the first segment is matched correctly. If the first
+        match is not correct, then it is likely that subsequently identified
+        segments will not be correct either, as map matching algorithms often
+        choose not to consider segments which are not neighbours of the
+        previously matched segment. A similar issue occurs at junctions, where
+        the vehicle can turn onto one of several different road segments, and
+        the consequences for incorrectly inferring which segment the vehicle has
+        branched onto are similar to those for incorrectly inferring the initial
+        segment.
 
-        On the other hand, step \ref{itm:intra} is straightforward, as it
+        On the other hand, Step \ref{itm:intra} is straightforward, as it
         usually consists of a simple projection of the last GPS fix onto the
         matched road segment. As such, we will not consider it for the remainder
         of this section so that we can focus on the more complex link selection
         process.
 
         \citet{ochieng2003map} propose an algorithm which is representative of
-        these map matching procedures. Upon initialisation, it selects an
-        initial link based primarily on the link's distance from the vehicle's
-        estimated global position. It then enters into a subsequent matching
-        phase, during which it projects GPS coordinates onto a previously
-        selected link. If the vehicle begins to turn or nears a junction, the
-        algorithm re-enters its initial link selection phase to detect which
-        road segment the vehicle has entered.
+        these three-step map matching procedures. Upon initialisation, it
+        selects an initial link based primarily on the link's distance from the
+        vehicle's estimated global position. It then enters into a subsequent
+        matching phase, during which it projects GPS coordinates onto a
+        previously selected link. If the vehicle begins to turn or nears a
+        junction, the algorithm re-enters its initial link selection phase to
+        detect which road segment the vehicle has entered.
 
         One of the drawbacks to this approach is that it involves a lot of
         ``magic numbers''; for instance, heading difference thresholds are
         required to determine when the vehicle is turning, and distance
         thresholds are required to determine when the vehicle is near a
         junction. \citeauthor{ochieng2003map} tweak these constants manually,
-        but this method is labor-intensive, and may need to be repeated for
+        but this method is labour intensive, and may need to be repeated for
         different environments, like rural or suburban environments, in which
         different thresholds may be advantageous.
 
         \citet{velaga2009developing} present a similar algorithm, albeit one
-        which selects links using weighted sum of features related to vehicle
+        which selects links a using weighted sum of features related to vehicle
         heading, link heading, distance along a link and link connectivity. As a
         result of their use of weighting for link features, their algorithm is
         even more dependent on tunable constants than that of
@@ -180,43 +179,40 @@
         address this issue by proposing an accompanying optimisation procedure
         for finding weights.
 
-        Optimising weights in a highly stateful map matching algorithm is
-        challenging, as the most useful error function for a given set of
-        weights---the proportion of mismatched roads---can generally only be
-        computed by performing a complete run of the map-matching algorithm over
-        the available data. \citeauthor{velaga2009developing} handle this by
-        assuming that map matching error can be approximated by a simple
-        function of the weights used by their algorithm. Once this approximation
-        to the error function is found using an optimisation algorithm,
+        Optimising weights in a map matching algorithm is challenging, as the
+        most useful error function for a given set of weights---the proportion
+        of mismatched roads---can generally only be computed by performing a
+        complete run of the map-matching algorithm over the available data.
+        \citeauthor{velaga2009developing} handle this by assuming that map
+        matching error can be approximated by a simple function of the weights
+        used by their algorithm. Once this approximation to the error function
+        is found using an optimisation algorithm,
         \citeauthor{velaga2009developing} choose the weights used by their map
         matching algorithm to be the set of weights which minimise this learnt
         approximation.
 
-        \citet{velaga2012improving} increase in the performance of this
-        algorithm through two augmentations. Firstly, they adopt a genetic
-        algorithm for optimising their weights, and re-tune some of the manually
-        derived thresholds used by their algorithm. Secondly, they use junction
-        density in the proximity of the vehicle to determine whether the vehicle
-        is in a rural, suburban or urban environment, and choose a different set
-        of weights for their algorithm based on this observation. The change in
-        weights and thresholds yields minimal improvement on their previous
-        algorithm, but produces an improvement in link identification accuracy
-        of around two percentage points when combined with their
-        environment-specific weight selection approach, as stated in
-        Table~\ref{tab:comparison}. This illustrates the importance of vehicle
-        environment in evaluating map matching algorithms, as an algorithm which
-        performs well in a built-up area may not perform equally well in a rural
-        setting.
+        In a later paper, \citeauthor{velaga2012improving} attempt to tweak this
+        algorithm slightly in order to improve its map matching accuracy, and in
+        the process illustrate an important consideration in map matching
+        algorithm design: by deriving three different sets of weights---one for
+        rural areas, one for suburban areas, and one for urban areas---and
+        choosing the appropriate set of weights for the environment in which the
+        vehicle is operating, they produce an mismatch rate decrease of around
+        two percentage points, as shown in Table~\ref{tab:comparison}
+        \citep{velaga2012improving}. This demonstrates the sensitivity of
+        weights used in heuristic algorithms to the environment in which they
+        are used, and should be considered when evaluating other weighted map
+        matching algorithms.
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
         numerical inputs---for instance, distance to a road segment $d_i$ or
         speed of a vehicle $s$---and ``fuzzify'' these according to ``membership
         functions'', which map a numerical input like velocity to a ``degree of
-        applicability'' for some label, like ``fast'' or ``slow''. It can then
-        apply a number of simple inference rules like those listed below, which
-        attempt to determine how likely it is that a vehicle is on a given road
-        segment $r_i$:
+        applicability'' for some label, like ``fast'' or ``slow''. The fuzzy
+        inference system can then apply a number of rules like those listed
+        below, which attempt to determine how likely it is that a vehicle is on
+        a given road segment $r_i$:
 
         \begin{center}
             \setlength{\tabcolsep}{2pt}
@@ -245,8 +241,8 @@
         those given above.
 
         \citet{quddus2006high} propose a particularly effective fuzzy-logic
-        based method which merges odometry, heading information, connectivity,
-        and GPS fixes smoothed using an EKF. Their link detection mechanism
+        based method which merges odometry, heading information, road segment
+        connectivity, and GPS fixes. Their road segment selection mechanism
         operates in one of three modes: one for determining the initial link
         when no map-matched positions are available, one for determining
         subsequent links when travelling between junctions, and one for
@@ -288,7 +284,7 @@
 
         \begin{enumerate}
             \item Each particle's weight is updated using the likelihood of the
-            most recently acquired sensor data, under the hypothesis that the
+            most recently acquired sensor data, given the assumption that the
             true location of the vehicle is that of the given particle.
             \item A new set of $N$ particles is then sampled, with replacement,
             from the old set of $N$ particles according to the particles'
@@ -331,8 +327,8 @@
         the position distribution.
 
         Despite only requiring odometry data, which can be derived either using
-        computer vision methods or from GPS fixes, this algorithm was reported
-        to be able to go from a uniform distribution over 2000km of roads to a
+        computer vision methods or from GPS fixes, this approach was reported to
+        be able to go from a uniform distribution over 2000km of roads to a
         positioning estimate within 3m of ground truth after only 20s of
         observations. The chief weakness of this approach is that it sometimes
         fails to localise the vehicle when there exist multiple possible routes
@@ -347,10 +343,10 @@
         and code used to produce them is not readily available, making it
         difficult to compare algorithms presented in different papers.
         Furthermore, some benchmarks are performed on extremely limited
-        datasets, and as such should be interpreted within the context provided
-        by their respective papers. In spite of these caveats, the available
-        performance data for the algorithms mentioned in this survey has been
-        summarised in Table~\ref{tab:comparison} of the appendix.
+        datasets, which limits the conclusions which can be drawn about the
+        algorithm. In spite of these caveats, the available performance data for
+        the algorithms mentioned in this survey has been summarised in
+        Table~\ref{tab:comparison} of the appendix.
 
         At present, the fuzzy logic algorithm presented in \cite{quddus2006high}
         has achieved the best self-reported accuracy of any algorithm tested on
@@ -379,8 +375,8 @@
         filtering approach presented in \cite{toledo2009fusing} and
         \cite{selloum2009lane} to function with these readily available maps,
         rather than with complex ``Emaps'', could yield an algorithm with low
-        positional error and good tolerance of mismatches which could then be
-        deployed in low-cost navigation systems.
+        positional error and good tolerance of mismatches which would be
+        appropriate for low-cost navigation systems.
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
@@ -408,7 +404,7 @@
         state-of-the-art algorithms, and suggested some promising directions for
         future research, including further investigation of fuzzy logic methods,
         research into automated optimisation of weights used in map matching
-        algorithms, and the use of freely available map data.
+        algorithms, and the use of more readily available map data.
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
