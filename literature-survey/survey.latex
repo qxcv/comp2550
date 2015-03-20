@@ -23,12 +23,6 @@
 
 % Big collection of notes and TODOs, since I don't want to insert these all
 % throughout the text:
-% - First paragraph of the introduction is needlessly long-winded, as is the
-%   abstract. May need to delete these entirely, as Steve said that we don't
-%   need a foreword if it's explaining things that are already obvious to our
-%   audience (e.g. a review on GPU parallel processing for a general CS audience
-%   doesn't need an explanation of what parallel processing is, but might
-%   benefit from a brief explanation on how GPUs parallelise work).
 % - Bibliography isn't counted towards page limit, and page limit is just a
 %   guideline, but Steve DOES value conciseness and WILL penalise you if you
 %   write over the page limit without reason.
@@ -41,26 +35,6 @@
 %   read when you started on this research topic." I've actually just summarised
 %   some papers, and I should rewrite the offending sections so that they're not
 %   paper-specific.
-% - Should be more critical of different methods so that the reader understands
-%   what kind of challenges they're likely to face. Actual papers aren't very
-%   helpful here, so I'll really have infer a lot of these weaknesses and read
-%   between the lines in subsequent papers for others. Here are a couple of
-%   things I haven't mentioned yet which are common problems:
-%    - There are no common data sets or performance measures for assessing map
-%    matching algorithms. This makes it really difficult to compare performance,
-%    and impossible to reproduce reported results.
-%    - Most algorithms either fail to solve the kidnapped robot problem or solve
-%    it with an unacceptable performance penalty (resorting to initial matching,
-%    which could take half a minute or more).
-% - Need to use MM as an acronym for map matching. Will save half a page, at the
-%   least :P
-% - Using "Lane-Level Integrity Provision for Navigation and Map Matching With
-%   GNSS, Dead Reckoning, and Enhanced Maps" instead of the other Toledo-Moreo
-%   et al. paper might be more charitable. Having said that, I don't think it
-%   will make much of a difference for this report, as I only touch on their
-%   methods briefly, and the final table at the end of the document lists very
-%   little data on their performance (of course, I presume that better
-%   performance is the primary reason to cite newer papers).
 
 \begin{document}
     \title{A Survey of Map Matching Algorithms\\
@@ -377,61 +351,6 @@
         by their respective papers. In spite of these caveats, the available
         performance data for the algorithms mentioned in this survey has been
         summarised in Table~\ref{tab:comparison} of the appendix.
-
-        % Things I want to say:
-        % - There has not been enough research into making probabilistic
-        %   algorithms perform well with low-quality street data.
-        % - Further, it would be interesting to see the effect of certain
-        %   pre-processing steps on map matching accuracy. Brubaker et al. run a
-        %   cubic interpolation process on their map data before running it
-        %   through their algorithm, and IIRC some other researchers do
-        %   something similar. However, it's not clear how this affects map
-        %   matching accuracy, if at all. Other assumptions, like lane width,
-        %   would also be interesting to evaluate empirically.
-        % - So, a summary of the first two points would be: we now have OSM, so
-        %   we should be looking at ways to use oodles of relatively simple map
-        %   data effectively instead of relying on highly specialised clothoid
-        %   models or "secret sauce" maps obtained from commercial sources.
-        % - Hybrid heuristic algorithms currently appear to  give the best
-        %   performance, but are difficult to tune and are highly sensitive to
-        %   initial positioning fixes. How could this be addressed?
-        % - The fact that high performance heuristic algorithms /all/ use some
-        %   sort of modal process for matching at junctions and on links is
-        %   suspicious. Is there any reason why we can't get away with one mode?
-        %   Doing so would greatly simplify optimisation, do away with initial
-        %   link dependence /and/ fix the problem of subsequent matches becoming
-        %   wonky after one mismatch. I suspect the answer to this question is
-        %   "no, you can't, because real-time map matching will require a run
-        %   from beginning to start since future predictions are reliant on past
-        %   ones". However, it doesn't make sense that this should be the case;
-        %   why can't we just make our process reliant on past fixes rather than
-        %   past matches? After all, relying on past matches rather than fixes
-        %   is really just throwing out oodles of information. Something like
-        %   Newson & Krum's HMM would be interesting in this regard However, it
-        %   doesn't make sense that this should be the case; why can't we just
-        %   make our process reliant on past fixes rather than past matches?
-        %   After all, relying on past matches rather than fixes is really just
-        %   throwing out oodles of information. Something like a sliding window
-        %   version of Newson & Krum's HMM would be interesting in this regard.
-        % - So, maybe my conclusion should be something like "Heuristic
-        %   approaches yield the best performance, but more research is needed
-        %   into automatically tuning these approaches to yield the best
-        %   possible performance".
-        % - I want to see a fuzzy model with some sort of automatic tuning.
-        %   Wasn't there a field for neural fuzzy models or something like that?
-        % - Best plausible reported results are for a fuzzy logic model, but I
-        %   can't find anybody else who has achieved the same results using
-        %   fuzzy logic. This suggests that fuzzy logic algorithms are quite
-        %   difficult to produce, and may not have a significant advantage over
-        %   other topological methods.
-        % - Oooh, another idea for optimisation: optimise each part of an
-        %   algorithm separately! That is, you specify some fixes which MUST
-        %   correspond to travel along a link, some which MUST correspond to
-        %   travel through a junction, etc., then run a standard training system
-        %   on these. This lets you use normal ML techniques rather than weird
-        %   hacks from Velaga et al. The problem is that you can't optimise mode
-        %   transitions this way, so you'll have to fall back to the hacky
-        %   method at some point :(
 
         At present, the fuzzy logic algorithm presented in \cite{quddus2006high}
         has achieved the best self-reported accuracy of any algorithm tested on
