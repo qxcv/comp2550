@@ -84,26 +84,22 @@
         travelled by the vehicle's rear wheels in a fixed time period---and
         attempting to fit the path described by those observations onto a
         digital map. In this survey, we explore the current state-of-the-art in
-        online map matching algorithms, and evaluate the reported efficacy and
-        applicability of these algorithms to the problem of map matching on
-        low-detail maps.
+        online map matching algorithms, and compare the reported efficacy of
+        different families of map matching algorithms.
     }
 
 \begin{multicols}{2}
     \section{Introduction}
-        Whilst contemporary satellite-based navigation systems like GPS can be
-        used to estimate the coordinates of a vehicle just about anywhere on the
-        surface of the earth, the inaccuracy inherent in these systems can still
-        be significant for some applications, especially in built-up areas. For
-        objects which are assumed to be on roadways, these errors can be reduced
-        by considering the information present in freely available digital
-        street maps like those produced by the OpenStreetMap\footnotemark
-        project. The task of an online map matching algorithm is to take noisy
-        or biased observations from a localisation or odometry system and
-        attempt to find the most accurate projection of the object being tracked
-        onto a given digital map.
-
-        \footnotetext{\url{http://www.openstreetmap.org/}}
+        Whilst satellite navigation systems can localise vehicles with
+        relatively high accuracy, the positioning error inherent in these
+        systems can still be significant for some applications, especially in
+        built-up areas where buildings block some signals and reflect others.
+        For objects which are assumed to be on roadways, these errors can be
+        reduced by considering the information present in digital street maps.
+        The task of an online map matching algorithm is to take noisy or biased
+        observations from a localisation or odometry system and attempt to find
+        the most accurate projection of the object being tracked onto a given
+        digital map.
 
         For the purposes of this survey, we will divide map matching algorithms
         up into three categories: firstly, we will consider basic heuristic
@@ -114,8 +110,6 @@
         will consider probabilistic map matching algorithms.
 
     \section{Heuristic algorithms}
-        % Cover point-to-point, point-to-curve, curve-to-curve, and possibly
-        % some other methods. Just really basic turn-of-the-century stuff.
         Initial solutions to the map matching problem used simple geometric the
         road segments making up a digital map. Later algorithms also took into
         account the topology of the road graph and the location history of the
@@ -253,7 +247,10 @@
         minimal improvement on their previous algorithm, but produces an
         improvement in link identification accuracy of around two percentage
         points when combined with their environment-specific weight selection
-        approach, as stated in Table~\ref{tab:comparison}.
+        approach, as stated in Table~\ref{tab:comparison}. This suggests that
+        use of junction density information could improve other weighted map
+        matching algorithms which currently use the same set of weights
+        regardless of the environment in which they operate.
 
         Fuzzy logic is another commonly used method of incorporating multiple
         heuristics for map matching. Fuzzy logic systems consider a variety of
@@ -401,18 +398,6 @@
         performance data for the algorithms mentioned in this survey is
         summarised in Table~\ref{tab:comparison} of the appendix.
 
-        Future research in map matching could benefit greatly from standardised
-        map matching benchmarking methods. At the very least, reporting link
-        matching accuracy and horizontal positioning error would assist other
-        researchers in making meaningful comparisons between algorithms, as
-        would the use of publicly available data sets like that produced by
-        \citet{newson2009hidden}.\footnotemark
-
-        \footnotetext
-        {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
-
-        \todo[inline]{Something}
-
         % Things I want to say:
         % - There has not been enough research into making probabilistic
         %   algorithms perform well with low-quality street data.
@@ -459,6 +444,55 @@
         %   fuzzy logic. This suggests that fuzzy logic algorithms are quite
         %   difficult to produce, and may not have a significant advantage over
         %   other topological methods.
+        % - Oooh, another idea for optimisation: optimise each part of an
+        %   algorithm separately! That is, you specify some fixes which MUST
+        %   correspond to travel along a link, some which MUST correspond to
+        %   travel through a junction, etc., then run a standard training system
+        %   on these. This lets you use normal ML techniques rather than weird
+        %   hacks from Velaga et al. The problem is that you can't optimise mode
+        %   transitions this way, so you'll have to fall back to the hacky
+        %   method at some point :(
+
+        At present, the fuzzy logic algorithm presented in \cite{quddus2006high}
+        has achieved the best self-reported accuracy of any algorithm tested on
+        a large data set. However, other approaches utilising fuzzy logic have
+        not been able to approach this level of accuracy
+        \citep{syed2004fuzzy,ren2012fuzzy}. It may be worthwhile to investigate
+        precisely which factors contribute to the effectiveness of fuzzy map
+        matching algorithms in order to explain this discrepancy.
+
+        The success of \citet{velaga2012improving} in improving the performance
+        of simple heuristic algorithms through automated optimisation of weights
+        is another interesting avenue. Extending this solution to also learn
+        thresholds for turn and junction detection, rather than just the weights
+        used to score road segments, would likely lead to further improvements.
+        Applying standard machine learning techniques, as opposed to the
+        specialised methods proposed by \citeauthor{velaga2012improving}, may
+        also improve accuracy, although this is more challenging as it would
+        necessitate redesigning the algorithm to make the objective function
+        used in optimisation---which was given as the number of mismatched links
+        over a complete run of the algorithm---more efficient to compute.
+
+        Another promising avenue of map matching research is the use of maps
+        from the OpenStreetMap\footnotemark project, which offers free and
+        extensive coverage of the road network, but at a resolution below that
+        used in some past map matching papers. In particular, adapting the
+        particle filtering approach presented in \cite{toledo2009fusing} and
+        \cite{selloum2009lane} to function with these readily available maps,
+        rather than with complex ``Emaps'', could potentially yield an algorithm
+        with low positional error but with good tolerance of mismatches.
+
+        \footnotetext{\url{http://www.openstreetmap.org/}}
+
+        Finally, future research in map matching could benefit greatly from
+        standardised map matching benchmarking methods. At the very least,
+        reporting link matching accuracy and horizontal positioning error would
+        assist other researchers in making meaningful comparisons between
+        algorithms, as would the use of publicly available data sets like that
+        produced by \citet{newson2009hidden}.\footnotemark
+
+        \footnotetext
+        {\url{http://research.microsoft.com/en-us/um/people/jckrumm/MapMatchingData/data.htm}}
 
     \section{Conclusion}
         \todo[inline]{Summarise results}
