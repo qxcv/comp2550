@@ -265,49 +265,49 @@
         ``fast'' and ``slow'', as well as the way in which these labels are
         combined to produce a numerical result, varies from application to
         application, and a number of concrete examples are given by
-        \citet{zadeh1988fuzzy}. However, the common quality of fuzzy logic MM
+        \citet{zadeh1988fuzzy}. However, the common quality of fuzzy logic
         systems is that they allow the designer to incorporate their own domain
-        knowledge into MM system in a natural way using inference rules like
+        knowledge into the system in a natural way using inference rules like
         those given above.
 
-        \citet{quddus2006high} propose a highly effective, fuzzy-logic based
-        method which merges odometry, heading information, connectivity, and GPS
-        fixes smoothed using an EKF. Their link detection mechanism operates in
-        one of three modes: one for determining the initial link when no
-        map-matched positions are available, one for determining subsequent
-        links when travelling between junctions, and one for determining
-        subsequent links at junctions. Each of these modes uses a separate set
-        of fuzzy inference rules, which take into account GPS precision as
-        reported by the receiver, the vehicle's speed, heading and position
-        relative to the link, distance and direction to the nearest junction,
-        and the vehicle's change in heading over time. The authors report a
-        correct link identification rate of 99.2\% using this algorithm, as
-        noted in Table~\ref{tab:comparison}.
+        \citet{quddus2006high} propose a particularly effective fuzzy-logic
+        based method which merges odometry, heading information, connectivity,
+        and GPS fixes smoothed using an EKF. Their link detection mechanism
+        operates in one of three modes: one for determining the initial link
+        when no map-matched positions are available, one for determining
+        subsequent links when travelling between junctions, and one for
+        determining subsequent links at junctions. Each of these modes uses a
+        separate set of fuzzy inference rules, which take into account GPS
+        precision as reported by the receiver, the vehicle's speed, heading and
+        position relative to the link, distance and direction to the nearest
+        junction, and the vehicle's change in heading over time. The results
+        produced by this algorithm are amongst the best reported in recent
+        years, as detailed in Table~\ref{tab:comparison}.
 
-        Fuzzy logic algorithms have many of the same flaws as the weighted
-        heuristic ones mentioned at the beginning of this section; like weighted
-        algorithms, fuzzy logic algorithms have a large number of parameters and
-        design decisions which can be difficult to optimise, and are often
-        determined through trial and error. Fuzzy logic algorithms also require
-        a high degree of domain knowledge and experimentation to write inference
-        rules, which are not required in simple weighted models. Nevertheless,
-        fuzzy logic has yielded excellent results in map matching.
+        However, fuzzy logic algorithms like that of \citeauthor{quddus2006high}
+        have many of the same flaws as the simpler heuristic ones mentioned at
+        the beginning of this section; like other heuristic algorithms, fuzzy
+        logic algorithms have a large number of parameters and design decisions
+        which can be difficult to optimise, and which are often determined
+        through trial and error. Fuzzy logic algorithms also require a high
+        degree of domain knowledge and experimentation to write inference rules,
+        which are not required in simple weighted models.
 
     \section{Probabilistic algorithms}
         Probabilistic algorithms approach map matching as a problem of trying to
         find a probability distribution over all possible positions of a vehicle
         on the road network, given the available sensor data. This distribution
         can be approximated using a number of techniques, and the resultant
-        approximation used to provide a reasonable estimate as to the location
-        of the vehicle on the map, as well as a measure of certainty for this
-        estimate.
+        approximation can then be used to provide a reasonable estimate of the
+        vehicle's location on the map, as well as a measure of certainty for
+        this estimate.
 
         The most common probabilistic technique for map matching is particle
         filtering. A particle filter approximates a vehicle's position on the
         road using a fixed number of ``particles'' at different locations, each
         representing a different possible location for the vehicle. Each
-        particle has an associated weight, which intuitively indicates how well
-        that particle corresponds to the set of sensory inputs to the system.
+        particle has an associated weight, which indicates how well the position
+        of that particle agrees with the of sensory inputs to the system.
         Initially, the particles are scattered uniformly throughout some region,
         and all weights are equal. At each time step, the particle filter does
         the following, as described at length by \citet{pf2002}:
@@ -318,23 +318,22 @@
             true location of the vehicle is that of the given particle.
             \item A new set of $N$ particles is then sampled, with replacement,
             from the old set of $N$ particles according to the particles'
-            weights. The weights of the particles are then set to be uniform.
+            weights. The weights of the particles are then made equal.
             \item Finally, the state of each particle is advanced according to a
             model of the vehicle's motion. Some noise may be added during this
             process to ensure that subsequent re-sampling steps do not eliminate
             all but the most probable particle state.
         \end{enumerate}
 
-        Particle filters are employed in a similar manner by
-        \citet{toledo2009fusing} and \citet{selloum2009lane}. The algorithms
-        presented in each of these papers incorporate map data by forcing a
-        particle's weight to zero whenever its distance to the nearest road
-        centerline exceeds a half a standard lane width, ensuring that they will
-        be eliminated at the next resampling step. The algorithms also
-        incorporate data from onboard gyroscopes and odometers in order to
-        advance update the state of each particle, and can use GPS data when it
-        is available, which is a boon in environments where GPS signals are
-        patchy.
+        Both \citet{toledo2009fusing} and \citet{selloum2009lane} employ
+        particle filters in a similar manner. The algorithms presented in each
+        of these papers incorporate map data by forcing a particle's weight to
+        zero whenever its distance to the nearest road centerline exceeds a half
+        a standard lane width, ensuring that they will be eliminated at the next
+        resampling step. The algorithms also incorporate data from onboard
+        gyroscopes and odometers in order to advance the state of each particle,
+        and can optionally use GPS data when it is available, which is a boon in
+        environments where GPS signals are patchy.
 
         One common disadvantage to these approaches is that they rely on the
         availability of ``enhanced maps'' (or ``Emaps''), which use clothoids
@@ -351,11 +350,11 @@
         requires knowledge of lane location and direction, but dispenses with
         the requirement for lane width, is given by \citet{brubaker2013lost}.
         Rather than approximating the vehicle's location distribution using
-        particles, \citeauthor{brubaker2013lost} use a mixture of weighted
+        particles, \citeauthor{brubaker2013lost} use a weighted mixture of
         Gaussian distributions assigned to each road segment. At each time step,
         these Gaussians are updated using both simulated vehicle dynamics and
-        visual odometry. The vehicle's location can then be inferred from the
-        mode of the position distribution.
+        odometry. The vehicle's location can then be inferred from the mode of
+        the position distribution.
 
         Despite only requiring odometry data, which can be derived either using
         computer vision methods or from GPS fixes, this algorithm was reported
@@ -367,16 +366,16 @@
         distinguishable using odometry alone.
 
     \section{Existing results and future research directions}
-        At present, the only established and consistently available metric for
-        evaluating map matching algorithms is the proportion of road segments
-        which are correctly identified. Other metrics like along-track error and
+        At present, the only commonly available metric for evaluating map
+        matching algorithms is the proportion of road segments which are
+        correctly identified. Other metrics like along-track error and
         cross-track error are seldom available, and even when they are, the data
         and code used to produce them is not readily available, making it
         difficult to compare algorithms presented in different papers.
         Furthermore, some benchmarks are performed on extremely limited
-        datasets, and should be interpreted within the context provided in the
-        their respective papers. In spite of these caveats, the available
-        performance data for the algorithms mentioned in this survey is
+        datasets, and as such should be interpreted within the context provided
+        by their respective papers. In spite of these caveats, the available
+        performance data for the algorithms mentioned in this survey has been
         summarised in Table~\ref{tab:comparison} of the appendix.
 
         % Things I want to say:
@@ -442,26 +441,27 @@
         precisely which factors contribute to the effectiveness of fuzzy map
         matching algorithms in order to explain this discrepancy.
 
-        The success of \citet{velaga2012improving} in improving the performance
-        of simple heuristic algorithms through automated optimisation of weights
-        is another interesting avenue. Extending this solution to also learn
-        thresholds for turn and junction detection, rather than just the weights
-        used to score road segments, would likely lead to further improvements.
-        Applying standard machine learning techniques, as opposed to the
-        specialised methods proposed by \citeauthor{velaga2012improving}, may
-        also improve accuracy, although this is more challenging as it would
+        The work of \citet{velaga2012improving} in improving the performance of
+        simple heuristic algorithms through automated optimisation of weights is
+        another interesting area of research. Extending this solution to also
+        learn thresholds for turn and junction detection, rather than just the
+        weights used to score road segments, would likely lead to further
+        improvements. Applying standard machine learning techniques, as opposed
+        to the specialised methods proposed by \citeauthor{velaga2012improving},
+        may also improve accuracy, although this is more challenging as it would
         necessitate redesigning the algorithm to make the objective function
         used in optimisation---which was given as the number of mismatched links
         over a complete run of the algorithm---more efficient to compute.
 
-        Another promising avenue of map matching research is the use of maps
-        from the OpenStreetMap\footnotemark project, which offers free and
-        extensive coverage of the road network, but at a resolution below that
-        used in some past map matching papers. In particular, adapting the
-        particle filtering approach presented in \cite{toledo2009fusing} and
+        One other promising avenue of research is the use of maps from the
+        OpenStreetMap\footnotemark project, which offers free and extensive
+        coverage of the road network, but at a resolution below that used in
+        some past map matching papers. In particular, adapting the particle
+        filtering approach presented in \cite{toledo2009fusing} and
         \cite{selloum2009lane} to function with these readily available maps,
-        rather than with complex ``Emaps'', could potentially yield an algorithm
-        with low positional error but with good tolerance of mismatches.
+        rather than with complex ``Emaps'', could yield an algorithm with low
+        positional error and good tolerance of mismatches which could then be
+        deployed in low-cost navigation systems.
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
@@ -481,16 +481,15 @@
         features like a vehicle's distance from a road link or its heading
         relative to a link in order to localise the vehicle, and probabilistic
         algorithms, which try to model a probability distribution of possible
-        vehicle positions over the road network. The first category included
-        simple algorithms like point-to-curve and curve-to-curve, more advanced
-        weighted algorithms and fuzzy logic-based algorithms, whilst the second
-        category included algorithms based on particle filtering and Gaussian
-        mixture models. We then concluded with a brief summary of reported
-        performance data for state-of-the-art algorithms, and suggested some
-        promising directions for future research, including further
-        investigation of fuzzy logic methods, research into automated
-        optimisation of weights used in map matching algorithms, and the use of
-        freely available map data.
+        vehicle positions. The first category included techniques ranging from
+        point-to-curve and curve-to-curve matching to more advanced weighted and
+        fuzzy logic based algorithms, whereas the second category included
+        algorithms based on particle filtering and Gaussian mixture models. We
+        then concluded with a brief summary of reported performance data for
+        state-of-the-art algorithms, and suggested some promising directions for
+        future research, including further investigation of fuzzy logic methods,
+        research into automated optimisation of weights used in map matching
+        algorithms, and the use of freely available map data.
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
