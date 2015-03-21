@@ -1,4 +1,4 @@
-# Thoughts on map matching for visual road priors
+# Thoughts on map matching and its applications to computer vision
 
 ## The current state of map matching
 
