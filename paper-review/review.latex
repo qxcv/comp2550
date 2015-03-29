@@ -1,14 +1,128 @@
-\documentclass[11pt,twocolumn]{article}
-\usepackage{todonotes}
+\documentclass[11pt,a4paper]{article}
 \usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
+\usepackage{titling}
+\setlength{\droptitle}{-5em}
+\pagenumbering{gobble}
+
+% A few notes:
+% - This should be about a page.
+% - The reviews Steve gave us were 400-900 words, so don't feel compelled to
+%   write huge amounts. Given my font size and margin, this should end up at
+%   < 700 words.
+% - I'm yet to decide which paper I want to review. I was thinking of doing the
+%   GMM paper, but that could be a challenge given the amount of cross-domain
+%   knowledge it requires (learning all of that out of a textbook would be fun,
+%   but I still couldn't compare their work to the state of the art in ML, as I
+%   haven't been reading papers in that area).
+
+% I should be assessing my paper for several things (per task sheet):
+%  - Novelty: is the material new?
+%  - Difficulty: does it tackle a hard problem?
+%  - Quality: rigorous presentation and evaluation, good referencing.
+%  - Insights: does the paper explain *why* their method works?
+%  - Clarity: is method well described/reproducible? Does it have a good
+%    structure, length, title and abstract?
+%  - Significance: are the results important and did/will they make an impact?
+
+% Recommended structure was to:
+%  1) Summarise stated contributions and relate them to state of the art (this
+%     confirms your understanding).
+%  2) Enumerate the paper's strengths and weaknesses. Be specific about these:
+%     if the work is not novel, reference prior work. If experiments are
+%     unconvincing, state which experiments would be convincing. Identify
+%     specific errors in proofs, state *why* contributions are overstated (if
+%     they are), etc.
 
 \begin{document}
-    \title{Paper review\\ % XXX title
-    {\Large COMP2550 Paper Review}}
-    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
-    \date{\today}
+    \begingroup
+        \centering
+        \Large Review: Velaga, Quddus \& Bristow, ``Developing an enhanced
+        weight-based topological map-matching algorithm for intelligent
+        transport systems'', TRC 09\\[1em]
+        \large Sam Toyer\\[0.8em]
+        \today\\[1.5em]
+    \endgroup
 
-    \maketitle
+    % Paper strengths:
+    % - Use of an optimisation algorithm is interesting, as most other papers
+    %   choose weights empirically.
+    % - Algorithm itself is simple and quite easy to implement relative to, say,
+    %   a fuzzy logic algorithm.
+    % - Decision to model $\mathrm{MM}_\text{error}$ as a function of your
+    %   coefficients and then optimise that is quite ingenious.
+    % - Derived constants well documented
+    % - Exploration of different constants for different environments is quite
+    %   interesting.
 
-    TODO
+    % Paper weaknesses:
+    % - No cross-validation for MM error model
+    % - Choice to "eliminate" certain variables in the error model is unusual,
+    %   and requires further motivation in light of the fact that it eliminates
+    %   all of the terms related to one weight (!!)
+    % - Weight clamping is poorly motivated, and seems like it might negatively
+    %   affect performance in the rural scenario (why are both weights set to 1,
+    %   I wonder?)
+    % - Would be nice if data set could be released so that others could make
+    %   comparisons (like their comparisons with past papers, which are quite
+    %   nice)
+    % - How much does the stationary vehicle condition fuck with their accuracy
+    %   at intersections? Do they have anything to deal with the vehicle just
+    %   moving really slowly? It seems like slow turns through intersections
+    %   might not be registered the way things are currently set up. How did
+    %   other authors deal with this? Edit: Quddus et al. did the same thing in
+    %   2003 and 2004, but I can't find any commentary on how that affect their
+    %   accuracy.
+    % - At the beginning of the paper, they claim that their goal is to develop
+    %   a high performance map matching algorithm. In the ``Optimisation
+    %   Results'' section, however, they remove an intercept term from the model
+    %   with the justification that their goal is to compare the relative
+    %   importance of weights, and the presence of an intercept would hinder
+    %   this by causing one of the weights to be eliminated entirely.
+
+    % I feel like I should be cross-referencing other papers to provide
+    % constructive criticism or exemplars.
+
+    This paper introduces a Map Matching (MM) algorithm paired with a procedure for
+    optimising its weights. The algorithm is structured into three distinct
+    phases: identification of the initial link on which the vehicle is
+    travelling, identification of subsequent vehicle locations within a given
+    link, and identification of new links when turning or at a junction by
+    scoring each road link using a weighted sum of features. Optimising the
+    constants used in MM algorithms is challenging because evaluating
+    the most meaningful loss function---the number of links matched
+    incorrectly---requires a complete run through the available data. The paper
+    addresses this problem by learning a simple representation of this loss
+    function, and then choosing the weights which minimise this representation.
+
+    I found the optimisation strategy quite novel, and the authors are to be
+    commended for achieving relatively high MM accuracy with such a
+    straightforward algorithm. Demonstrating the effect of the vehicle's
+    environment on the optimal choice of weights was also insightful, as this
+    factor is commonly overlooked in other papers where testing is limited to
+    small urban data sets.
+
+    However, there are also some weaknesses which need to be addressed,
+    particularly in the optimisation sections.
+
+    Firstly, the iterative removal of coefficients with a low $t$-stat during
+    the optimisation process needs further justification, especially in light of
+    the fact that it results in one of the weights being eliminated entirely
+    when an intercept term is included in the regression for
+    $\mathrm{MM}_\mathrm{error}$. In Section 5, the disappearance of this weight
+    is used to justify removal of the intercept, but it seems to me that the
+    ``disappearing weight'' phenomenon instead argues for removal of the entire
+    coefficient elimination process, and the paper should include discussion on
+    why this course of action was not taken.
+
+    A related concern is the absence of cross validation for the learnt
+    representation of $\mathrm{MM}_\mathrm{error}$. The provided $R^2$ values for
+    this representation are helpful, but do not indicate how well it will
+    generalise to unseen values of $H_w$, $D_w$, $C_w$ and $T_w$.
+
+    As far as future work is concerned, learning $d_\mathrm{threshold}$,
+    $h_\mathrm{threshold}$ and the scaling constant in $f(D)$ would be an
+    interesting extension, as would applying the optimisation procedure given in
+    this paper to preexisting algorithms (e.g. %TODO) in order to validate its
+    effectiveness compared to hand-tuning.
+
 \end{document}
