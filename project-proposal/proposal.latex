@@ -20,25 +20,36 @@
 % 4. Who cares?
 % 5. If you’re successful, what difference will it make?
 % 6. What are the risks and the payoffs?
-% 7. How much will it cost?
+% 7. ~~~How much will it cost?~~~ (not relevant)
 % 8. How long will it take?
 % 9. What are the midterm and final “exams” to check for success?
 
+% At the moment I'm thinking of doing something like "graphical models for map
+% matching", and just dropping any pretence that this project has anything to do
+% with CV. I think Jose would be fine with this, and he was the one who suggest
+% GMs, so this might be a good option given that I'm quite pressed for time.
+% However, I don't think GTSAM (his suggested approach) will work for this,
+% since it seems to require users to represent constraints as "measurements"
+% to or from some fixed point, with a noise model associated with each
+% measurement. It obviously makes no sense to talk about noise for a map
+% measurement, so this approach does not help.
+
+% Project idea: real-time map matching using graphical models. Could use a HMM
+% like the one in Newson & Krum (think they were the authors?), but adapt it to
+% work in real time with sliding window and Kalman filtering along links.
+
 \begin{document}
     % TODO: Title
-    \title{COMP2550 Project Proposal}
+    \title{COMP2550 Project Proposal:}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
 
     \maketitle
 
-    \abstract{
-    }
-
 \begin{multicols}{2}
     \section*{Overview}
     \section*{Literature review}
-    \section*{Technical goals}
+    \section*{Technical methodology}
     \section*{Proposed milestones}
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
