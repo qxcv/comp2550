@@ -51,6 +51,7 @@
     \section*{Literature review}
     \section*{Technical methodology}
     \section*{Proposed milestones}
+    \cite{newson2009hidden}
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
 \end{multicols}

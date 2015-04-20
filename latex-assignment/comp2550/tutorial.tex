@@ -1,0 +1,134 @@
+\documentclass[10pt,a4paper]{article}
+
+% For ex. 5
+% \documentclass[10pt,twocolumn,a4paper]{article}
+% \documentclass[10pt,a4paper]{book}
+
+% For ex. 2
+\usepackage{amssymb,amsmath}
+
+% For ex. 4
+% \usepackage[numbers]{natbib}
+% Alternative:
+\usepackage[authoryear]{natbib}
+
+\begin{document}
+\title{My First \LaTeX~Document}
+\author{Sam Toyer}
+\maketitle
+
+\section*{Exercise 1}
+    This is my first \LaTeX~document. Here are some forbidden characters:
+
+    \begin{center}
+        \#, \$, \%, \^{}, \&, \_, \{, \}, \~{}, \textbackslash
+    \end{center}
+
+    Now for some styles: this text is \textbf{bold}, this text is
+    \textsl{slanted}, this text is \textit{italicised}, this text is
+    \texttt{teletype}, and this text is \emph{emphasized}.
+    \texttt{\textbackslash textit} will \textit{always make things
+    \textit{italic}}, so nesting has no additional effect.
+    \texttt{\textbackslash emph}, on the other hand, \emph{will make specific
+    pieces of text \emph{stand out} from the surrounding text}, \emph{even
+    \emph{when \emph{nested.}}}
+
+\section*{Exercise 2}
+    The quadratic equation $ax^2 + bx + c = 0$ has solution
+
+    \[
+        x = \frac{\-b \pm \sqrt{b^2 - 4ac}}{2a}
+    \]
+
+    % First example
+    Let $x \in \mathbb{R}^n$ be $n$-dimensional vector. We write $x_i$ for the
+    $i$-th element of $x$. The Euclidean distance between two $n$-dimensional
+    vectors is
+
+    \begin{align}
+        \|x - y\| &= \sqrt{ \sum_{i=1}^{n} (x_i - y_i)^2 }
+    \end{align}
+
+    % Second example
+    Let $\lambda \in \mathbb{R}$ be a scalar. We define the absolute value of
+    $\lambda$ as
+
+    \begin{align}
+        \left| \lambda \right| &=
+        % Neat, I didn't know about {cases}! Here I was writing out
+        % \left\{\begin{array}... like a chump.
+        \begin{cases}
+            \lambda & \text{if $\lambda \geq 0$} \\
+            -\lambda & \text{otherwise}.
+        \end{cases}
+    \end{align}
+
+    % Third example
+    The determinant of the $2 \times 2$ matrix
+
+    \begin{align}
+    M = \left[ \begin{matrix}
+    a & b \\
+    c & d
+    \end{matrix} \right]
+    \end{align}
+
+    is $|M| = ad - bc$.
+
+    % Our code
+    \[
+        f(x) = \frac1{2\pi} \exp\left\{-\frac{(x-\mu)^2}{2\sigma^2}\right\}
+    \]
+
+\section*{Exercise 3}
+    \setcounter{section}{3}
+    \subsection{The Quadratic Equation}
+    \label{sec:quadratic}
+
+    The quadratic equation is $ax^2 + bx + c = 0$.
+
+    \subsection{Solution}
+    \label{sec:solution}
+
+    The solution of the quadratic equation defined in
+    Section~\ref{sec:quadratic} is
+
+    \begin{align}
+        x &= \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+        \label{eqn:solution}
+    \end{align}
+
+    The term under the square root in Equation~\ref{eqn:solution} is known as
+    the discriminant.
+
+\section*{Exercise 4}
+
+    Compare
+
+    \begin{quote}
+        The standard reference for \LaTeX~is \citet{Lamport:1994}. Many
+        scientific articles are written using \LaTeX~\citep{Lamport:1994}.
+    \end{quote}
+
+    with
+
+    \begin{quote}
+        The standard reference for \LaTeX~is \citep{Lamport:1994}. Many
+        scientific articles are written using \LaTeX~\citep{Lamport:1994}.
+    \end{quote}
+
+    I'm citing \citet{brubaker2013lost} and \citet{velaga2012improving}.
+    \texttt{authoryear} has made \texttt{\textbackslash citet} include both the
+    author and the year of publication for these papers.
+
+\section*{Exercise 5}
+
+    The \texttt{twocolumn} option gives us a nice two-column layout. The
+    \texttt{book} class makes a number of changes, including giving the title
+    and bibliography pages of their own and shifting other pages to the right or
+    left depending on page number parity.
+
+\bibliographystyle{abbrvnat}
+\bibliography{tutorial}
+
+\end{document}
