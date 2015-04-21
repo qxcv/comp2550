@@ -38,9 +38,17 @@
 % like the one in Newson & Krum (think they were the authors?), but adapt it to
 % work in real time with sliding window and Kalman filtering along links.
 
+% Hmm, I don't think that will work well, since HMMs don't seem to be well-tuned
+% to work on problems where you need state estimates in real time. A better
+% alternative might be to adapt the GMM approach I saw in "Lost!" to work well
+% with GPS signals (include global localisation information to bootstrap the
+% sensor and correct errors, for instance). This would be quite a useful
+% algorithm, because it could detect vehicle position without significant drift
+% even in the absence of a GPS signal.
+
 \begin{document}
-    % TODO: Title
-    \title{COMP2550 Project Proposal:}
+    \title{Algorithms for Vehicle Localisation on a Digital Map\\
+    \Large COMP2550 Project Proposal}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
 
@@ -48,8 +56,17 @@
 
 \begin{multicols}{2}
     \section*{Overview}
+
     \section*{Literature review}
+
     \section*{Technical methodology}
+        Our approach will build on the mixture model-based approach to map
+        matching set out by \citet{brubaker2013lost}: first, we will adapt their
+        approach to incorporate GPS positioning data, where available,
+
+        % TODO: What data sets am I going to use? How am I going to measure
+        % success?
+
     \section*{Proposed milestones}
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
