@@ -91,16 +91,78 @@
     \section*{Related work}
         % This is where we write about what is done today and what the limits of
         % current practice are.
+        Map matching in vehicles---whereby a vehicle is localised under the
+        condition that its localised position \emph{must} be on the road
+        network---is a well studied problem with a range of preexisting
+        solutions. The most dominant family of solutions in the map matching
+        literature are heuristic methods which follow some variation on the
+        following three-step structure:
 
-        % We also segue into our next section, which tells the reader what's new
-        % in our approach and why we think it will be successful. We also want
-        % to cover the 'who cares?' and "if you're successful, what difference
-        % will it make?" dotpoints
+        \begin{enumerate}
+            \item Estimate the vehicle's position using GPS or dead-reckoning.
+            \item Consider all of the ``segments'' in the digital map of the
+            road network and choose the one which the vehicle seems most likely
+            to be on given the current GPS fix and the previous map-matched
+            segment.
+            \item Estimate the position of the vehicle within the chosen
+            segment.
+        \end{enumerate}
+
+        Approaches of this kind include those of \citet{ochieng2003map},
+        \citet{velaga2009developing} and \citet{quddus2006high}. These
+        algorithms can be highly accurate---for instance,
+        \citeauthor{quddus2006high} report that they were able achieve a
+        horizontal accuracy of 5.5m using an algorithm following the structure
+        described above, which compares favourable with the 32m horizontal
+        accuracy of naively matching to the nearest point on the road network
+
+        One common weakness to these approaches is poor mismatch handling: since
+        segments are usually selected recursively---with the algorithm only
+        matching to segments adjacent to the previously matched one---an
+        incorrectly selected road segment can cause subsequent road segments to
+        be selected incorrectly. This is especially problematic for the first
+        match which the algorithm performs, since it has no prior matching data,
+        and has prompted algorithm designers to take special precautions like
+        observing many GPS fixes before matching the first segment
+        \citep{syed2004fuzzy}.
+
+        Probabilistic algorithms are able to sidestep this problem by modelling
+        vehicle position not as a single ``best guess'', but as a probability
+        distribution over all possible vehicle states. Thus, when there are
+        multiple sections of the road which the vehicle could plausibly be
+        occupying, the algorithm will assign them each similar probability and
+        converge on a segment later, rather than choosing one segment
+        arbitrarily and suffering incorrect subsequent matches afterwards.
+
+        The most common probabilistic approach to map matching is particle
+        filtering, as exemplified by \citet{selloum2009lane} and
+        \citet{chausse2005vehicle}. Particle filters approximate the
+        distribution of possible vehicle positions using a large number of
+        ``particles'', each of which represent one possible state of the
+        vehicle. Initially, these particles are spread uniformly over the road
+        network. Then, at each time step, the particle positions are updated
+        according to observed vehicle motion, and each particle is assigned a
+        weight reflecting how well it corresponds to GPS readings and other
+        available data. The particles are then resampled to produce a new
+        particle distribution which reflects these weights, after which the
+        algorithm loops back to the particle position update stage. Over time,
+        the position of the particles should converge to the true vehicle
+        position.
+
+        Particle filters are highly flexible, and can be adapted to work without
+        GPS \citep{pf2002}, or in situations like pedestrian navigation where
+        the true position of the localisation target is not guaranteed to
+        coincide with that of a mapped feature like a road or footpath
+        \citep{oh2004map}. However, most applications of particle filtering to
+        vehicle localisation, including those of \citeauthor{selloum2009lane}
+        and \citeauthor{chausse2005vehicle}, have used augmented GPS systems and
+        high precision maps which are not widely available. As a result, a
+        promising avenue of research---and in fact the one which this project
+        will pursue---is to adapt particle filtering to perform well with
+        commonly available street maps and regular GPS receivers.
 
     \section*{Technical approach}
-        Our approach will build on the mixture model-based approach to map
-        matching set out by \citet{brubaker2013lost}: first, we will adapt their
-        approach to incorporate GPS positioning data, where available,
+        As mentioned above, we will % TODO
 
         % TODO: What data sets am I going to use? How am I going to measure
         % success?
