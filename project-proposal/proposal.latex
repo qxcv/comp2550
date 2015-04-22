@@ -1,8 +1,8 @@
-\documentclass[11pt]{article}
+\documentclass[10pt,twocolumn]{article}
 
-\usepackage{hyperref,multicol}
+\usepackage{hyperref}
 \usepackage[round]{natbib}
-\usepackage[hmargin=0.5in,vmargin=0.8in]{geometry}
+\usepackage[hmargin=1in,vmargin=1in]{geometry}
 
 % Should be around two pages. Things this needs:
 
@@ -47,19 +47,57 @@
 % even in the absence of a GPS signal.
 
 \begin{document}
-    \title{Algorithms for Vehicle Localisation on a Digital Map\\
+    \title{Robust Localisation of a Vehicle on a Digital Map\\
     \Large COMP2550 Project Proposal}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
 
     \maketitle
 
-\begin{multicols}{2}
     \section*{Overview}
+        Localisation---the task of determining the position of an object
+        relative to its environment---is a common problem in robotics and
+        related fields. In outdoor environments, a common solution is to use a
+        satellite-based navigation system like GPS, which is usually able to
+        provide a latitude and longitude estimate within metres of the
+        receiver's true position.
 
-    \section*{Literature review}
+        However, in some applications---especially applications in areas where
+        GPS reception is poor---GPS is not sufficient on its own, and other
+        sources of information must be used to infer location. For road vehicle
+        localisation, street maps are excellent for this purpose: since cars
+        almost always travel on roads, raw GPS fixes can be snapped to the most
+        likely true position of the vehicle on the road network in a process
+        called map matching. With the recent availability of free, accurate maps
+        from the OpenStreetMap\footnotemark~project, map matching has become an
+        attractive technique for improving the performance of a wide range of
+        localisation techniques.
 
-    \section*{Technical methodology}
+        \footnotetext{\url{http://www.openstreetmap.org/}}
+
+        The objective of this project is to develop a robust algorithm to
+        estimate the position of a vehicle on a road network from GPS data and
+        dead reckoning. The algorithm should maintain good performance even with
+        patchy GPS reception, and should be able to be adapted to other
+        localisation tasks---pedestrian localisation, for example---where use of
+        digital maps could improve performance.
+
+        Such an algorithm has a wide range of applications, ranging from
+        improving the performance of visual road classifiers by providing
+        improved prior information about the position of roads in the image
+        \citep{alvarez2014combining} to assisting visually impaired people in
+        navigating outdoors \citep{oh2004map}.
+
+    \section*{Related work}
+        % This is where we write about what is done today and what the limits of
+        % current practice are.
+
+        % We also segue into our next section, which tells the reader what's new
+        % in our approach and why we think it will be successful. We also want
+        % to cover the 'who cares?' and "if you're successful, what difference
+        % will it make?" dotpoints
+
+    \section*{Technical approach}
         Our approach will build on the mixture model-based approach to map
         matching set out by \citet{brubaker2013lost}: first, we will adapt their
         approach to incorporate GPS positioning data, where available,
@@ -67,9 +105,12 @@
         % TODO: What data sets am I going to use? How am I going to measure
         % success?
 
-    \section*{Proposed milestones}
-    \cite{newson2009hidden}
+    \section*{Project plan}
+        % Here we formulate our 'midterm and final exams' to check for success
+        % We also say how long the project will take, and what the risks and
+        % payoffs are.
+        \citet{newson2009hidden}
+
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
-\end{multicols}
 \end{document}
