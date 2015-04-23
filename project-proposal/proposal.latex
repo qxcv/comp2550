@@ -141,17 +141,29 @@
 
     \section*{Technical approach}
         As mentioned above, we will pursue a particle filter-based method for
-        localising % TODO
+        localisation. Initially, this will be adapted from the method presented
+        by \citet{selloum2009lane}, where map information is incorporated by
+        clamping the weights of all off-road particles to zero. We will then
+        consider other map-based priors, including the lane-centered
+        Gaussians employed by \citet{chausse2005vehicle}.
 
-        % TODO: What data sets am I going to use? How am I going to measure
-        % success?
-        % I'll probably try to use the data set in Lost!
-        Our new method will be evaluated using the GPS, IMU and ground truth
-        data set supplied by \citet{brubaker2013lost}, which is itself derived
-        from the KITTI Vision Benchmark Suite.\footnotemark Specifically, we
-        will % TODO
+        Our algorithm will be evaluated using the data set supplied by
+        \citet{brubaker2013lost}, which is itself derived from the KITTI Vision
+        Benchmark Suite.\footnotemark This data set includes approximately 40km
+        of traces produced by driving a vehicle fitted with a highly accurate
+        OxTS GPS unit through various urban environments. It also includes
+        OpenStreetMap-derived map data for each of the regions corresponding to
+        these traces.
 
         \footnotetext{\url{http://www.cvlibs.net/datasets/kitti/index.php}}
+
+        Since our chosen data set does not include noisy GPS data typical of
+        low-cost receivers, we will model GPS error over time as a first-order
+        Markov process---as per \citet{bierman1995error}---and benchmark our
+        algorithm with varying levels of artificial noise. We will then compare
+        the algorithm's predictions against the supplied ground truth, and
+        report summary statistics for horizontal positioning error on each trace
+        in the data set.
 
     \section*{Project plan}
         % Here we formulate our 'midterm and final exams' to check for success
