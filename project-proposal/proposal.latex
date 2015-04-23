@@ -24,28 +24,6 @@
 % 8. How long will it take?
 % 9. What are the midterm and final “exams” to check for success?
 
-% At the moment I'm thinking of doing something like "graphical models for map
-% matching", and just dropping any pretence that this project has anything to do
-% with CV. I think Jose would be fine with this, and he was the one who suggest
-% GMs, so this might be a good option given that I'm quite pressed for time.
-% However, I don't think GTSAM (his suggested approach) will work for this,
-% since it seems to require users to represent constraints as "measurements"
-% to or from some fixed point, with a noise model associated with each
-% measurement. It obviously makes no sense to talk about noise for a map
-% measurement, so this approach does not help.
-
-% Project idea: real-time map matching using graphical models. Could use a HMM
-% like the one in Newson & Krum (think they were the authors?), but adapt it to
-% work in real time with sliding window and Kalman filtering along links.
-
-% Hmm, I don't think that will work well, since HMMs don't seem to be well-tuned
-% to work on problems where you need state estimates in real time. A better
-% alternative might be to adapt the GMM approach I saw in "Lost!" to work well
-% with GPS signals (include global localisation information to bootstrap the
-% sensor and correct errors, for instance). This would be quite a useful
-% algorithm, because it could detect vehicle position without significant drift
-% even in the absence of a GPS signal.
-
 \begin{document}
     \title{Robust Localisation of a Vehicle on a Digital Map\\
     \Large COMP2550 Project Proposal}
@@ -66,12 +44,12 @@
         GPS reception is poor---GPS is not sufficient on its own, and other
         sources of information must be used to infer location. For road vehicle
         localisation, street maps are excellent for this purpose: since cars
-        almost always travel on roads, raw GPS fixes can be snapped to the most
-        likely true position of the vehicle on the road network in a process
-        called map matching. With the recent availability of free, accurate maps
-        from the OpenStreetMap\footnotemark~project, map matching has become an
-        attractive technique for improving the performance of a wide range of
-        localisation techniques.
+        almost always travel on roads, raw GPS fixes can be ``snapped'' to the
+        most likely true position of the vehicle on the road network in a
+        process called map matching. With the recent availability of free,
+        accurate maps from the OpenStreetMap\footnotemark~project, map matching
+        has become an attractive technique for improving the performance of a
+        wide range of localisation techniques.
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
@@ -162,17 +140,55 @@
         commonly available street maps and regular GPS receivers.
 
     \section*{Technical approach}
-        As mentioned above, we will % TODO
+        As mentioned above, we will pursue a particle filter-based method for
+        localising % TODO
 
         % TODO: What data sets am I going to use? How am I going to measure
         % success?
+        % I'll probably try to use the data set in Lost!
+        Our new method will be evaluated using the GPS, IMU and ground truth
+        data set supplied by \citet{brubaker2013lost}, which is itself derived
+        from the KITTI Vision Benchmark Suite.\footnotemark Specifically, we
+        will % TODO
+
+        \footnotetext{\url{http://www.cvlibs.net/datasets/kitti/index.php}}
 
     \section*{Project plan}
         % Here we formulate our 'midterm and final exams' to check for success
         % We also say how long the project will take, and what the risks and
         % payoffs are.
-        \citet{newson2009hidden}
+        In order to evaluate the progress of the project, we propose several
+        milestones:
 
+        \begin{enumerate}
+            \item Firstly, we will complete the basic programming work required
+            to evaluate the algorithm, including cleaning and parsing of the
+            data set and evaluation of horizontal positioning error with GPS
+            data alone.
+            \item With this completed, we shall implement our particle filter
+            and produce comparisons between the implemented filter and raw GPS
+            localisation.
+            \item Having finished the required coding work, we will synthesise
+            our results into a paper.
+            \item With whatever time remains, we will investigate techniques for
+            improving the efficiency and performance of the particle filter so
+            that it can yield accurate location predictions in real time.
+        \end{enumerate}
+
+        The first three milestones should be easily achievable within the five
+        to six week time frame available before the final report is required,
+        whilst the final milestone will allow us to make productive use of any
+        time which remains after these milestones are complete.
+
+        At the conclusion of the project, we anticipate that we will have a
+        robust vehicle localisation algorithm which significantly outperforms
+        raw GPS localisation by making use of digital map data. However, in the
+        event that we do not achieve this goal, we still expect to be able to
+        report useful negative results regarding the application of particle
+        filters to map-aided vehicle localisation in scenarios where high detail
+        maps of the kind used in previous studies are not available.
+
+    \clearpage
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
 \end{document}
