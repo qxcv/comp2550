@@ -190,13 +190,13 @@
         and the fourth milestone will allow for the productive use of any time
         which remains after these milestones are complete.
 
-        At the conclusion of the project, I anticipate that I will have a
-        robust vehicle localisation algorithm which significantly outperforms
-        raw GPS localisation by making use of digital map data. However, in the
-        event that I do not achieve this goal, I still expect to be able to
-        report useful negative results regarding the application of particle
-        filters to map-aided vehicle localisation in scenarios where high detail
-        maps of the kind used in previous studies are not available.
+        It is anticipated that, at its conclusion, this project will have
+        produced a robust vehicle localisation algorithm which significantly
+        outperforms raw GPS localisation by making use of digital map data.
+        However, in the event that this goal is not achieved, it will still be
+        possible to report useful negative results regarding the application of
+        particle filtering to map-aided vehicle localisation in scenarios where
+        high detail maps of the kind used in previous studies are not available.
 
     \clearpage
     \bibliography{citations}{}
