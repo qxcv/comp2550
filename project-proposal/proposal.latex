@@ -25,7 +25,7 @@
 % 9. What are the midterm and final “exams” to check for success?
 
 \begin{document}
-    \title{Robust Localisation of a Vehicle on a Digital Map\\
+    \title{Robust Vehicle Localisation with Digital Maps\\
     \Large COMP2550 Project Proposal}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
     \date{\today}
@@ -36,9 +36,9 @@
         Localisation---the task of determining the position of an object
         relative to its environment---is a common problem in robotics and
         related fields. In outdoor environments, a common solution is to use a
-        satellite-based navigation system like GPS, which is usually able to
-        provide a latitude and longitude estimate within metres of the
-        receiver's true position.
+        satellite-based navigation system like GPS, which are usually able to
+        provide a latitude and longitude estimate for receivers within metres of
+        the ground truth.
 
         However, in some applications---especially applications in areas where
         GPS reception is poor---GPS is not sufficient on its own, and other
@@ -48,17 +48,17 @@
         most likely true position of the vehicle on the road network in a
         process called map matching. With the recent availability of free,
         accurate maps from the OpenStreetMap\footnotemark~project, map matching
-        has become an attractive technique for improving the performance of a
-        wide range of localisation techniques.
+        has become an attractive technique for improving the performance of
+        existing localisation techniques.
 
         \footnotetext{\url{http://www.openstreetmap.org/}}
 
         The objective of this project is to develop a robust algorithm to
         estimate the position of a vehicle on a road network from GPS data and
-        dead reckoning. The algorithm should maintain good performance even with
-        patchy GPS reception, and should be able to be adapted to other
-        localisation tasks---pedestrian localisation, for example---where use of
-        digital maps could improve performance.
+        odometry. The algorithm should maintain good performance even with poor
+        GPS reception, and should be adaptable to other localisation
+        tasks---pedestrian localisation, for example---where use of digital maps
+        could improve performance.
 
         Such an algorithm has a wide range of applications, ranging from
         improving the performance of visual road classifiers by providing
@@ -69,19 +69,18 @@
     \section*{Related work}
         % This is where we write about what is done today and what the limits of
         % current practice are.
-        Map matching in vehicles---whereby a vehicle is localised under the
-        condition that its localised position \emph{must} be on the road
-        network---is a well studied problem with a range of preexisting
-        solutions. The most dominant family of solutions in the map matching
-        literature are heuristic methods which follow some variation on the
-        following three-step structure:
+        Map matching in vehicles---where vehicles are localised under the
+        simplifying assumption that their true position coincides \emph{exactly}
+        with that of a road---is a well studied problem with a range of
+        preexisting solutions. The most popular family of solutions are
+        heuristic methods which follow some variation on the following
+        three-step structure:
 
         \begin{enumerate}
             \item Estimate the vehicle's position using GPS or dead-reckoning.
-            \item Consider all of the ``segments'' in the digital map of the
-            road network and choose the one which the vehicle seems most likely
-            to be on given the current GPS fix and the previous map-matched
-            segment.
+            \item Consider all road segments in the map and choose the one which
+            the vehicle seems most likely to be on given the current GPS fix and
+            the previous map-matched position.
             \item Estimate the position of the vehicle within the chosen
             segment.
         \end{enumerate}
@@ -90,27 +89,29 @@
         \citet{velaga2009developing} and \citet{quddus2006high}. These
         algorithms can be highly accurate---for instance,
         \citeauthor{quddus2006high} report that they were able achieve a
-        horizontal accuracy of 5.5m using an algorithm following the structure
-        described above, which compares favourable with the 32m horizontal
-        accuracy of naively matching to the nearest point on the road network
+        horizontal accuracy of better than 5.5m for 95\% of observations using
+        an algorithm following the structure described above, which compares
+        favourably with the 32m horizontal accuracy of naively matching to the
+        nearest point on the road network
 
-        One common weakness to these approaches is poor mismatch handling: since
-        segments are usually selected recursively---with the algorithm only
-        matching to segments adjacent to the previously matched one---an
-        incorrectly selected road segment can cause subsequent road segments to
-        be selected incorrectly. This is especially problematic for the first
-        match which the algorithm performs, since it has no prior matching data,
-        and has prompted algorithm designers to take special precautions like
-        observing many GPS fixes before matching the first segment
-        \citep{syed2004fuzzy}.
+        Although these approaches are popular, one of their common weaknesses is
+        poor mismatch handling: since segments are usually selected
+        recursively---with the algorithm only matching to segments close to the
+        previously matched one---an incorrectly selected road segment can cause
+        subsequent road segments to be selected incorrectly. This is especially
+        problematic for the first match which the algorithm performs, since the
+        first match must be made without prior matching data, and so is likely
+        to be incorrect. This problem has prompted algorithm designers to take
+        special precautions like observing many GPS fixes before matching the
+        first segment \citep{syed2004fuzzy}.
 
         Probabilistic algorithms are able to sidestep this problem by modelling
         vehicle position not as a single ``best guess'', but as a probability
         distribution over all possible vehicle states. Thus, when there are
-        multiple sections of the road which the vehicle could plausibly be
-        occupying, the algorithm will assign them each similar probability and
-        converge on a segment later, rather than choosing one segment
-        arbitrarily and suffering incorrect subsequent matches afterwards.
+        multiple roads on which the vehicle could plausibly be travelling, the
+        algorithm will assign them each similar probability and converge on a
+        segment later, rather than choosing one segment arbitrarily and
+        suffering incorrect subsequent matches afterwards.
 
         The most common probabilistic approach to map matching is particle
         filtering, as exemplified by \citet{selloum2009lane} and
@@ -140,62 +141,59 @@
         commonly available street maps and regular GPS receivers.
 
     \section*{Technical approach}
-        As mentioned above, we will pursue a particle filter-based method for
-        localisation. Initially, this will be adapted from the method presented
-        by \citet{selloum2009lane}, where map information is incorporated by
-        clamping the weights of all off-road particles to zero. We will then
-        consider other map-based priors, including the lane-centered
-        Gaussians employed by \citet{chausse2005vehicle}.
+        As mentioned above, this project take a particle filter-based approach
+        to localisation. Initially, this approach will be adapted from the
+        method presented by \citet{selloum2009lane}, where map information is
+        incorporated by clamping the weights of all off-road particles to zero.
+        Other map-based priors will then be considered, including the
+        lane-centered Gaussians employed by \citet{chausse2005vehicle}.
 
-        Our algorithm will be evaluated using the data set supplied by
+        The algorithm will be evaluated using the data set supplied by
         \citet{brubaker2013lost}, which is itself derived from the KITTI Vision
         Benchmark Suite.\footnotemark This data set includes approximately 40km
         of traces produced by driving a vehicle fitted with a highly accurate
-        OxTS GPS unit through various urban environments. It also includes
+        GPS unit through various urban environments. It also includes
         OpenStreetMap-derived map data for each of the regions corresponding to
         these traces.
 
         \footnotetext{\url{http://www.cvlibs.net/datasets/kitti/index.php}}
 
-        Since our chosen data set does not include noisy GPS data typical of
-        low-cost receivers, we will model GPS error over time as a first-order
-        Markov process---as per \citet{bierman1995error}---and benchmark our
-        algorithm with varying levels of artificial noise. We will then compare
-        the algorithm's predictions against the supplied ground truth, and
-        report summary statistics for horizontal positioning error on each trace
-        in the data set.
+        The chosen data set does not include noisy GPS data typical of low-cost
+        receivers. However, GPS-like noise may still be introduced artificially
+        by modelling it as a first-order Markov process, as per
+        \citet{bierman1995error}. This approach has the advantage of allowing
+        the algorithm to be benchmarked with varying levels of noise, with
+        summary statistics for horizontal positioning error being reported at
+        each level.
 
     \section*{Project plan}
-        % Here we formulate our 'midterm and final exams' to check for success
+        % Here I formulate my 'midterm and final exams' to check for success
         % We also say how long the project will take, and what the risks and
         % payoffs are.
-        In order to evaluate the progress of the project, we propose several
+        In order to evaluate progress, the project will be divided into several
         milestones:
 
         \begin{enumerate}
-            \item Firstly, we will complete the basic programming work required
-            to evaluate the algorithm, including cleaning and parsing of the
-            data set and evaluation of horizontal positioning error with GPS
-            data alone.
-            \item With this completed, we shall implement our particle filter
-            and produce comparisons between the implemented filter and raw GPS
-            localisation.
-            \item Having finished the required coding work, we will synthesise
-            our results into a paper.
-            \item With whatever time remains, we will investigate techniques for
-            improving the efficiency and performance of the particle filter so
-            that it can yield accurate location predictions in real time.
+            \item Completion of the basic programming work required to evaluate
+            the algorithm, including cleaning and parsing of the data set and
+            production of simulated GPS noise.
+            \item Implementation of the particle filter and production of
+            comparisons between the implemented filter and raw GPS localisation.
+            \item Synthesis of results into a paper.
+            \item Further investigation of techniques for improving the
+            efficiency and performance of the particle filter so that it can
+            yield accurate location predictions in real time.
         \end{enumerate}
 
         The first three milestones should be easily achievable within the five
         to six week time frame available before the final report is required,
-        whilst the final milestone will allow us to make productive use of any
-        time which remains after these milestones are complete.
+        and the fourth milestone will allow for the productive use of any time
+        which remains after these milestones are complete.
 
-        At the conclusion of the project, we anticipate that we will have a
+        At the conclusion of the project, I anticipate that I will have a
         robust vehicle localisation algorithm which significantly outperforms
         raw GPS localisation by making use of digital map data. However, in the
-        event that we do not achieve this goal, we still expect to be able to
+        event that I do not achieve this goal, I still expect to be able to
         report useful negative results regarding the application of particle
         filters to map-aided vehicle localisation in scenarios where high detail
         maps of the kind used in previous studies are not available.
