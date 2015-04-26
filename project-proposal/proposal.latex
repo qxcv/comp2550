@@ -36,9 +36,9 @@
         Localisation---the task of determining the position of an object
         relative to its environment---is a common problem in robotics and
         related fields. In outdoor environments, a common solution is to use a
-        satellite-based navigation system like GPS, which are usually able to
-        provide a latitude and longitude estimate for receivers within metres of
-        the ground truth.
+        satellite-based navigation system like GPS, which is usually able to
+        provide a latitude and longitude estimate within metres of the ground
+        truth.
 
         However, in some applications---especially applications in areas where
         GPS reception is poor---GPS is not sufficient on its own, and other
@@ -63,12 +63,10 @@
         Such an algorithm has a wide range of applications, ranging from
         improving the performance of visual road classifiers by providing
         improved prior information about the position of roads in the image
-        \citep{alvarez2014combining} to assisting visually impaired people in
-        navigating outdoors \citep{oh2004map}.
+        \citep{alvarez2014combining} to assisting visually impaired people to
+        navigate outdoors \citep{oh2004map}.
 
     \section*{Related work}
-        % This is where we write about what is done today and what the limits of
-        % current practice are.
         Map matching in vehicles---where vehicles are localised under the
         simplifying assumption that their true position coincides \emph{exactly}
         with that of a road---is a well studied problem with a range of
@@ -98,20 +96,22 @@
         poor mismatch handling: since segments are usually selected
         recursively---with the algorithm only matching to segments close to the
         previously matched one---an incorrectly selected road segment can cause
-        subsequent road segments to be selected incorrectly. This is especially
-        problematic for the first match which the algorithm performs, since the
-        first match must be made without prior matching data, and so is likely
-        to be incorrect. This problem has prompted algorithm designers to take
-        special precautions like observing many GPS fixes before matching the
-        first segment \citep{syed2004fuzzy}.
+        subsequent road segments to be selected incorrectly. Such mismatches can
+        easily happen immediately after the initialisation of the algorithm,
+        since the first match cannot be made using data from previous,
+        presumably correct matches, and thus is more likely to be incorrect.
+        This problem has prompted algorithm designers to take special
+        precautions like observing many GPS fixes before performing an initial
+        match \citep{syed2004fuzzy}.
 
         Probabilistic algorithms are able to sidestep this problem by modelling
         vehicle position not as a single ``best guess'', but as a probability
         distribution over all possible vehicle states. Thus, when there are
         multiple roads on which the vehicle could plausibly be travelling, the
-        algorithm will assign them each similar probability and converge on a
-        segment later, rather than choosing one segment arbitrarily and
-        suffering incorrect subsequent matches afterwards.
+        algorithm will assign them each similar probability and allow
+        probability mass to converge on a single segment later, rather than
+        choosing one segment arbitrarily and suffering incorrect subsequent
+        matches.
 
         The most common probabilistic approach to map matching is particle
         filtering, as exemplified by \citet{selloum2009lane} and
@@ -128,14 +128,15 @@
         the position of the particles should converge to the true vehicle
         position.
 
-        Particle filters are highly flexible, and can be adapted to work without
-        GPS \citep{pf2002}, or in situations like pedestrian navigation where
-        the true position of the localisation target is not guaranteed to
-        coincide with that of a mapped feature like a road or footpath
-        \citep{oh2004map}. However, most applications of particle filtering to
+        Particle filters can be adapted to work without GPS \citep{pf2002}, or
+        in situations like pedestrian navigation where the true position of the
+        localisation target is not guaranteed to coincide with that of a mapped
+        feature like a road or footpath \citep{oh2004map}, which is a major
+        advantage over the traditional ``three-step'' map matching methods
+        described above. However, current applications of particle filtering to
         vehicle localisation, including those of \citeauthor{selloum2009lane}
         and \citeauthor{chausse2005vehicle}, have used augmented GPS systems and
-        high precision maps which are not widely available. As a result, a
+        specialised maps which are not widely available. As a result, a
         promising avenue of research---and in fact the one which this project
         will pursue---is to adapt particle filtering to perform well with
         commonly available street maps and regular GPS receivers.
@@ -158,18 +159,13 @@
 
         \footnotetext{\url{http://www.cvlibs.net/datasets/kitti/index.php}}
 
-        The chosen data set does not include noisy GPS data typical of low-cost
-        receivers. However, GPS-like noise may still be introduced artificially
-        by modelling it as a first-order Markov process, as per
-        \citet{bierman1995error}. This approach has the advantage of allowing
-        the algorithm to be benchmarked with varying levels of noise, with
-        summary statistics for horizontal positioning error being reported at
-        each level.
+        The chosen data set does not include noisy data typical of low-cost GPS
+        receivers, so GPS-like noise will have to be introduced artificially.
+        This approach has the advantage of allowing the algorithm's
+        performance---as measured by horizontal positioning error---to be
+        evaluated with varying levels of noise.
 
     \section*{Project plan}
-        % Here I formulate my 'midterm and final exams' to check for success
-        % We also say how long the project will take, and what the risks and
-        % payoffs are.
         In order to evaluate progress, the project will be divided into several
         milestones:
 
@@ -192,11 +188,12 @@
 
         It is anticipated that, at its conclusion, this project will have
         produced a robust vehicle localisation algorithm which significantly
-        outperforms raw GPS localisation by making use of digital map data.
-        However, in the event that this goal is not achieved, it will still be
-        possible to report useful negative results regarding the application of
-        particle filtering to map-aided vehicle localisation in scenarios where
-        high detail maps of the kind used in previous studies are not available.
+        outperforms raw GPS localisation by making use of freely available
+        digital map data. However, in the event that this goal is not achieved,
+        it will still be possible to report useful negative results regarding
+        the application of particle filtering to map-aided vehicle localisation
+        in scenarios where specialised maps of the kind used in previous studies
+        are not available.
 
     \clearpage
     \bibliography{citations}{}
