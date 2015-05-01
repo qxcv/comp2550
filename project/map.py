@@ -5,14 +5,13 @@ import numpy as np
 from imposm.parser import OSMParser
 
 
-# These are all the most important road types. There is also 'unclassified',
-# 'residential' and some others. However, these have been ommitted in the
-# interests of localisation effectiveness. See
+# These are all the most important road types. Some types have been ommitted in
+# the interests of localisation effectiveness. See
 # https://wiki.openstreetmap.org/wiki/Key:highway for more information
 ROAD_TYPES = frozenset(
-    ["motorway", "trunk", "primary", "secondary", "tertiary" "motorway_link",
+    ["motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link",
      "trunk_link", "primary_link", "secondary_link", "tertiary_link",
-     "living_street", "road", "unclassified", "residential"]
+     "living_street", "road", "unclassified", "residential", "service"]
 )
 
 
@@ -53,11 +52,13 @@ class Map(object):
         assert self.begin_arr.shape == (len(self.segments), 2)
 
     def _handle_ways(self, ways):
+        rejected = set()
         for id, tags, refs in ways:
             if not refs or 'highway' not in tags:
                 continue
 
             if tags['highway'] not in ROAD_TYPES:
+                rejected.add(tags['highway'])
                 continue
 
             self._way_refs[id] = refs

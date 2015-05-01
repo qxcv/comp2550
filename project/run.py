@@ -1,13 +1,18 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from argparse import ArgumentParser
 
-import numpy as np
+from matplotlib import pyplot as plt
 
-from observation import parse_map_trajectory
+from graphics import mpl_draw_map
+from observation import parse_map_trajectory, coordinate_projector
+from map import Map
+from settings import KARLSRUHE_CENTER
 
 parser = ArgumentParser()
 parser.add_argument('data_fp', type=open)
+parser.add_argument('map_path', type=str,
+                    help="Path to a .osm file containing map data")
 parser.add_argument('--freq', type=int, default=10)
 
 if __name__ == '__main__':
@@ -15,11 +20,7 @@ if __name__ == '__main__':
     parsed = parse_map_trajectory(args.data_fp, args.freq)
     last_pos = None
     # Just some fun code :-)
-    for obs in parsed:
-        if last_pos is not None:
-            new_x, new_y = obs.pos
-            old_x, old_y = last_pos
-            dist = np.sqrt((new_x - old_x) ** 2 + (new_y - old_y) ** 2)
-            speed = dist * args.freq
-            print("Speed: {}km/h".format(speed * 3.6))
-        last_pos = obs.pos
+    proj = coordinate_projector(KARLSRUHE_CENTER)
+    m = Map(args.map_path, proj)
+    mpl_draw_map(m)
+    plt.show()
