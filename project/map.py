@@ -36,12 +36,10 @@ class Map(object):
         for way_id, refs in self._way_refs.iteritems():
             # Join each pair of refs into a segment
             for begin_ref, end_ref in zip(refs, refs[1:]):
-                # Swap elements in both begin and end so that they're in (lat,
-                # lon) format, then convert into Cartesian format
                 begin = self._node_loc[begin_ref]
                 end = self._node_loc[end_ref]
-                proj_begin = projector((begin[1], begin[0]))
-                proj_end = projector((end[1], end[0]))
+                proj_begin = projector(begin)
+                proj_end = projector(end)
                 self.segments.append((proj_begin, proj_end))
 
         # Finally, convert the segment beginnings and endings into some big
@@ -66,6 +64,7 @@ class Map(object):
 
     def _handle_coords(self, coords):
         for coord in coords:
-            # Yes, (lon, lat) is what it says on the imposm.parser page
+            # Yes, imposm.parser gives us coordinates in (lon, lat) format. I
+            # don't know why.
             id, lon, lat = coord
             self._node_loc[id] = (lat, lon)
