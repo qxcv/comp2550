@@ -57,6 +57,9 @@ class Observation(object):
         # Finally, store the complete data dictionary for reference
         self.data = data
 
+    def __getitem__(self, key):
+        return self.data[key]
+
 
 def parse_map_trajectory(fp, freq=10, projector=None):
     # Generator returning series of observations from an iterable (presumed to

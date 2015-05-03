@@ -29,6 +29,6 @@ if __name__ == '__main__':
         # Randomly skip 90% of points
         if random() < 0.9:
             continue
-        plot_particle(obs.pos)
+        plot_particle(obs.pos, obs['yaw'], random())
 
     plt.show()

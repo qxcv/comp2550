@@ -2,4 +2,5 @@
 
 
 class ParticleFilter(object):
-    pass
+    def __init__(self, num_points, init_coords, init_stddev):
+        pass
