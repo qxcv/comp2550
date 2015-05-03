@@ -15,8 +15,12 @@ def mpl_draw_map(map, region=None):
 
 def plot_particle(coords, heading=0, weight=1):
     radius = MAX_PARTICLE_RAD * weight
-    circ = patches.Circle(coords, radius)
+    circ = patches.Circle(
+        coords, radius, facecolor=(1, 0, 0, 0.2), edgecolor='r'
+    )
     angle = pi / 2.0 - heading
     line_end = (coords[0] + radius*cos(angle), coords[1] + radius*sin(angle))
-    plt.plot((coords[0], line_end[0]), (coords[1], line_end[1]))
+    plt.plot(
+        (coords[0], line_end[0]), (coords[1], line_end[1]), color=(0, 0, 0)
+    )
     plt.gca().add_patch(circ)
