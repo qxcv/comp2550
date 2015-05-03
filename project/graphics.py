@@ -1,6 +1,6 @@
 """Classes and utilities for illustrating particle filters."""
 
-from math import cos, sin
+from math import cos, sin, sqrt
 
 from matplotlib import patches, pyplot as plt
 
@@ -18,7 +18,8 @@ def plot_particle(coords, yaw=0, weight=1):
     determined by weight. Note that "yaw" is in radians, counterclockwise from
     east (i.e. east is 0 rad, north is pi/2 rad, west is pi rad, south is 3pi/2
     rad, etc.). This is consistent with the OxTS unit output convention."""
-    radius = MAX_PARTICLE_RAD * weight
+    # Significance of sqrt is that it makes circle areas proportional to weight
+    radius = MAX_PARTICLE_RAD * sqrt(weight)
     circ = patches.Circle(
         coords, radius, facecolor=(1, 0, 0, 0.2), edgecolor='r'
     )

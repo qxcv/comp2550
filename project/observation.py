@@ -30,7 +30,7 @@ def coordinate_projector(reference_coords):
         lat, lon = coords
         x_rad = np.pi * lon / 180.0
         y_rad = np.log(np.tan(np.pi * (0.25 + lat / 360.0)))
-        return pre_mult * x_rad, pre_mult * y_rad
+        return (pre_mult * x_rad, pre_mult * y_rad)
 
     return inner
 

@@ -4,14 +4,15 @@ import numpy as np
 
 
 class ParticleFilter(object):
-    def __init__(self, num_points, init_coords, init_stddev):
+    def __init__(self, num_points, init_coords, init_sigma):
         self.num_points = num_points
 
         # Particles are initialised using an isotropic Gaussian with covariance
         # matrix init_stddev * I and mean given by init_coords. Remember that
-        # the matrix is stored with one coordinate per row and num_points rows.
+        # the matrix is stored with one (x, y) coordinate per row and
+        # num_points rows.
         self.coords = np.random.multivariate_normal(
-            init_coords, init_stddev * np.eye(2), num_points
+            init_coords, init_sigma * np.eye(2), num_points
         )
 
         # Particle yaws are initialised randomly in [0, 2*pi]
@@ -27,6 +28,10 @@ class ParticleFilter(object):
         # Filter should resample when this quantity falls below some threshold,
         # which Gustaffson et al. (2002) recommend be set to 2N/3
         return 1.0 / np.sum(np.square(self.weights))
+
+    def auto_resample(self):
+        if self.effective_particles() < 2.0 / 3.0 * self.num_points:
+            self.resample()
 
     def resample(self):
         self.normalise_weights()
@@ -62,3 +67,28 @@ class ParticleFilter(object):
         mean_yaw = np.arctan2(mean_y, mean_x).reshape((1,)) + np.pi
 
         return np.concatenate((coords, mean_yaw))
+
+    def measure_gps(self, mean, stddev):
+        precision = np.eye(2) / stddev
+        diffs = self.coords - mean
+        by_precision = np.dot(precision, diffs.T).T
+        # We don't need to normalise, so these aren't exactly Gaussians
+        likelihoods = np.exp(-0.5 * np.einsum('ij,ij->i', diffs, by_precision))
+        assert likelihoods.shape == (self.num_points,), likelihoods.shape
+        self.weights *= likelihoods
+
+    def measure_map(self, map):
+        # TODO
+        pass
+
+    def predict(self, odom_dist, heading_diff):
+        # TODO:
+        #  1) Normalise yaws to be in (0, 2 * pi)
+        #  2) REALISTIC noise model is needed!
+        noisy_headings = np.random.normal(0, 0.05, (self.num_points,))
+        self.yaws += heading_diff + noisy_headings
+        noisy_odom = odom_dist + np.random.uniform(
+            -0.2, 0.2, (self.num_points,)
+        )
+        self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
+        self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
