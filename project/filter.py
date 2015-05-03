@@ -51,5 +51,14 @@ class ParticleFilter(object):
         # State estimate is simply weighted sum of particle states
         self.normalise_weights()
         coords = np.dot(self.weights, self.coords).reshape((2,))
-        headings = np.dot(self.weights, self.yaws).reshape((1,))
-        return np.concatenate(coords, headings)
+
+        # Angular means are tricky. Here we convert all of the yaws to unit
+        # vectors, then add the unit vectors together to come up with a
+        # weighted mean vector, which can then be converted to an angle.
+        yaw_xs = np.cos(self.yaws)
+        yaw_ys = np.sin(self.yaws)
+        mean_x = np.dot(self.weights, yaw_xs)
+        mean_y = np.dot(self.weights, yaw_ys)
+        mean_yaw = np.arctan2(mean_y, mean_x).reshape((1,)) + np.pi
+
+        return np.concatenate((coords, mean_yaw))
