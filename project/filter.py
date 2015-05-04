@@ -64,7 +64,7 @@ class ParticleFilter(object):
         yaw_ys = np.sin(self.yaws)
         mean_x = np.dot(self.weights, yaw_xs)
         mean_y = np.dot(self.weights, yaw_ys)
-        mean_yaw = np.arctan2(mean_y, mean_x).reshape((1,)) + np.pi
+        mean_yaw = np.arctan2(mean_y, mean_x).reshape((1,))
 
         return np.concatenate((coords, mean_yaw))
 
@@ -81,14 +81,17 @@ class ParticleFilter(object):
         # TODO
         pass
 
-    def predict(self, odom_dist, heading_diff):
+    def predict(self, dt, odom_dist, yaw_diff):
         # TODO:
         #  1) Normalise yaws to be in (0, 2 * pi)
         #  2) REALISTIC noise model is needed!
-        noisy_headings = np.random.normal(0, 0.05, (self.num_points,))
-        self.yaws += heading_diff + noisy_headings
-        noisy_odom = odom_dist + np.random.uniform(
-            -0.2, 0.2, (self.num_points,)
+        #  3) Incorporate delta-t so that noise is delta-time-dependent
+        noisy_yaws = np.random.normal(
+            yaw_diff, np.abs(yaw_diff) * 0.1, (self.num_points,)
         )
+        self.yaws += dt * noisy_yaws
+        noisy_odom = dt * (odom_dist + np.random.uniform(
+            -0.2, 0.2, (self.num_points,)
+        ))
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)

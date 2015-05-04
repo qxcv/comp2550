@@ -1,8 +1,8 @@
 """Classes and utilities for illustrating particle filters."""
 
-from math import cos, sin, sqrt
+from math import cos, sin, sqrt, pi
 
-from matplotlib import patches, pyplot as plt
+from matplotlib import patches, transforms, pyplot as plt
 
 # Maximum particle radius, in metres
 MAX_PARTICLE_RAD = 5
@@ -11,6 +11,27 @@ MAX_PARTICLE_RAD = 5
 def mpl_draw_map(map, region=None):
     for begin, end in map.segments:
         plt.plot((begin[0], end[0]), (begin[1], end[1]), 'b-')
+
+
+def plot_vehicle_tri(coords, yaw, color=(0, 0, 1, 0.5)):
+    """Plot a marker representing a vehicle (either ground truth or
+    estimate)"""
+    vertices = [
+        [0, 0],
+        [0.77, -0.5],
+        [0, 0.5],
+        [-0.77, -0.5]
+    ]
+    tri = patches.Polygon(
+        vertices, closed=True, facecolor=color, edgecolor=(0, 0, 0),
+    )
+    ax = plt.gca()
+    tri.set_transform(transforms.Affine2D()
+                                .scale(10)
+                                .rotate(yaw - pi/2)
+                                .translate(*coords)
+                      + ax.transData)
+    ax.add_patch(tri)
 
 
 def plot_particle(coords, yaw=0, weight=1):
