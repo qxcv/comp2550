@@ -106,10 +106,11 @@ class ParticleFilter(object):
             yaw_diff, 0.25, (self.num_points,)
         )
         self.yaws += dt * noisy_yaws
-        # Floor of +/- 0.25m/s uniform noise, plus 10% of the forward speed
-        odom_noise_mag = abs(forward_speed) * 0.1 + 0.25
+        odom_noise_mag = abs(forward_speed) * 0.1
+        # We slightly bias it towards moving forward, since we assume that the
+        # vehicle at least knows which direction it's going in
         odom_noise = np.random.uniform(
-            -odom_noise_mag, odom_noise_mag, (self.num_points,)
+            -odom_noise_mag / 2.0, odom_noise_mag + 0.5, (self.num_points,)
         )
         noisy_odom = dt * (forward_speed + odom_noise)
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)

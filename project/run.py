@@ -91,7 +91,7 @@ if __name__ == '__main__':
     for obs in parsed:
         # TODO: Noise
         if f is None:
-            f = ParticleFilter(args.particles, obs.pos, 10)
+            f = ParticleFilter(args.particles, obs.pos, 5)
         else:
             if obs_per_fix and obs_since_fix >= obs_per_fix:
                 f.measure_gps(obs.pos, 10)
