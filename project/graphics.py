@@ -5,7 +5,7 @@ from math import cos, sin, sqrt, pi
 from matplotlib import patches, transforms, pyplot as plt
 
 # Base particle radius, metres
-PARTICLE_RAD = 2
+PARTICLE_RAD = 1
 
 
 def mpl_draw_map(map, region=None):
@@ -69,22 +69,25 @@ class MapDisplay(object):
             weight = filter.weights[i]
             yaw = filter.yaws[i]
 
-            # Significance of sqrt is that it makes circle areas proportional to weight
+            # Significance of sqrt is that it makes circle areas proportional
+            # to weight
             radius = PARTICLE_RAD * sqrt(
                 weight * filter.num_points
             )
 
             # Draw the circle itself
             circ = patches.Circle(
-                coords, radius, facecolor=(1, 0, 0, 0.2), edgecolor='r',
-                zorder=zorder
+                coords, radius, facecolor=(1, 0, 0, 0.2),
+                edgecolor=(1, 0, 0, 0.8), zorder=zorder
             )
 
             # Draw the line in the center
-            line_end = (coords[0] + radius*cos(yaw), coords[1] + radius*sin(yaw))
+            line_end = (
+                coords[0] + radius*cos(yaw), coords[1] + radius*sin(yaw)
+            )
             line_handle = plt.plot(
                 (coords[0], line_end[0]), (coords[1], line_end[1]),
-                color=(0, 0, 0), zorder=zorder
+                color=(0, 0, 0, 0.8), zorder=zorder
             )
             plt.gca().add_patch(circ)
 

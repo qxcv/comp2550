@@ -30,7 +30,7 @@ def coordinate_projector(reference_coords):
         lat, lon = coords
         x_rad = np.pi * lon / 180.0
         y_rad = np.log(np.tan(np.pi * (0.25 + lat / 360.0)))
-        return (pre_mult * x_rad, pre_mult * y_rad)
+        return np.array((pre_mult * x_rad, pre_mult * y_rad))
 
     return inner
 
@@ -51,8 +51,6 @@ class Observation(object):
         # speed is forward speed, as would be measured by an odometer (but
         # presumably with greater accuracy)
         self.speed = data['vf']
-        if self.speed < 0:
-            print(self.speed)
 
         # Finally, store the complete data dictionary for reference
         self.data = data

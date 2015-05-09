@@ -118,7 +118,7 @@ if __name__ == '__main__':
                 if not d_str:
                     break
 
-                split = d_str.strip()
+                split = d_str.split()
                 cmd = split[0]
                 opts = split[1:]
 
@@ -129,21 +129,21 @@ if __name__ == '__main__':
                     try:
                         disable_for_s, = opts
                         disable_for = int(disable_for_s)
+                        break
                     except ValueError:
                         print(
                             "Invalid argument to 'next'. Please either supply "
                             "a number of steps to skip or no argument at all."
                         )
-                        continue
                 elif cmd in ['c', 'continue']:
                     disable_for = -1
                     break
                 elif cmd in ['q', 'quit']:
                     plt.close('all')
                     exit(0)
-                else:
-                    print("Unkown command {}"
-                          .format(cmd))
+
+                print("Unkown command {}"
+                      .format(cmd))
 
         if disable_for > 0:
             disable_for -= 1

@@ -4,6 +4,8 @@ import numpy as np
 
 from imposm.parser import OSMParser
 
+from settings import DEFAULT_LANE_WIDTH
+
 
 # These are all the most important road types. Some types have been ommitted in
 # the interests of localisation effectiveness. See
@@ -13,6 +15,14 @@ ROAD_TYPES = frozenset(
      "trunk_link", "primary_link", "secondary_link", "tertiary_link",
      "living_street", "road", "unclassified", "residential", "service"]
 )
+
+
+def perp(begin, end):
+    """Return a 2D unit vector orthogonal to the line defined by the two 2D
+    vectors begin and end"""
+    proj_matrix = np.array([[0, -1], [1, 0]])
+    delta = end - begin
+    return np.dot(proj_matrix, delta) / np.linalg.norm(delta)
 
 
 class Map(object):
@@ -34,13 +44,39 @@ class Map(object):
 
         # Now we can resolve these into segments
         for way_id, refs in self._way_refs.iteritems():
+            # First, estimate the number of lanes
+            num_lanes = 2
+            tags = self._way_tags[way_id]
+
+            if tags.get('oneway', None) == 'yes':
+                num_lanes = 1
+
+            if 'lanes' in tags:
+                num_lanes = max(1, int(tags['lanes']))
+
+            # Next, estimate lane width
+            lane_width = DEFAULT_LANE_WIDTH
+            # TODO
+
             # Join each pair of refs into a segment
             for begin_ref, end_ref in zip(refs, refs[1:]):
                 begin = self._node_loc[begin_ref]
                 end = self._node_loc[end_ref]
                 proj_begin = projector(begin)
                 proj_end = projector(end)
-                self.segments.append((proj_begin, proj_end))
+
+                orth = perp(proj_begin, proj_end)
+                midpoint = (proj_begin, proj_end)
+
+                lanes = []
+                # Half the distance between the outmost lane centrelines
+                all_offset = -1 * (num_lanes - 1) * lane_width / 2.0
+                for i in xrange(num_lanes):
+                    offset = all_offset + i * lane_width
+                    lanes.append(midpoint + orth * offset)
+
+                for lane in lanes:
+                    self.segments.append(lane)
 
         # Finally, convert the segment beginnings and endings into some big
         # Numpy arrays
