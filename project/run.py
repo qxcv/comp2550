@@ -26,6 +26,7 @@ if __name__ == '__main__':
     f = None
 
     plt.ion()
+    plt.gca().set_aspect('equal', 'datalim')
     mpl_draw_map(m)
     plt.show()
 
@@ -60,6 +61,7 @@ if __name__ == '__main__':
             pred_x, pred_y, pred_yaw = f.state_estimate()
             plot_vehicle_tri((pred_x, pred_y), pred_yaw)
 
+            plt.gca().set_aspect('equal', 'datalim')
             plt.draw()
 
             d_str = raw_input("Hit [number of frames to skip] <enter> for "
