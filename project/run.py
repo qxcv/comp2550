@@ -2,8 +2,12 @@
 
 from argparse import ArgumentParser, FileType
 from csv import writer
+from sys import stdin, exit
+from termios import tcflush, TCIFLUSH
 
 import numpy as np
+
+from matplotlib import pyplot as plt
 
 from graphics import MapDisplay
 from observation import parse_map_trajectory, coordinate_projector
@@ -107,17 +111,42 @@ if __name__ == '__main__':
             display.update_ground_truth(obs.pos, obs['yaw'])
             display.redraw()
 
-            d_str = raw_input("Hit [number of frames to skip] <enter> for "
-                              "next frame ")
-            try:
-                disable_for = int(d_str)
-            except ValueError:
-                pass
+            while True:
+                # Interaction code
+                tcflush(stdin, TCIFLUSH)
+                d_str = raw_input("Command (enter for next frame): ").strip()
+                if not d_str:
+                    break
+
+                split = d_str.strip()
+                cmd = split[0]
+                opts = split[1:]
+
+                if cmd in ['n', 'next']:
+                    if not opts:
+                        break
+
+                    try:
+                        disable_for_s, = opts
+                        disable_for = int(disable_for_s)
+                    except ValueError:
+                        print(
+                            "Invalid argument to 'next'. Please either supply "
+                            "a number of steps to skip or no argument at all."
+                        )
+                        continue
+                elif cmd in ['c', 'continue']:
+                    disable_for = -1
+                    break
+                elif cmd in ['q', 'quit']:
+                    plt.close('all')
+                    exit(0)
+                else:
+                    print("Unkown command {}"
+                          .format(cmd))
 
         if disable_for > 0:
             disable_for -= 1
-        else:
-            disable_for = 0
 
         if args.out is not None:
             stats_writer.update(f, obs)
