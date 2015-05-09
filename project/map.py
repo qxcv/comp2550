@@ -4,6 +4,8 @@ import numpy as np
 
 from imposm.parser import OSMParser
 
+from shapely.geometry import Point, MultiLineString
+
 from settings import DEFAULT_LANE_WIDTH
 
 
@@ -56,7 +58,7 @@ class Map(object):
 
             # Next, estimate lane width
             lane_width = DEFAULT_LANE_WIDTH
-            # TODO
+            # TODO: More accurate estimates
 
             # Join each pair of refs into a segment
             for begin_ref, end_ref in zip(refs, refs[1:]):
@@ -78,12 +80,7 @@ class Map(object):
                 for lane in lanes:
                     self.segments.append(lane)
 
-        # Finally, convert the segment beginnings and endings into some big
-        # Numpy arrays
-        self.begin_arr = np.array([b for b, e in self.segments])
-        self.end_arr = np.array([e for b, e in self.segments])
-        assert self.begin_arr.shape == self.end_arr.shape
-        assert self.begin_arr.shape == (len(self.segments), 2)
+        self.mls = MultiLineString(self.segments)
 
     def _handle_ways(self, ways):
         rejected = set()
@@ -105,5 +102,7 @@ class Map(object):
             id, lon, lat = coord
             self._node_loc[id] = (lat, lon)
 
-    def nearest_segment(self, point):
-        pass
+    def nearest_lane_dist(self, point):
+        x, y = point
+        p = Point(x, y)
+        return self.mls.distance(p)

@@ -64,6 +64,8 @@ parser.add_argument('--gui', action='store_true', default=False,
                     help="Enable GUI")
 parser.add_argument('--particles', type=int, default=100,
                     help="Number of particles to use")
+parser.add_argument('--disablemap', action='store_true', default=False,
+                    help="Disable use of map information")
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -102,6 +104,9 @@ if __name__ == '__main__':
                 obs_since_fix = 1
             else:
                 obs_since_fix += 1
+            f.auto_resample()
+            if not args.disablemap:
+                f.measure_map(m)
             f.auto_resample()
             f.predict(dt, obs['vf'], obs['wu'])
             f.normalise_weights()

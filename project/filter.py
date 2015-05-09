@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from settings import DEFAULT_LANE_WIDTH
+
 
 class ParticleFilter(object):
     def __init__(self, num_points, init_coords, init_sigma):
@@ -86,9 +88,14 @@ class ParticleFilter(object):
         assert likelihoods.shape == (self.num_points,), likelihoods.shape
         self.weights *= likelihoods
 
-    def measure_map(self, map):
+    def measure_map(self, m):
+        dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
-            pass
+            dists[idx] = m.nearest_lane_dist(point)
+        # Derived from unnormalised Gaussian PDF, standard deviation equal to a
+        # quarter of lane width
+        factors = np.exp(-8 * dists**2 / DEFAULT_LANE_WIDTH**2)
+        self.weights *= factors
 
     def predict(self, dt, forward_speed, yaw_diff):
         # TODO:
