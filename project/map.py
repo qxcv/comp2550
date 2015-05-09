@@ -4,7 +4,8 @@ import numpy as np
 
 from imposm.parser import OSMParser
 
-from shapely.geometry import Point, MultiLineString
+from CGAL.CGAL_AABB_tree import AABB_tree_Segment_3_soup
+from CGAL.CGAL_Kernel import Segment_3, Point_3
 
 from settings import DEFAULT_LANE_WIDTH
 
@@ -80,7 +81,15 @@ class Map(object):
                 for lane in lanes:
                     self.segments.append(lane)
 
-        self.mls = MultiLineString(self.segments)
+        seg3ds = []
+        for begin, end in self.segments:
+            p1 = Point_3(*(list(begin) + [0]))
+            p2 = Point_3(*(list(end) + [0]))
+            seg = Segment_3(p1, p2)
+            seg3ds.append(seg)
+
+        self._aabb_tree = AABB_tree_Segment_3_soup(seg3ds)
+        assert self._aabb_tree.accelerate_distance_queries()
 
     def _handle_ways(self, ways):
         rejected = set()
@@ -104,5 +113,6 @@ class Map(object):
 
     def nearest_lane_dist(self, point):
         x, y = point
-        p = Point(x, y)
-        return self.mls.distance(p)
+        p = Point_3(x, y, 0)
+        nearest = self._aabb_tree.closest_point(p)
+        return np.sqrt((x - nearest.x())**2 + (y - nearest.y())**2)
