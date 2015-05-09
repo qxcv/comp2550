@@ -21,8 +21,8 @@ class StatsWriter(object):
     def __init__(self, fp, dt):
         self.writer = writer(fp)
         self.writer.writerow([
-            "Time (s)", "True X", "True Y", "True heading", "Predicted X",
-            "Predicted Y", "Predicted yaw", "HPE", "Angular error"
+            "time", "true_x", "true_y", "true_yaw", "pred_x",
+            "pred_y", "pred_yaw", "hpe"
         ])
         self.seconds = 0
         self.dt = dt
@@ -34,11 +34,9 @@ class StatsWriter(object):
         pred_yaw = pred_y
         true_x, true_y = obs.pos
         true_yaw = obs['yaw']
-        delta_angle = np.arccos(np.cos(true_yaw - pred_yaw))
         self.writer.writerow([
             self.seconds, true_x, true_y, true_yaw, pred_x, pred_y,
-            pred_yaw, np.sqrt((true_x-pred_x)**2 + (true_y-pred_y)**2),
-            delta_angle
+            pred_yaw, np.sqrt((true_x-pred_x)**2 + (true_y-pred_y)**2)
         ])
         self.seconds += dt
 
@@ -82,10 +80,6 @@ if __name__ == '__main__':
             args.gpsfreq
         ))
         obs_per_fix = 0
-    else:
-        print("Will throw in a GPS sample every {} time steps.".format(
-            obs_per_fix
-        ))
 
     if args.gui:
         display = MapDisplay(m)
