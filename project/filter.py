@@ -100,7 +100,7 @@ class ParticleFilter(object):
         )
         self.yaws += dt * noisy_yaws
         noisy_odom = dt * (forward_speed + np.random.uniform(
-            -0.5, 0.5, (self.num_points,)
+            -0.5, 1, (self.num_points,)
         ))
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)

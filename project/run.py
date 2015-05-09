@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
+from csv import writer
 
-from matplotlib import pyplot as plt
+import numpy as np
 
 from graphics import MapDisplay
 from observation import parse_map_trajectory, coordinate_projector
@@ -10,16 +11,55 @@ from map import Map
 from settings import KARLSRUHE_CENTER
 from filter import ParticleFilter
 
+
+class StatsWriter(object):
+    """Class for writing statistics to a file pointer"""
+    def __init__(self, fp, dt):
+        self.writer = writer(fp)
+        self.writer.writerow([
+            "Time (s)", "True X", "True Y", "True heading", "Predicted X",
+            "Predicted Y", "Predicted yaw", "HPE", "Angular error"
+        ])
+        self.seconds = 0
+        self.dt = dt
+
+    def update(self, f, obs):
+        """Take a filter and an observation and write a new line to the output
+        file"""
+        pred_x, pred_y, pred_yaw = f.state_estimate()
+        pred_yaw = pred_y
+        true_x, true_y = obs.pos
+        true_yaw = obs['yaw']
+        delta_angle = np.arccos(np.cos(true_yaw - pred_yaw))
+        self.writer.writerow([
+            self.seconds, true_x, true_y, true_yaw, pred_x, pred_y,
+            pred_yaw, np.sqrt((true_x-pred_x)**2 + (true_y-pred_y)**2),
+            delta_angle
+        ])
+        self.seconds += dt
+
 parser = ArgumentParser()
-parser.add_argument('data_fp', type=open)
+parser.add_argument('data_fp', type=open, help="Map trajectory to read from")
 parser.add_argument('map_path', type=str,
                     help="Path to a .osm file containing map data")
-parser.add_argument('--freq', type=int, default=10)
-parser.add_argument('--gpsfreq', type=int, default=1)
-parser.add_argument('--gpsnoise', action='store_true', default=False)
-parser.add_argument('--odomnoise', action='store_true', default=False)
-parser.add_argument('--gyronoise', action='store_true', default=False)
-parser.add_argument('--gui', action='store_true', default=False)
+parser.add_argument(
+    '--out', type=FileType('w'), default=None,
+    help="File to write particle filter estimates and ground truth to"
+)
+parser.add_argument('--freq', type=int, default=10,
+                    help="Frequency of observations in the supplied data set")
+parser.add_argument('--gpsfreq', type=int, default=1,
+                    help="Frequency at which GPS observations will be used")
+parser.add_argument('--gpsnoise', action='store_true', default=False,
+                    help="Enable GPS noise")
+parser.add_argument('--odomnoise', action='store_true', default=False,
+                    help="Enable odometry noise")
+parser.add_argument('--gyronoise', action='store_true', default=False,
+                    help="Enable gyroscope noise")
+parser.add_argument('--gui', action='store_true', default=False,
+                    help="Enable GUI")
+parser.add_argument('--particles', type=int, default=100,
+                    help="Number of particles to use")
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -44,11 +84,14 @@ if __name__ == '__main__':
     if args.gui:
         display = MapDisplay(m)
 
+    if args.out is not None:
+        stats_writer = StatsWriter(args.out, dt)
+
     obs_since_fix = 0
     for obs in parsed:
-        # TODO: Noise, estimated location, HPE
+        # TODO: Noise
         if f is None:
-            f = ParticleFilter(500, obs.pos, 10)
+            f = ParticleFilter(args.particles, obs.pos, 10)
         else:
             if obs_per_fix and obs_since_fix >= obs_per_fix:
                 f.measure_gps(obs.pos, 10)
@@ -75,3 +118,6 @@ if __name__ == '__main__':
             disable_for -= 1
         else:
             disable_for = 0
+
+        if args.out is not None:
+            stats_writer.update(f, obs)
