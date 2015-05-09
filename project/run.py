@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 
 from matplotlib import pyplot as plt
 
-from graphics import mpl_draw_map, plot_particle, plot_vehicle_tri
+from graphics import MapDisplay
 from observation import parse_map_trajectory, coordinate_projector
 from map import Map
 from settings import KARLSRUHE_CENTER
@@ -15,6 +15,11 @@ parser.add_argument('data_fp', type=open)
 parser.add_argument('map_path', type=str,
                     help="Path to a .osm file containing map data")
 parser.add_argument('--freq', type=int, default=10)
+parser.add_argument('--gpsfreq', type=int, default=1)
+parser.add_argument('--gpsnoise', action='store_true', default=False)
+parser.add_argument('--odomnoise', action='store_true', default=False)
+parser.add_argument('--gyronoise', action='store_true', default=False)
+parser.add_argument('--gui', action='store_true', default=False)
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -25,44 +30,39 @@ if __name__ == '__main__':
     m = Map(args.map_path, proj)
     f = None
 
-    plt.ion()
-    plt.gca().set_aspect('equal', 'datalim')
-    mpl_draw_map(m)
-    plt.show()
+    obs_per_fix = int(round(args.freq / float(args.gpsfreq)))
+    if obs_per_fix < 1:
+        print("Due to --gpsfreq {}, no GPS samples will be included!".format(
+            args.gpsfreq
+        ))
+        obs_per_fix = 0
+    else:
+        print("Will throw in a GPS sample every {} time steps.".format(
+            obs_per_fix
+        ))
 
+    if args.gui:
+        display = MapDisplay(m)
+
+    obs_since_fix = 0
     for obs in parsed:
-        backup_axes = (plt.xlim(), plt.ylim())
-
-        if not disable_for:
-            plt.clf()
-            plt.xlim(backup_axes[0])
-            plt.ylim(backup_axes[1])
-            mpl_draw_map(m)
-
         # TODO: Noise, estimated location, HPE
-        # TODO: NOOOOO, this doesn't take into account the fact that we're
-        # missing SOOO MANY intermediate observations :(
         if f is None:
             f = ParticleFilter(500, obs.pos, 10)
         else:
-            f.measure_gps(obs.pos, 10)
+            if obs_per_fix and obs_since_fix >= obs_per_fix:
+                f.measure_gps(obs.pos, 10)
+                obs_since_fix = 1
+            else:
+                obs_since_fix += 1
             f.auto_resample()
             f.predict(dt, obs['vf'], obs['wu'])
             f.normalise_weights()
 
-        if not disable_for:
-            for i in xrange(f.num_points):
-                plot_particle(
-                    f.coords[i], f.yaws[i], f.weights[i] * f.num_points
-                )
-
-        if not disable_for:
-            plot_vehicle_tri(obs.pos, obs['yaw'], (0, 1, 0, 0.8))
-            pred_x, pred_y, pred_yaw = f.state_estimate()
-            plot_vehicle_tri((pred_x, pred_y), pred_yaw)
-
-            plt.gca().set_aspect('equal', 'datalim')
-            plt.draw()
+        if args.gui and not disable_for:
+            display.update_filter(f)
+            display.update_ground_truth(obs.pos, obs['yaw'])
+            display.redraw()
 
             d_str = raw_input("Hit [number of frames to skip] <enter> for "
                               "next frame ")

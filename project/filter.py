@@ -87,7 +87,8 @@ class ParticleFilter(object):
         self.weights *= likelihoods
 
     def measure_map(self, map):
-        pass
+        for idx, point in enumerate(self.coords):
+            pass
 
     def predict(self, dt, forward_speed, yaw_diff):
         # TODO:

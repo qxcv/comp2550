@@ -68,3 +68,6 @@ class Map(object):
             # don't know why.
             id, lon, lat = coord
             self._node_loc[id] = (lat, lon)
+
+    def nearest_segment(self, point):
+        pass
