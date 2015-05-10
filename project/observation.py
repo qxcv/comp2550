@@ -58,6 +58,9 @@ class Observation(object):
     def __getitem__(self, key):
         return self.data[key]
 
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
 
 def parse_map_trajectory(fp, freq=10, projector=None):
     # Generator returning series of observations from an iterable (presumed to

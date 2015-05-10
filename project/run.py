@@ -9,11 +9,12 @@ import numpy as np
 
 from matplotlib import pyplot as plt
 
-from graphics import MapDisplay
-from observation import parse_map_trajectory, coordinate_projector
-from map import Map
-from settings import KARLSRUHE_CENTER
 from filter import ParticleFilter
+from graphics import MapDisplay
+from map import Map
+from noise import noisify
+from observation import parse_map_trajectory, coordinate_projector
+from settings import KARLSRUHE_CENTER
 
 
 class StatsWriter(object):
@@ -52,12 +53,14 @@ parser.add_argument('--freq', type=int, default=10,
                     help="Frequency of observations in the supplied data set")
 parser.add_argument('--gpsfreq', type=int, default=1,
                     help="Frequency at which GPS observations will be used")
-parser.add_argument('--gpsnoise', action='store_true', default=False,
-                    help="Enable GPS noise")
-parser.add_argument('--odomnoise', action='store_true', default=False,
-                    help="Enable odometry noise")
-parser.add_argument('--gyronoise', action='store_true', default=False,
-                    help="Enable gyroscope noise")
+parser.add_argument('--gpsstddev', type=float, default=0.5,
+                    help="Standard deviation of white GPS noise")
+parser.add_argument('--gpsstep', type=float, default=0.01,
+                    help="Max drift per second for brownian GPS noise")
+parser.add_argument('--speederror', type=float, default=0.025,
+                    help="Speed estimates accurate to 100*speederror%")
+parser.add_argument('--gyrostddev', type=float, default=0.05,
+                    help="Standard deviation of gyroscope noise (deg/s)")
 parser.add_argument('--gui', action='store_true', default=False,
                     help="Enable GUI")
 parser.add_argument('--particles', type=int, default=100,
@@ -88,21 +91,31 @@ if __name__ == '__main__':
         stats_writer = StatsWriter(args.out, dt)
 
     obs_since_fix = 0
-    for obs in parsed:
-        # TODO: Noise
+    noisified = noisify(
+        parsed, args.gpsstddev, args.gpsstep * dt, args.speederror,
+        args.gyrostddev
+    )
+    for obs, noisy_obs in noisified:
         if f is None:
-            f = ParticleFilter(args.particles, obs.pos, 5)
+            f = ParticleFilter(args.particles, noisy_obs.pos, 5)
         else:
             if obs_per_fix and obs_since_fix >= obs_per_fix:
-                f.measure_gps(obs.pos, 10)
+                f.measure_gps(noisy_obs.pos, 10)
                 obs_since_fix = 1
+                if args.gui:
+                    display.update_last_fix(noisy_obs.pos)
             else:
                 obs_since_fix += 1
+
             f.auto_resample()
+
             if not args.disablemap:
                 f.measure_map(m)
+
             f.auto_resample()
-            f.predict(dt, obs['vf'], obs['wu'])
+
+            f.predict(dt, noisy_obs['vf'], noisy_obs['wu'])
+
             f.normalise_weights()
 
         if args.gui and not disable_for:

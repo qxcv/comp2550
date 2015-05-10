@@ -1,20 +1,8 @@
 """Noise models for common vehicle sensors."""
 
+from copy import deepcopy
+
 import numpy as np
-
-
-def white_gaussian(stddev=1, shape=None):
-    """Yield white Gaussian noise with a given standard deviation and Numpy
-    array shape (if None, values will be scalar)."""
-    while True:
-        yield np.random.normal(scale=stddev, size=shape)
-
-
-def white_uniform(lower=0, upper=1, shape=None):
-    """Yield uniform noise in [lower, upper] with given shape (or scalar if
-    None)."""
-    while True:
-        yield np.random.uniform(lower, upper, shape)
 
 
 def brownian(step_size=1, shape=None):
@@ -31,26 +19,40 @@ def brownian(step_size=1, shape=None):
         mean += step_size * direction
 
 
-def noisy_gps_gen(observation_sequence):
-    """Applies GPS-like noise to a series of observations."""
-    random_walk_noise = brownian(0.1, shape=(2,))
-    white_noise = white_gaussian(0.1, shape=(2,))
-    for obs in observation_sequence:
-        noise = next(random_walk_noise)
-        noise += next(white_noise)
-        # TODO
+def noisify(obs_gen, gps_stddev, gps_step_size, speed_noise, gyro_stddev):
+    """Applies GPS, gyroscope and speedometer noise to the given observation
+    sequence. Yields (ground truth, noisy observation) pairs."""
+    assert 1 >= speed_noise >= 0
+    assert gyro_stddev >= 0
+    assert gps_step_size >= 0
+    assert gps_stddev >= 0
 
+    # Some time-correlated GPS noise
+    gps_random_walk = brownian(gps_step_size, shape=(2,))
 
-def noisy_gyroscope_gen(observation_sequence):
-    pass
+    # Emulates a miscalibrated speedometer. At most +-2.5km/h of error at
+    # 100km/h
+    speedo_multiplier = 1 + np.random.uniform(-speed_noise, speed_noise)
 
-
-def noisy_odom_gen(observation_sequence):
-    pass
-
-
-def noisify(obs_gen):
-    """Applies GPS-like, gyro-like and odom-like noise to the given observation
-    sequence."""
     for obs in obs_gen:
-        new_obs
+        new_obs = deepcopy(obs)
+
+        # Add GPS noise. This is not a very good emulation, because it grows
+        # without bound, but it will have to do for now (why implement
+        # something more complicated when you have NFI what GPS noise actually
+        # looks like?).
+        white_noisy_pos = np.random.multivariate_normal(
+            obs.pos, gps_stddev**2 * np.eye(2)
+        )
+        new_obs.pos = white_noisy_pos + next(gps_random_walk)
+
+        # Add gyro noise. I got this formula out of thin air BECAUSE NOBODY
+        # CARES ABOUT PRECISE NOISE MODELS. Anyway, this will keep 95% of
+        # measurements within 5% of their true values.
+        new_obs['wu'] += np.random.normal(0, gyro_stddev)
+
+        # Add speedometer noise
+        new_obs['vf'] *= speedo_multiplier
+
+        # Yield the ground truth and its noisy counterpart
+        yield obs, new_obs

@@ -53,6 +53,7 @@ class MapDisplay(object):
         # Junk will be cleaned up when new points are drawn
         self.filter_junk = []
         self.gt_junk = None
+        self.last_fix_junk = None
 
     def update_filter(self, filter):
         for junk in self.filter_junk:
@@ -110,9 +111,18 @@ class MapDisplay(object):
             pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
         )
 
+    def update_last_fix(self, pos):
+        if self.last_fix_junk is not None:
+            for junk in self.last_fix_junk:
+                junk.remove()
+        self.last_fix_junk = plt.plot(
+            pos[0], pos[1], marker='x', color='r', markersize=50
+        )
+
     def redraw(self):
         plt.gca().set_aspect('equal', 'datalim')
         if not self.have_shown:
+            plt.gcf().canvas.set_window_title('Map viewer')
             plt.show()
             self.have_shown = True
         else:
