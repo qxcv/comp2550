@@ -55,6 +55,8 @@ class ParticleFilter(object):
         # Now resample from our set of particles
         self.coords = self.coords[samples]
         self.yaws = self.yaws[samples]
+        # Force yaws to be on [0, 2pi)
+        self.yaws %= 2 * np.pi
 
         # Set weights to be uniform
         self.weights = np.ones(self.num_points) / self.num_points
@@ -99,19 +101,20 @@ class ParticleFilter(object):
 
     def predict(self, dt, forward_speed, yaw_diff):
         # TODO:
-        #  1) Normalise yaws to be in (0, 2 * pi)
-        #  2) REALISTIC noise model is needed!
-        #  3) Incorporate delta-t so that noise is delta-time-dependent
+        #  1) REALISTIC noise model is needed! Can find this experimentally.
+        #  2) Incorporate delta-t so that noise is delta-time-dependent
         noisy_yaws = np.random.normal(
             yaw_diff, 0.25, (self.num_points,)
         )
+        # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
+        # when we resample
         self.yaws += dt * noisy_yaws
-        odom_noise_mag = abs(forward_speed) * 0.1
-        # We slightly bias it towards moving forward, since we assume that the
-        # vehicle at least knows which direction it's going in
-        odom_noise = np.random.uniform(
-            -odom_noise_mag / 2.0, odom_noise_mag + 0.5, (self.num_points,)
+        # 95% of noisy odometry readings will fall within 40% of the reported
+        # value. We're using a Gaussian because it's easy to sample from and
+        # gives values in (-inf, inf)
+        odom_noisy = np.random.normal(
+            forward_speed, abs(forward_speed) * 0.2, size=(self.num_points,)
         )
-        noisy_odom = dt * (forward_speed + odom_noise)
+        noisy_odom = dt * odom_noisy
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)

@@ -32,8 +32,7 @@ def brownian(step_size=1, shape=None):
 
 
 def noisy_gps_gen(observation_sequence):
-    """Takes a sequence of Observation instances and yields a series of
-    simulated GPS fixes with the appropriate noise model."""
+    """Applies GPS-like noise to a series of observations."""
     random_walk_noise = brownian(0.1, shape=(2,))
     white_noise = white_gaussian(0.1, shape=(2,))
     for obs in observation_sequence:
@@ -48,3 +47,10 @@ def noisy_gyroscope_gen(observation_sequence):
 
 def noisy_odom_gen(observation_sequence):
     pass
+
+
+def noisify(obs_gen):
+    """Applies GPS-like, gyro-like and odom-like noise to the given observation
+    sequence."""
+    for obs in obs_gen:
+        new_obs
