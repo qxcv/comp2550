@@ -94,9 +94,7 @@ class ParticleFilter(object):
         dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
             dists[idx] = m.nearest_lane_dist(point)
-        # Derived from unnormalised Gaussian PDF, standard deviation equal to a
-        # quarter of lane width
-        factors = np.exp(-8 * dists**2 / DEFAULT_LANE_WIDTH**2)
+        factors = 1.0 / (1 + dists)
         self.weights *= factors
 
     def predict(self, dt, forward_speed, yaw_diff):
