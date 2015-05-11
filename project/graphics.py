@@ -55,25 +55,18 @@ class MapDisplay(object):
         self.gt_junk = None
         self.last_fix_junk = None
 
-    def update_filter(self, filter):
-        for junk in self.filter_junk:
-            if isinstance(junk, list):
-                for subjunk in junk:
-                    subjunk.remove()
-            else:
-                junk.remove()
-
-        self.filter_junk = []
+    def draw_filter(self, f):
+        rv = []
         zorder = self.CIRCLES_Z_ORDER
-        for i in xrange(filter.num_points):
-            coords = filter.coords[i]
-            weight = filter.weights[i]
-            yaw = filter.yaws[i]
+        for i in xrange(f.num_points):
+            coords = f.coords[i]
+            weight = f.weights[i]
+            yaw = f.yaws[i]
 
             # Significance of sqrt is that it makes circle areas proportional
             # to weight
             radius = PARTICLE_RAD * sqrt(
-                weight * filter.num_points
+                weight * f.num_points
             )
 
             # Draw the circle itself
@@ -93,16 +86,31 @@ class MapDisplay(object):
             plt.gca().add_patch(circ)
 
             # Add junk to be cleaned up next time
-            self.filter_junk.append(line_handle)
-            self.filter_junk.append(circ)
+            rv.append(line_handle)
+            rv.append(circ)
 
             zorder -= 1
 
-        pred_x, pred_y, pred_yaw = filter.state_estimate()
+        pred_x, pred_y, pred_yaw = f.state_estimate()
         vehicle = plot_vehicle_tri(
             (pred_x, pred_y), pred_yaw, zorder=self.ESTIMATE_Z_ORDER
         )
-        self.filter_junk.append(vehicle)
+        rv.append(vehicle)
+
+        # Return all the junk we generated
+        return rv
+
+    def update_filters(self, filters):
+        for junk in self.filter_junk:
+            if isinstance(junk, list):
+                for subjunk in junk:
+                    subjunk.remove()
+            else:
+                junk.remove()
+
+        self.filter_junk = []
+        for f in filters:
+            self.filter_junk.extend(self.draw_filter(f))
 
     def update_ground_truth(self, pos, yaw):
         if self.gt_junk is not None:

@@ -19,30 +19,69 @@ from settings import KARLSRUHE_CENTER
 
 class StatsWriter(object):
     """Class for writing statistics to a file pointer"""
-    def __init__(self, fp, dt):
+    def __init__(self, fp, dt, enable_map_f=False, enable_plain_f=False,
+                 enable_raw_gps=False):
         self.writer = writer(fp)
-        self.writer.writerow([
-            "time", "true_x", "true_y", "true_yaw", "pred_x",
-            "pred_y", "pred_yaw", "hpe"
-        ])
         self.seconds = 0
         self.dt = dt
 
-    def add_gps_fix(obs):
-        pass
+        labels = [
+            "time", "true_x", "true_y", "true_yaw"
+        ]
 
-    def update(self, f, obs):
-        """Take a filter and an observation and write a new line to the output
-        file"""
+        if enable_map_f:
+            labels += ["map_pred_x", "map_pred_y", "map_pred_yaw", "map_hpe"]
+        if enable_plain_f:
+            labels += ["plain_pred_x", "plain_pred_y", "plain_pred_yaw",
+                       "plain_hpe"]
+        if enable_raw_gps:
+            labels += ["gps_pred_x", "gps_pred_y", "gps_hpe"]
+
+        self.writer.writerow(labels)
+
+    def filter_columns(self, obs, f):
+        """Calculates predicted X, predicted Y, predicted yaw and HPE for a
+        filter, given some ground truth observation."""
         pred_x, pred_y, pred_yaw = f.state_estimate()
         pred_yaw = pred_y
+        return [
+            pred_x, pred_y, pred_yaw,
+            self.hpe(obs.pos, (pred_x, pred_y))
+        ]
+
+    def hpe(self, truth, guess):
+        pred_x, pred_y = guess
+        true_x, true_y = truth
+        return np.sqrt((true_x-pred_x)**2 + (true_y-pred_y)**2)
+
+    def update(self, obs, map_f=None, plain_f=None, last_fix=None):
+        """Take a filter and an observation and write a new line to the output
+        file"""
         true_x, true_y = obs.pos
         true_yaw = obs['yaw']
-        self.writer.writerow([
-            self.seconds, true_x, true_y, true_yaw, pred_x, pred_y,
-            pred_yaw, np.sqrt((true_x-pred_x)**2 + (true_y-pred_y)**2)
-        ])
+        columns = [self.seconds, true_x, true_y, true_yaw]
+
+        if map_f is not None:
+            columns += self.filter_columns(obs, map_f)
+        if plain_f is not None:
+            columns += self.filter_columns(obs, plain_f)
+        if last_fix is not None:
+            columns += [last_fix[0], last_fix[1], self.hpe(obs.pos, last_fix)]
+
+        self.writer.writerow(columns)
+
         self.seconds += dt
+
+
+def update_filter(f, obs, give_fix=False, m=None):
+    if give_fix:
+        f.measure_gps(obs.pos, 10)
+    f.auto_resample()
+    if m is not None:
+        f.measure_map(m)
+    f.auto_resample()
+    f.predict(dt, obs['vf'], obs['wu'])
+    f.normalise_weights()
 
 parser = ArgumentParser()
 parser.add_argument('data_fp', type=open, help="Map trajectory to read from")
@@ -61,18 +100,16 @@ parser.add_argument('--gpsstddev', type=float, default=4,
 parser.add_argument('--gpsstep', type=float, default=1,
                     help="Max drift per second for brownian GPS noise")
 parser.add_argument('--speederror', type=float, default=0.025,
-                    help="Speed estimates accurate to 100*speederror%")
+                    help="Speed estimates accurate to 100*speederror percent")
 parser.add_argument('--gyrostddev', type=float, default=0.05,
                     help="Standard deviation of gyroscope noise (deg/s)")
 parser.add_argument('--gui', action='store_true', default=False,
                     help="Enable GUI")
 parser.add_argument('--particles', type=int, default=100,
                     help="Number of particles to use")
-parser.add_argument('--disablemap', action='store_true', default=False,
-                    help="Disable use of map information")
 parser.add_argument('--enablemapfilter', action='store_true', default=False,
                     help="Run filtering with map information")
-parser.add_argument('--enablenomapfilter', action='store_true', default=False,
+parser.add_argument('--enableplainfilter', action='store_true', default=False,
                     help="Run filtering without a map")
 parser.add_argument('--enablerawgps', action='store_true', default=False,
                     help="Attempt localisation using only GPS fixes")
@@ -84,7 +121,8 @@ if __name__ == '__main__':
     proj = coordinate_projector(KARLSRUHE_CENTER)
     parsed = parse_map_trajectory(args.data_fp, args.freq, proj)
     m = Map(args.map_path, proj)
-    f = None
+    map_f = None
+    plain_f = None
 
     obs_per_fix = int(round(args.freq / float(args.gpsfreq)))
     if obs_per_fix < 1:
@@ -97,38 +135,55 @@ if __name__ == '__main__':
         display = MapDisplay(m)
 
     if args.out is not None:
-        stats_writer = StatsWriter(args.out, dt)
+        stats_writer = StatsWriter(
+            args.out, dt,
+            enable_map_f=args.enablemapfilter,
+            enable_plain_f=args.enableplainfilter,
+            enable_raw_gps=args.enablerawgps
+        )
 
     obs_since_fix = 0
+    last_fix = None
     noisified = noisify(
         parsed, args.gpsstddev, args.gpsstep * dt, args.speederror,
         args.gyrostddev
     )
+
     for obs, noisy_obs in noisified:
-        if f is None:
-            f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+        if last_fix is None and args.enablerawgps:
+            last_fix = noisy_obs.pos
+
+        give_fix = obs_since_fix >= obs_per_fix
+        if give_fix:
+            if last_fix is not None:
+                last_fix = noisy_obs.pos
+            obs_since_fix = 1
+            if args.gui:
+                display.update_last_fix(noisy_obs.pos)
         else:
-            if obs_per_fix and obs_since_fix >= obs_per_fix:
-                f.measure_gps(noisy_obs.pos, 10)
-                obs_since_fix = 1
-                if args.gui:
-                    display.update_last_fix(noisy_obs.pos)
-            else:
-                obs_since_fix += 1
+            obs_since_fix += 1
 
-            f.auto_resample()
+        if args.enablemapfilter and map_f is None:
+            map_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+        elif map_f is not None:
+            update_filter(map_f, noisy_obs, give_fix, m)
 
-            if not args.disablemap:
-                f.measure_map(m)
-
-            f.auto_resample()
-
-            f.predict(dt, noisy_obs['vf'], noisy_obs['wu'])
-
-            f.normalise_weights()
+        if args.enableplainfilter and plain_f is None:
+            plain_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+        elif plain_f is not None:
+            update_filter(plain_f, noisy_obs, give_fix)
 
         if args.gui and not disable_for:
-            display.update_filter(f)
+            # Make a list of filters for the display to update
+            filters = []
+            if plain_f is not None:
+                filters.append(plain_f)
+            if map_f is not None:
+                filters.append(map_f)
+
+            if filters:
+                display.update_filters(filters)
+
             display.update_ground_truth(obs.pos, obs['yaw'])
             display.redraw()
 
@@ -170,4 +225,7 @@ if __name__ == '__main__':
             disable_for -= 1
 
         if args.out is not None:
-            stats_writer.update(f, obs)
+            stats_writer.update(
+                obs, map_f=map_f, plain_f=plain_f,
+                last_fix=last_fix
+            )
