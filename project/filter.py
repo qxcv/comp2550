@@ -102,18 +102,16 @@ class ParticleFilter(object):
     def predict(self, dt, forward_speed, yaw_diff):
         # TODO:
         #  1) REALISTIC noise model is needed! Can find this experimentally.
-        #  2) Incorporate delta-t so that noise is delta-time-dependent
         noisy_yaws = np.random.normal(
-            yaw_diff, 0.25, (self.num_points,)
+            yaw_diff, 0.6, (self.num_points,)
         )
         # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
         # when we resample
         self.yaws += dt * noisy_yaws
-        # 95% of noisy odometry readings will fall within 40% of the reported
-        # value. We're using a Gaussian because it's easy to sample from and
-        # gives values in (-inf, inf)
+        # We're using a Gaussian because it's easy to sample from and gives
+        # values in (-inf, inf)
         odom_noisy = np.random.normal(
-            forward_speed, abs(forward_speed) * 0.2, size=(self.num_points,)
+            forward_speed, abs(forward_speed) * 0.8, size=(self.num_points,)
         )
         noisy_odom = dt * odom_noisy
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)

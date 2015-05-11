@@ -28,6 +28,9 @@ class StatsWriter(object):
         self.seconds = 0
         self.dt = dt
 
+    def add_gps_fix(obs):
+        pass
+
     def update(self, f, obs):
         """Take a filter and an observation and write a new line to the output
         file"""
@@ -53,9 +56,9 @@ parser.add_argument('--freq', type=int, default=10,
                     help="Frequency of observations in the supplied data set")
 parser.add_argument('--gpsfreq', type=int, default=1,
                     help="Frequency at which GPS observations will be used")
-parser.add_argument('--gpsstddev', type=float, default=0.5,
+parser.add_argument('--gpsstddev', type=float, default=4,
                     help="Standard deviation of white GPS noise")
-parser.add_argument('--gpsstep', type=float, default=0.01,
+parser.add_argument('--gpsstep', type=float, default=1,
                     help="Max drift per second for brownian GPS noise")
 parser.add_argument('--speederror', type=float, default=0.025,
                     help="Speed estimates accurate to 100*speederror%")
@@ -67,6 +70,12 @@ parser.add_argument('--particles', type=int, default=100,
                     help="Number of particles to use")
 parser.add_argument('--disablemap', action='store_true', default=False,
                     help="Disable use of map information")
+parser.add_argument('--enablemapfilter', action='store_true', default=False,
+                    help="Run filtering with map information")
+parser.add_argument('--enablenomapfilter', action='store_true', default=False,
+                    help="Run filtering without a map")
+parser.add_argument('--enablerawgps', action='store_true', default=False,
+                    help="Attempt localisation using only GPS fixes")
 
 if __name__ == '__main__':
     args = parser.parse_args()
