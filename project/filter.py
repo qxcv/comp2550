@@ -2,11 +2,13 @@
 
 import numpy as np
 
-from settings import DEFAULT_LANE_WIDTH
-
 
 class ParticleFilter(object):
-    def __init__(self, num_points, init_coords, init_sigma):
+    def __init__(self, num_points, init_coords, init_sigma, have_imu=True):
+        """Initialise num_points particles using an isotropic Gaussian with
+        variance init_sigma and mean init_coords. If track_vel is True, the
+        filter will store velocities as well as the headings and yaws which it
+        tracks normally."""
         self.num_points = num_points
 
         # Particles are initialised using an isotropic Gaussian with covariance
@@ -23,13 +25,19 @@ class ParticleFilter(object):
         # Particle weights are initially uniform
         self.weights = np.ones(num_points) / num_points
 
+        # Store speeds if necessary
+        self.have_imu = have_imu
+        if not have_imu:
+            # 28m/s is a touch over 100km/h
+            self.speeds = np.random.triangular(0, 28, num_points)
+
     def normalise_weights(self):
         """Ensure that weights sum to one."""
         self.weights = self.weights / np.sum(self.weights)
 
     def effective_particles(self):
-        # Filter should resample when this quantity falls below some threshold,
-        # which Gustaffson et al. (2002) recommend be set to 2N/3
+        """Filter should resample when this quantity falls below some
+        threshold, which Gustaffson et al. (2002) recommend be set to 2N/3"""
         return 1.0 / np.sum(np.square(self.weights))
 
     def auto_resample(self):
@@ -91,13 +99,25 @@ class ParticleFilter(object):
         self.weights *= likelihoods
 
     def measure_map(self, m):
+        """Incorporate measurements from the Map instance m using a Cauchy-like
+        PDF over distances of each particle from their nearest road
+        segments."""
         dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
             dists[idx] = m.nearest_lane_dist(point)
         factors = 1.0 / (1 + dists)
         self.weights *= factors
 
-    def predict(self, dt, forward_speed, yaw_diff):
+    def predict(self, dt, *args):
+        """Update the particles according to the state transition model."""
+        if self.have_imu:
+            return self.predict_imu(dt, *args)
+        return self.predict_no_imu(dt)
+
+    def predict_imu(self, dt, forward_speed, yaw_diff):
+        """Update particles if we have IMU data (and thus do not need to keep
+        velocity or other higher dimensional data around)"""
+        assert self.have_imu
         # TODO:
         #  1) REALISTIC noise model is needed! Can find this experimentally.
         noisy_yaws = np.random.normal(
@@ -114,3 +134,7 @@ class ParticleFilter(object):
         noisy_odom = dt * odom_noisy
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
+
+    def predict_no_imu(self, dt):
+        # TODO
+        pass
