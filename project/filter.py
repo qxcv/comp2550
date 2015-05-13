@@ -140,15 +140,16 @@ class ParticleFilter(object):
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
 
     def predict_no_imu(self, dt):
-        # This transition Gaussian was fitted from the available map
-        # trajectories. See investigate_transitions.py
-        new_velocities = np.random.multivariate_normal(
-            self.velocities, dt * 0.1 * np.eye(2)
+        # Run investigate_transitions.py for some insight into the choice of
+        # covariance here. I've chosen a much larger covariance than the sample
+        # covariance, since we need the particles to jump aroudn a bit.
+        new_velocities = self.velocities + np.random.multivariate_normal(
+            [0, 0], dt * 1 * np.eye(2), len(self.velocities)
         )
         self.coords += 0.5 * dt * (self.velocities + new_velocities)
         self.velocities = new_velocities
 
         # Keep yaws updated as well for the good of the visualisation code.
         # This can be disabled in "production"
-        self.yaws = np.atan2(self.velocities[:, 1], self.velocities[:, 0])
+        self.yaws = np.arctan2(self.velocities[:, 1], self.velocities[:, 0])
         self.yaws %= 2 * np.pi
