@@ -32,6 +32,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     data = pd.read_csv(args.data)
 
+    assert args.rawgps or args.mapfilter or args.plainfilter
+
     if args.rawgps:
         print("Summary statistics for raw GPS:")
         print(data['gps_hpe'].describe())
