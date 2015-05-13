@@ -28,8 +28,9 @@ class ParticleFilter(object):
         # Store speeds if necessary
         self.have_imu = have_imu
         if not have_imu:
-            # 28m/s is a touch over 100km/h
-            self.speeds = np.random.triangular(0, 28, num_points)
+            self.velocities = np.random.multivariate_normal(
+                [0, 0], 5 * np.eye(2), num_points
+            )
 
     def normalise_weights(self):
         """Ensure that weights sum to one."""
@@ -63,8 +64,11 @@ class ParticleFilter(object):
         # Now resample from our set of particles
         self.coords = self.coords[samples]
         self.yaws = self.yaws[samples]
-        # Force yaws to be on [0, 2pi)
+        # Force yaws to be in [0, 2pi)
         self.yaws %= 2 * np.pi
+
+        if not self.have_imu:
+            self.velocities = self.velocities[samples]
 
         # Set weights to be uniform
         self.weights = np.ones(self.num_points) / self.num_points
@@ -136,5 +140,15 @@ class ParticleFilter(object):
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
 
     def predict_no_imu(self, dt):
-        # TODO
-        pass
+        # This transition Gaussian was fitted from the available map
+        # trajectories. See investigate_transitions.py
+        new_velocities = np.random.multivariate_normal(
+            self.velocities, dt * 0.1 * np.eye(2)
+        )
+        self.coords += 0.5 * dt * (self.velocities + new_velocities)
+        self.velocities = new_velocities
+
+        # Keep yaws updated as well for the good of the visualisation code.
+        # This can be disabled in "production"
+        self.yaws = np.atan2(self.velocities[:, 1], self.velocities[:, 0])
+        self.yaws %= 2 * np.pi

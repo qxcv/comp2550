@@ -44,3 +44,31 @@ if __name__ == '__main__':
     plt.title("Transition frequencies for forward velocity ($v_f$)")
 
     plt.show()
+
+    # Now do a plot of ve and vn
+    ve_pairs = np.array(pairs['ve'])
+    ve_deltas = ve_pairs[:, 1] - ve_pairs[:, 0]
+
+    vn_pairs = np.array(pairs['vn'])
+    vn_deltas = vn_pairs[:, 1] - vn_pairs[:, 0]
+
+    full_data = np.zeros((vn_deltas.size, 2))
+    full_data[:, 0] = ve_deltas
+    full_data[:, 1] = vn_deltas
+
+    print("Covariance of data:")
+    print(np.cov(full_data.T))
+    print("Mean of data:")
+    print(np.mean(full_data, axis=0))
+
+    hist, x_edges, y_edges = np.histogram2d(ve_deltas, vn_deltas, bins=100)
+    pc_x, pc_y = np.meshgrid(x_edges, y_edges)
+
+    plt.pcolormesh(pc_x, pc_y, hist)
+    plt.xlabel("$v_e' - v_e$ (m/s)")
+    plt.ylabel("$v_n' - v_n$ (m/s)")
+    plt.xlim(x_edges[0], x_edges[-1])
+    plt.ylim(y_edges[0], y_edges[-1])
+    plt.title("Relative frequencies for changes in velocity")
+
+    plt.show()
