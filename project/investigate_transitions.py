@@ -32,16 +32,10 @@ if __name__ == '__main__':
     hist, x_edges, y_edges = np.histogram2d(vf_now, vf_diff, bins=50)
     pc_x, pc_y = np.meshgrid(x_edges, y_edges)
     # Normalise columns
-    sums = np.sum(hist, axis=0)
-    sums[sums == 0] = 1
-    hist /= sums
+    # sums = np.sum(hist, axis=0)
+    # sums[sums == 0] = 1
+    # hist /= sums
 
-    # plt.imshow(
-    #     hist, interpolation='none', aspect='equal',
-    #     extent=[
-    #        np.min(x_edges), np.max(x_edges), np.min(y_edges), np.max(y_edges)
-    #     ]
-    # )
     plt.pcolormesh(pc_x, pc_y, hist)
     plt.xlabel('$v_f$ (m/s)')
     plt.ylabel("$v_f' - v_f$ (m/s)")
