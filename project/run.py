@@ -80,7 +80,10 @@ def update_filter(f, obs, give_fix=False, m=None):
     if m is not None:
         f.measure_map(m)
     f.auto_resample()
-    f.predict(dt, obs['vf'], obs['wu'])
+    if f.have_imu:
+        f.predict(dt, obs['vf'], obs['wu'])
+    else:
+        f.predict(dt)
     f.normalise_weights()
 
 parser = ArgumentParser()
@@ -113,6 +116,8 @@ parser.add_argument('--enableplainfilter', action='store_true', default=False,
                     help="Run filtering without a map")
 parser.add_argument('--enablerawgps', action='store_true', default=False,
                     help="Attempt localisation using only GPS fixes")
+parser.add_argument('--noimu', action='store_true', default=False,
+                    help="Should the IMU be disabled for the map filter?")
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -149,6 +154,9 @@ if __name__ == '__main__':
         args.gyrostddev
     )
 
+    assert not args.noimu or args.enablemapfilter, "Map filter must be " \
+        "enabled for --noimu to take effect"
+
     for obs, noisy_obs in noisified:
         if last_fix is None and args.enablerawgps:
             last_fix = noisy_obs.pos
@@ -164,7 +172,9 @@ if __name__ == '__main__':
             obs_since_fix += 1
 
         if args.enablemapfilter and map_f is None:
-            map_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+            map_f = ParticleFilter(
+                args.particles, noisy_obs.pos, 5, have_imu=not args.noimu
+            )
         elif map_f is not None:
             update_filter(map_f, noisy_obs, give_fix, m)
 
