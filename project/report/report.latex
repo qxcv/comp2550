@@ -42,8 +42,36 @@
     segments using a 2.5GHz Intel Core i5 processor.
 
     \section{The localisation algorithm}
+    \label{sec:algorithm}
 
-    \section{Evaluation}
+    \section{Results}
+
+    In order to evaluate the performance the map-based localisation algorithm
+    proposed in Section~\ref{sec:algorithm}, we utilised both quantitative and
+    qualitative assessment. In the quantitative tests, we attempted to analyse
+    the performance of the algorithm on partially artificial data for which it
+    was straightforward to measure divergence from the ground truth. On the
+    other hand, the qualitative tests attempted to examine algorithm performance
+    using more realistic consumer-grade localisation data, which unfortunately
+    did not include a ground truth for use in numerical comparisons.
+
+    The quantitative tests utilised the data set presented by
+    \citet{brubaker2013lost}, which includes a number of GPS traces along with
+    OpenStreetMap data for the regions immediately surrounding the traces. The
+    supplied dataset included exceptionally accurate RTK-GPS positioning data,
+    but no corresponding samples with a more representative noise model. As a
+    result, we had to use a synthetic noise model to benchmark the algorithm,
+    which included the following ``roughening'' steps:
+
+    \begin{enumerate}
+        % TODO
+        \item
+    \end{enumerate}
+
+    The qualitative assessment used a GPS trace kindly provided by J. Alvarez
+    (personal communication, 12 May, 2015), which was produced from several
+    kilometers of urban driving, including a brief GPS outage corresponding to a
+    tunnel. The results of this test are presented in Figure % TODO
 
     \section{Conclusion}
 
