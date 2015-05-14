@@ -96,7 +96,7 @@ parser.add_argument(
 )
 parser.add_argument('--freq', type=int, default=10,
                     help="Frequency of observations in the supplied data set")
-parser.add_argument('--gpsfreq', type=int, default=1,
+parser.add_argument('--gpsfreq', type=float, default=1,
                     help="Frequency at which GPS observations will be used")
 parser.add_argument('--gpsstddev', type=float, default=4,
                     help="Standard deviation of white GPS noise")
