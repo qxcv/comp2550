@@ -116,3 +116,9 @@ class Map(object):
         p = Point_3(x, y, 0)
         nearest = self._aabb_tree.closest_point(p)
         return np.sqrt((x - nearest.x())**2 + (y - nearest.y())**2)
+
+
+def JoseMap(Map):
+    """Map subclass dedicated to loading Jose's GPS trace maps"""
+    def __init__(self, path, projector):
+        pass

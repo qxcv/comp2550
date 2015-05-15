@@ -4,6 +4,7 @@ from argparse import ArgumentParser, FileType
 from csv import writer
 from sys import stdin, exit
 from termios import tcflush, TCIFLUSH
+from bz2 import BZ2File
 
 import numpy as np
 
@@ -87,7 +88,7 @@ def update_filter(f, obs, give_fix=False, m=None):
     f.normalise_weights()
 
 parser = ArgumentParser()
-parser.add_argument('data_fp', type=open, help="Map trajectory to read from")
+parser.add_argument('data_path', type=str, help="Map trajectory to read from")
 parser.add_argument('map_path', type=str,
                     help="Path to a .osm file containing map data")
 parser.add_argument(
@@ -124,7 +125,11 @@ if __name__ == '__main__':
     dt = 1.0 / args.freq
     disable_for = 0
     proj = coordinate_projector(KARLSRUHE_CENTER)
-    parsed = parse_map_trajectory(args.data_fp, args.freq, proj)
+    if args.data_path.endswith('.bz2'):
+        trajectory_fp = BZ2File(args.data_path)
+    else:
+        trajectory_fp = open(args.data_path, 'rb')
+    parsed = parse_map_trajectory(trajectory_fp, args.freq, proj)
     m = Map(args.map_path, proj)
     map_f = None
     plain_f = None

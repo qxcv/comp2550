@@ -1,0 +1,18 @@
+The following license came with the data in this directory. This license does
+not apply to the software located outside this subtree, but should be obeyed
+anywhere the data within this subtree is used.
+
+===== LICENSE =====
+
+This software is copyright 2013 Marcus A Brubaker and Andreas Geiger.  It is
+released for personal or academic use only.  Any commercial use is strictly
+prohibited except by explicit permission of the author.  For more information on
+commerical use, contact Marcus A Brubaker (mbrubake@cs.toronto.edu).  The
+authors of this software and corresponding paper assume no liability for its use
+and by downloading this software you agree to these terms.
+
+Any academic use of this software should cite the following in published work:
+
+"Lost! Leveraging the Crowd for Probabilistic Visual Self-Localization." Marcus
+A. Brubaker, Andreas Geiger and Raquel Urtasun. In Proceedings of IEEE CVPR
+2013.
