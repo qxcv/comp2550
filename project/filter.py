@@ -90,7 +90,7 @@ class ParticleFilter(object):
 
         return np.concatenate((coords, mean_yaw))
 
-    def measure_gps(self, mean, stddev):
+    def gps_update(self, mean, stddev):
         """Measure a GPS-like sensor reading with Cartesian coordinates given
         by ``mean`` and uncertainty represented by an isotropic Gaussian with
         standard deviation ``stddev``"""
@@ -102,7 +102,7 @@ class ParticleFilter(object):
         assert likelihoods.shape == (self.num_points,), likelihoods.shape
         self.weights *= likelihoods
 
-    def measure_map(self, m):
+    def map_update(self, m):
         """Incorporate measurements from the Map instance m using a Cauchy-like
         PDF over distances of each particle from their nearest road
         segments."""

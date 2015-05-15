@@ -75,10 +75,10 @@ class StatsWriter(object):
 
 def update_filter(f, obs, give_fix=False, m=None):
     if give_fix:
-        f.measure_gps(obs.pos, 10)
+        f.gps_update(obs.pos, 10)
     f.auto_resample()
     if m is not None:
-        f.measure_map(m)
+        f.map_update(m)
     f.auto_resample()
     if f.have_imu:
         f.predict(dt, obs['vf'], obs['wu'])
