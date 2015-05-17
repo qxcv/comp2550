@@ -1,0 +1,5 @@
+matplotlib
+numpy
+scipy
+pandas
+# Also needs CGAL SWIG bindings, but those aren't in PyPI

@@ -1,6 +1,8 @@
 """Functions for parsing and representing external GPS and odometry
 observations."""
 
+from ast import literal_eval
+from csv import DictReader
 
 import numpy as np
 
@@ -44,14 +46,6 @@ class Observation(object):
         # Time is seconds since some arbitrary point in the past
         self.time = time
 
-        # turn_rate is the rate at which the heading of the vehicle is changing
-        # (wu in the data source)
-        self.turn_rate = data['wu']
-
-        # speed is forward speed, as would be measured by an odometer (but
-        # presumably with greater accuracy)
-        self.speed = data['vf']
-
         # Finally, store the complete data dictionary for reference
         self.data = data
 
@@ -61,10 +55,15 @@ class Observation(object):
     def __setitem__(self, key, value):
         self.data[key] = value
 
+    def __repr__(self):
+        return 'Observation({}, {}, {})'.format(
+            self.time, self.pos, self.data
+        )
+
 
 def parse_map_trajectory(fp, freq=10, projector=None):
-    # Generator returning series of observations from an iterable (presumed to
-    # be a file in the map trajectory format used by Brubaker et al)
+    """Generator returning series of observations from an iterable (presumed to
+    be a file in the map trajectory format used by Brubaker et al)"""
     time = 0
     dt = 1.0 / freq
     for line in fp:
@@ -77,3 +76,25 @@ def parse_map_trajectory(fp, freq=10, projector=None):
             projector = coordinate_projector(coords)
         yield Observation(time, projector(coords), data_dict)
         time += dt
+
+
+def parse_bool(s):
+    rv = literal_eval(s)
+    return bool(rv)
+
+
+def parse_jose_map_trajectory(fp, projector=None):
+    reader = DictReader(fp)
+    for row in reader:
+        data = {
+            'signal': parse_bool(row['signal'])
+        }
+        for name in ('lat', 'lon', 'time'):
+            data[name] = float(row[name])
+
+        time = data['time']
+        coords = (data['lat'], data['lon'])
+        if projector is None:
+            projector = coordinate_projector(coords)
+
+        yield Observation(time, projector(coords), data)

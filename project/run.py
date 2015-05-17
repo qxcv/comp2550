@@ -12,9 +12,10 @@ from matplotlib import pyplot as plt
 
 from filter import ParticleFilter
 from graphics import MapDisplay
-from map import Map
+from map import Map, JoseMap
 from noise import noisify
-from observation import parse_map_trajectory, coordinate_projector
+from observation import (parse_map_trajectory, coordinate_projector,
+                         parse_jose_map_trajectory)
 from settings import KARLSRUHE_CENTER
 
 
@@ -88,37 +89,66 @@ def update_filter(f, obs, give_fix=False, m=None):
     f.normalise_weights()
 
 parser = ArgumentParser()
-parser.add_argument('data_path', type=str, help="Map trajectory to read from")
-parser.add_argument('map_path', type=str,
-                    help="Path to a .osm file containing map data")
+parser.add_argument(
+    'data_path', type=str, help="Map trajectory to read from"
+)
+parser.add_argument(
+    'map_path', type=str, help="Path to a .osm file containing map data"
+)
 parser.add_argument(
     '--out', type=FileType('w'), default=None,
     help="File to write particle filter estimates and ground truth to"
 )
-parser.add_argument('--freq', type=int, default=10,
-                    help="Frequency of observations in the supplied data set")
-parser.add_argument('--gpsfreq', type=float, default=1,
-                    help="Frequency at which GPS observations will be used")
-parser.add_argument('--gpsstddev', type=float, default=4,
-                    help="Standard deviation of white GPS noise")
-parser.add_argument('--gpsstep', type=float, default=1,
-                    help="Max drift per second for brownian GPS noise")
-parser.add_argument('--speederror', type=float, default=0.025,
-                    help="Speed estimates accurate to 100*speederror percent")
-parser.add_argument('--gyrostddev', type=float, default=0.05,
-                    help="Standard deviation of gyroscope noise (deg/s)")
-parser.add_argument('--gui', action='store_true', default=False,
-                    help="Enable GUI")
-parser.add_argument('--particles', type=int, default=100,
-                    help="Number of particles to use")
-parser.add_argument('--enablemapfilter', action='store_true', default=False,
-                    help="Run filtering with map information")
-parser.add_argument('--enableplainfilter', action='store_true', default=False,
-                    help="Run filtering without a map")
-parser.add_argument('--enablerawgps', action='store_true', default=False,
-                    help="Attempt localisation using only GPS fixes")
-parser.add_argument('--noimu', action='store_true', default=False,
-                    help="Should the IMU be disabled for the map filter?")
+parser.add_argument(
+    '--jose', action='store_true', default=False,
+    help="Use Jose's data format (CSV trace, .mat map)"
+)
+parser.add_argument(
+    '--freq', type=int, default=10,
+    help="Frequency of observations in the supplied data set"
+)
+parser.add_argument(
+    '--gpsfreq', type=float, default=1,
+    help="Frequency at which GPS observations will be used"
+)
+parser.add_argument(
+    '--gpsstddev', type=float, default=4,
+    help="Standard deviation of white GPS noise"
+)
+parser.add_argument(
+    '--gpsstep', type=float, default=1,
+    help="Max drift per second for brownian GPS noise"
+)
+parser.add_argument(
+    '--speederror', type=float, default=0.025,
+    help="Speed estimates accurate to 100*speederror percent"
+)
+parser.add_argument(
+    '--gyrostddev', type=float, default=0.05,
+    help="Standard deviation of gyroscope noise (deg/s)"
+)
+parser.add_argument(
+    '--gui', action='store_true', default=False, help="Enable GUI"
+)
+parser.add_argument(
+    '--particles', type=int, default=100, help="Number of particles to use"
+)
+parser.add_argument(
+    '--enablemapfilter', action='store_true', default=False,
+    help="Run filtering with map information"
+)
+parser.add_argument(
+    '--enableplainfilter', action='store_true', default=False,
+    help="Run filtering without a map"
+)
+parser.add_argument(
+    '--enablerawgps', action='store_true', default=False,
+    help="Attempt localisation using only GPS fixes"
+)
+parser.add_argument(
+    '--noimu', action='store_true', default=False,
+    help="Should the IMU be disabled for the map filter?"
+)
 
 if __name__ == '__main__':
     args = parser.parse_args()
