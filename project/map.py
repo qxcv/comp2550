@@ -7,17 +7,19 @@ from imposm.parser import OSMParser
 from CGAL.CGAL_AABB_tree import AABB_tree_Segment_3_soup
 from CGAL.CGAL_Kernel import Segment_3, Point_3
 
+from scipy.io import loadmat
+
 from settings import DEFAULT_LANE_WIDTH
 
 
 # These are all the most important road types. Some types have been ommitted in
 # the interests of localisation effectiveness. See
 # https://wiki.openstreetmap.org/wiki/Key:highway for more information
-ROAD_TYPES = frozenset(
-    ["motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link",
-     "trunk_link", "primary_link", "secondary_link", "tertiary_link",
-     "living_street", "road", "unclassified", "residential", "service"]
-)
+ROAD_TYPES = frozenset([
+    "motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link",
+    "trunk_link", "primary_link", "secondary_link", "tertiary_link",
+    "living_street", "road", "unclassified", "residential", "service"
+])
 
 
 def perp(begin, end):
@@ -81,6 +83,10 @@ class Map(object):
                 for lane in lanes:
                     self.segments.append(lane)
 
+        self._build_aabb_tree()
+
+    def _build_aabb_tree(self):
+        """Build an AABB tree from self.segments"""
         seg3ds = []
         for begin, end in self.segments:
             p1 = Point_3(*(list(begin) + [0]))
@@ -118,7 +124,28 @@ class Map(object):
         return np.sqrt((x - nearest.x())**2 + (y - nearest.y())**2)
 
 
-def JoseMap(Map):
+class JoseMap(Map):
     """Map subclass dedicated to loading Jose's GPS trace maps"""
     def __init__(self, path, projector):
-        pass
+        m = loadmat(path)
+        matlab_roads = m['roads']
+        self.segments = []
+
+        for matlab_line in matlab_roads:
+            lats, = matlab_line['Y']
+            lons, = matlab_line['X']
+            # TODO: Check out road type to figure out lane count!
+            # road_type, = matlab_line['type']
+            nan_mask = np.logical_or(np.isnan(lats), np.isnan(lons))
+            assert np.isnan(lats[nan_mask]).all()
+            assert np.isnan(lons[nan_mask]).all()
+            sane_lats = lats[~nan_mask]
+            sane_lons = lons[~nan_mask]
+            pairs = zip(sane_lats, sane_lons)
+
+            for start, end in zip(pairs, pairs[1:]):
+                start_proj = projector(start)
+                end_proj = projector(end)
+                self.segments.append((start_proj, end_proj))
+
+        self._build_aabb_tree()
