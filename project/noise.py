@@ -19,16 +19,12 @@ def brownian(step_size=1, shape=None):
         mean += step_size * direction
 
 
-def noisify(obs_gen, gps_stddev, gps_step_size, speed_noise, gyro_stddev):
+def noisify(obs_gen, gps_stddev, speed_noise, gyro_stddev):
     """Applies GPS, gyroscope and speedometer noise to the given observation
     sequence. Yields (ground truth, noisy observation) pairs."""
     assert 1 >= speed_noise >= 0
     assert gyro_stddev >= 0
-    assert gps_step_size >= 0
     assert gps_stddev >= 0
-
-    # Some time-correlated GPS noise
-    gps_random_walk = brownian(gps_step_size, shape=(2,))
 
     # Emulates a miscalibrated speedometer. At most +-2.5km/h of error at
     # 100km/h
@@ -41,18 +37,19 @@ def noisify(obs_gen, gps_stddev, gps_step_size, speed_noise, gyro_stddev):
         # without bound, but it will have to do for now (why implement
         # something more complicated when you have NFI what GPS noise actually
         # looks like?).
-        white_noisy_pos = np.random.multivariate_normal(
+        new_obs.pos = np.random.multivariate_normal(
             obs.pos, gps_stddev**2 * np.eye(2)
         )
-        new_obs.pos = white_noisy_pos + next(gps_random_walk)
 
         # Add gyro noise. I got this formula out of thin air BECAUSE NOBODY
         # CARES ABOUT PRECISE NOISE MODELS. Anyway, this will keep 95% of
         # measurements within 5% of their true values.
-        new_obs['wu'] += np.random.normal(0, gyro_stddev)
+        if 'wu' in new_obs:
+            new_obs['wu'] += np.random.normal(0, gyro_stddev)
 
         # Add speedometer noise
-        new_obs['vf'] *= speedo_multiplier
+        if 'vf' in new_obs:
+            new_obs['vf'] *= speedo_multiplier
 
         # Yield the ground truth and its noisy counterpart
         yield obs, new_obs

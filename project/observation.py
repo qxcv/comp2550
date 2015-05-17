@@ -55,6 +55,9 @@ class Observation(object):
     def __setitem__(self, key, value):
         self.data[key] = value
 
+    def __contains__(self, key):
+        return key in self.data
+
     def __repr__(self):
         return 'Observation({}, {}, {})'.format(
             self.time, self.pos, self.data

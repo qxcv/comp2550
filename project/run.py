@@ -21,11 +21,9 @@ from settings import KARLSRUHE_CENTER
 
 class StatsWriter(object):
     """Class for writing statistics to a file pointer"""
-    def __init__(self, fp, dt, enable_map_f=False, enable_plain_f=False,
+    def __init__(self, fp, enable_map_f=False, enable_plain_f=False,
                  enable_raw_gps=False):
         self.writer = writer(fp)
-        self.seconds = 0
-        self.dt = dt
 
         labels = [
             "time", "true_x", "true_y", "true_yaw"
@@ -61,7 +59,7 @@ class StatsWriter(object):
         file"""
         true_x, true_y = obs.pos
         true_yaw = obs['yaw']
-        columns = [self.seconds, true_x, true_y, true_yaw]
+        columns = [obs.time, true_x, true_y, true_yaw]
 
         if map_f is not None:
             columns += self.filter_columns(obs, map_f)
@@ -72,20 +70,20 @@ class StatsWriter(object):
 
         self.writer.writerow(columns)
 
-        self.seconds += dt
 
-
-def update_filter(f, obs, give_fix=False, m=None):
+def update_filter(f, obs, dt, give_fix=False, m=None):
     if give_fix:
         f.gps_update(obs.pos, 10)
     f.auto_resample()
     if m is not None:
         f.map_update(m)
     f.auto_resample()
-    if f.have_imu:
-        f.predict(dt, obs['vf'], obs['wu'])
-    else:
-        f.predict(dt)
+    # In the first step, dt will be None
+    if dt is not None:
+        if f.have_imu:
+            f.predict(dt, obs['vf'], obs['wu'])
+        else:
+            f.predict(dt)
     f.normalise_weights()
 
 parser = ArgumentParser()
@@ -114,10 +112,6 @@ parser.add_argument(
 parser.add_argument(
     '--gpsstddev', type=float, default=4,
     help="Standard deviation of white GPS noise"
-)
-parser.add_argument(
-    '--gpsstep', type=float, default=1,
-    help="Max drift per second for brownian GPS noise"
 )
 parser.add_argument(
     '--speederror', type=float, default=0.025,
@@ -152,15 +146,19 @@ parser.add_argument(
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    dt = 1.0 / args.freq
     disable_for = 0
     proj = coordinate_projector(KARLSRUHE_CENTER)
     if args.data_path.endswith('.bz2'):
         trajectory_fp = BZ2File(args.data_path)
     else:
         trajectory_fp = open(args.data_path, 'rb')
-    parsed = parse_map_trajectory(trajectory_fp, args.freq, proj)
-    m = Map(args.map_path, proj)
+    if args.jose:
+        assert args.noimu, "Jose's data has no IMU info; use --noimu"
+        parsed = parse_jose_map_trajectory(trajectory_fp, proj)
+        m = JoseMap(args.map_path, proj)
+    else:
+        parsed = parse_map_trajectory(trajectory_fp, args.freq, proj)
+        m = Map(args.map_path, proj)
     map_f = None
     plain_f = None
 
@@ -176,7 +174,7 @@ if __name__ == '__main__':
 
     if args.out is not None:
         stats_writer = StatsWriter(
-            args.out, dt,
+            args.out,
             enable_map_f=args.enablemapfilter,
             enable_plain_f=args.enableplainfilter,
             enable_raw_gps=args.enablerawgps
@@ -184,15 +182,21 @@ if __name__ == '__main__':
 
     obs_since_fix = 0
     last_fix = None
+    last_time = None
     noisified = noisify(
-        parsed, args.gpsstddev, args.gpsstep * dt, args.speederror,
-        args.gyrostddev
+        parsed, args.gpsstddev, args.speederror, args.gyrostddev
     )
 
     assert not args.noimu or args.enablemapfilter, "Map filter must be " \
         "enabled for --noimu to take effect"
 
     for obs, noisy_obs in noisified:
+        if last_time is not None:
+            dt = obs.time - last_time
+        else:
+            dt = None
+        last_time = obs.time
+
         if last_fix is None and args.enablerawgps:
             last_fix = noisy_obs.pos
 
@@ -211,12 +215,12 @@ if __name__ == '__main__':
                 args.particles, noisy_obs.pos, 5, have_imu=not args.noimu
             )
         elif map_f is not None:
-            update_filter(map_f, noisy_obs, give_fix, m)
+            update_filter(map_f, noisy_obs, dt, give_fix, m)
 
         if args.enableplainfilter and plain_f is None:
             plain_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
         elif plain_f is not None:
-            update_filter(plain_f, noisy_obs, give_fix)
+            update_filter(plain_f, noisy_obs, dt, give_fix)
 
         if args.gui and not disable_for:
             # Make a list of filters for the display to update
@@ -229,7 +233,9 @@ if __name__ == '__main__':
             if filters:
                 display.update_filters(filters)
 
-            display.update_ground_truth(obs.pos, obs['yaw'])
+            display.update_ground_truth(
+                obs.pos, obs['yaw'] if 'yaw' in obs else None
+            )
             display.redraw()
 
             while True:

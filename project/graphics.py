@@ -35,6 +35,21 @@ def plot_vehicle_tri(coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
     return ax.add_patch(tri)
 
 
+def plot_vehicle_square(coords, color=(0, 1, 0, 0.5), zorder=None):
+    # It will be a side_length * side_length square
+    side_length = 8
+    # Unit rectangle at the origin
+    rect = patches.Rectangle(
+        (-0.5, -0.5), 1, 1, facecolor=color
+    )
+    ax = plt.gca()
+    rect.set_transform(transforms.Affine2D()
+                                 .scale(side_length)
+                                 .translate(*coords)
+                       + ax.transData)
+    return ax.add_patch(rect)
+
+
 class MapDisplay(object):
     """Class to display a fixed map with a set of points which move every so
     often."""
@@ -112,12 +127,17 @@ class MapDisplay(object):
         for f in filters:
             self.filter_junk.extend(self.draw_filter(f))
 
-    def update_ground_truth(self, pos, yaw):
+    def update_ground_truth(self, pos, yaw=None):
         if self.gt_junk is not None:
             self.gt_junk.remove()
-        self.gt_junk = plot_vehicle_tri(
-            pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
-        )
+        if yaw is None:
+            self.gt_junk = plot_vehicle_square(
+                pos, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
+            )
+        else:
+            self.gt_junk = plot_vehicle_tri(
+                pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
+            )
 
     def update_last_fix(self, pos):
         if self.last_fix_junk is not None:
