@@ -29,6 +29,16 @@
         <!--[if lt IE 9]>
         <script src="lib/js/html5shiv.js"></script>
         <![endif]-->
+
+        <style>
+            .reveal .inline-fig {
+                display: inline-block !important;
+            }
+
+            .reveal figcaption {
+                font-size: 0.8em;
+            }
+        </style>
     </head>
 
     <body>
@@ -57,14 +67,17 @@
                     observations. <strong>Extremely</strong> important task for
                     road vehicles.</p>
 
-                    <p>
+                    <figure class=inline-fig>
                         <img
                             src="images/tomtom.jpg"
                             alt="Hand-held GPS unit" height=200px>
+                    </figure>
+
+                    <figure class=inline-fig>
                         <img
                             src="images/hands-free-driving.jpg"
                             alt="Autonomous car" height=200px>
-                    </p>
+                    </figure>
                 </section>
 
                 <section>
@@ -73,10 +86,88 @@
 
                 <section>
                     <h3>Improving the situation with maps</h3>
+                    <ol>
+                        <li>
+                            Cars are on the road most of the time
+                        </li>
+                        <li>
+                            Detailed road maps are easy to find
+                        </li>
+                    </ol>
+                    <p>
+                        <strong>
+                            How can we use this information to improve
+                            localisation?
+                        </strong>
+                    </p>
                 </section>
 
-                <section>
-                    <h3>Past work</h3>
+                <section class=stack>
+                    <section>
+                        <h3>Past work</h3>
+                        <p>
+                            Two broad families of &ldquo;map matching&rdquo;
+                            algorithms: heuristic and probabilistic
+                        </p>
+                    </section>
+                    <section>
+                        <p>
+                            <strong>Heuristic methods</strong> use
+                            hand-coded rules to rule out unlikely vehicle
+                            positions
+                            <figure>
+                                <blockquote>
+                                    <ul>
+                                        <li>
+                                            If ($\Delta \theta$) is small) and
+                                            ($\alpha$ is below 90&deg;) and
+                                            ($\beta$ is below 90&deg;) then (L2
+                                            is high)
+                                        </li>
+                                        <li>
+                                            If ($\Delta \theta$) is small) and
+                                            ($\Delta d$ is positive) and
+                                            ($\alpha$ is above 90&deg;) then (L2
+                                            is low)
+                                        </li>
+                                        <li>
+                                            If ($\Delta \theta$) is small) and
+                                            ($\Delta d$ is positive) and
+                                            ($\beta$ is above 90&deg;) then (L2
+                                            is low)
+                                        </li>
+                                        <li>&hellip;</li>
+                                    </ul>
+                                </blockquote>
+                                <figcaption>
+                                    <em>
+                                        A high accuracy fuzzy logic based
+                                        map matching algorithm for road
+                                        transport
+                                    </em> (Quddus et al., 2006)
+                                </figcaption>
+                            </figure>
+                        </p>
+                    </section>
+                    <section>
+                        <p>
+                            <strong>Probabilistic methods</strong> represent
+                            vehicle's position as a probability distribution
+                            over locations
+                            <figure>
+                                <img
+                                    src=images/brubaker-et-al.png
+                                    alt="Probability distribution over vehicle positions being narrowed down by Brubaker et al.'s algorithm">
+                                <figcaption>
+                                    <em>
+                                        Lost! leveraging the crowd for
+                                        probabilistic visual
+                                        self-localization
+                                    </em> (Brubaker et al., 2013)
+                                </figcaption>
+                            </figure>
+                        </p>
+                    </section>
                 </section>
 
                 <section>
@@ -463,7 +554,8 @@ Reveal.addEventListener( 'customevent', function() {
                     { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
                     { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
                     { src: 'plugin/zoom-js/zoom.js', async: true },
-                    { src: 'plugin/notes/notes.js', async: true }
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/math/math.js', async: true }
                 ]
             });
 
