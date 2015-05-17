@@ -1,0 +1,26 @@
+\documentclass{standalone}
+\usepackage{tikz}
+
+\begin{document}
+\begin{tikzpicture}
+\tikzstyle{var} = [circle, draw=black, fill=white, line width=0.5mm, minimum size=25pt, inner sep=0pt]
+\tikzstyle{edge} = [draw, line width=0.5mm, ->]
+%\tikzstyle{leadingedge} = [draw, line width=0.5mm, .>]
+%\tikzstyle{trailingedge} = [draw, line width=0.5mm, .]
+
+\node[var] (s0) at (1, 1) {$z_t$};
+\node[var] (s1) at (2, 1) {$z_{t+1}$};
+\node[var] (s2) at (3, 1) {$z_{t+2}$};
+\node[var] (s3) at (3, 1) {$z_{t+3}$};
+\node[var] (o0) at (1, 0) {$x_t$};
+\node[var] (o1) at (2, 0) {$x_{t+1}$};
+\node[var] (o2) at (3, 0) {$x_{t+2}$};
+\node[var] (o3) at (3, 0) {$x_{t+3}$};
+%\path[leadingedge] (0, 1) -- (s0);
+%\path[trailingedge] (s3) -- (4,1);
+
+\foreach \source/ \dest in {
+    s0/s1, s1/s2, s2/s3, s0/o0, s1/o1, s2/o2, s3/o3
+} \path[edge] (\source) -- (\dest);
+\end{tikzpicture}
+\end{document}
