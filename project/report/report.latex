@@ -15,6 +15,34 @@
 
 \usepackage[margin=1in]{geometry}
 
+% Report plan:
+%
+% 1) Write a brief introduction outlining what I'm trying to do and why it's
+% useful. Can just reword this from project proposal and slides. Maybe 0.5-1
+% pages.
+% 2) Talk about previous work. This will hopefully take up 1-1.5 pages.
+% 3) Discuss the particle filter. I can make this as long as I want, but I
+% would like it if I could spend about 1.5 pages talking about the PF.
+% 4) Now I can introduce what I actually did. Probably start with the basic
+% (map-free) structure, then move on to producing maps from OSM sources, then
+% move on to incorporating this map data, then move onto the hacks I needed to
+% complete to get the localiser to actually localise properly. This should take
+% up the bulk of the report (2-3 pages)
+% 5) Experiments. This will include a table for each of the KITTI datasets
+% showing mean and standard deviation of HPE with and without the map enabled
+% for particle filtering, and at various levels of noise. Should also show one
+% or more qualitative experiments showing performance with *real* GPS data
+% (ideally without IMU). Should also talk about the defects of the algorithm
+% and how these could be fixed (e.g. with additional sensor data). This will
+% hopefully take up another 2-3 pages.
+% 6) Conclusion. This will be maybe 0.25 pages.
+% 7) References. Don't think these count towards the total page sum.
+%
+% So, adding those up, I get a minimum of 0.5+1+2+2+0.25 = 5.75 pages and a
+% maximum of 1+1.5+3+3+0.25 = 9.75 pages. Ugh, I'm going to have to be REALLY
+% verbose and include a LOT of diagrams (that's how other authors pad out their
+% papers, apparently).
+
 \begin{document}
     \title{Robust Map-Augmented Localisation Using Particle Filters\\
     {\Large COMP2550 Project Report}}

@@ -207,11 +207,46 @@
                 </section>
 
                 <section>
-                    <h3>Particle filters</h3>
+                    <section>
+                        <h3>Particle filters</h3>
+                        <!--
+                            This slide should contain an intuitive explanation
+                            of particle filters (hopefully with some diagrams)
+                        -->
+                    </section>
                 </section>
 
                 <section>
-                    <h3>Vehicle model</h3>
+                    <section>
+                        <h3><em>Why</em> do particle filters work?</h3>
+                    </section>
+
+                    <section>
+                        <figure>
+                            <img style="padding: 5px; height: 180px;"
+                                src=images/pf/pf.svg
+                                alt="Bayes net showing a Markov process with hidden states">
+                        </figure>
+
+                        <ul>
+                            <li>
+                                $z_t$ denotes the state of the vehicle
+                                (position, velocity, acceleration, etc.) at time
+                                $t$
+                            </li>
+                            <li>
+                                $x_t$ denotes the observations made in state
+                                $z_t$ (gyroscope data, GPS readings, etc.)
+                            </li>
+                        </ul>
+
+                        <p>\[
+                            p(z_t \mid x_{1:t}) =
+                            \int\! p(z_t\mid z_{t-1})
+                                   p(z_{t-1}\mid x_{1:t-1})
+                            \,dz_{t-1}
+                        \]</p>
+                    </section>
                 </section>
 
                 <section>
@@ -232,7 +267,7 @@
 
                 <section>
                     <h3>Image credits</h3>
-                    <p><small>Credits given in order of appearance.</small></p>
+                    <p><small>In order of appearance:</small></p>
                     <dl class=credits>
                         <dt>&ldquo;TomTom&rdquo;</dt>
                         <dd>
