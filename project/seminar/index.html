@@ -209,10 +209,59 @@
                 <section>
                     <section>
                         <h3>Particle filters</h3>
-                        <!--
-                            This slide should contain an intuitive explanation
-                            of particle filters (hopefully with some diagrams)
-                        -->
+
+                        <p>
+                            Intuitively: represent vehicle's position using
+                            weighted &ldquo;particles&rdquo; distributed
+                            throughout the environment
+                        </p>
+
+                        <ol>
+                            <li>
+                                When vehicle moves, particles move
+                            </li>
+                            <li>
+                                Update particle weights to reflect sensor data
+                                likelihood
+                            </li>
+                            <li>
+                                Resample periodically to weed out low-weight
+                                particles
+                            </li>
+                        </ol>
+                    </section>
+
+                    <section>
+                        <p>
+                            <strong>Example:</strong>
+                            <em>Monte Carlo Localization: Efficient Position
+                            Estimation for Mobile Robots</em>
+                            (Fox et al., 1999)
+                        </p>
+                    </section>
+
+                    <section>
+                        <img src=images/fox-et-al-1.png
+                            alt="Initialisation of the particle filter">
+                        <figcaption>
+                            Initially, particles spread out uniformly
+                        </figcaption>
+                    </section>
+
+                    <section>
+                        <img src=images/fox-et-al-2.png
+                            alt="Bimodal particle distribution">
+                        <figcaption>
+                            Robot turns, detects corridor
+                        </figcaption>
+                    </section>
+
+                    <section>
+                        <img src=images/fox-et-al-3.png
+                            alt="Particle filter converged">
+                        <figcaption>
+                            Correct position identified
+                        </figcaption>
                     </section>
                 </section>
 
@@ -289,7 +338,13 @@
                         <dd>
                             From M.A. Brubaker, A. Geiger, R. Urtasun, <em>Lost!
                             Leveraging the Crowd for Probabilistic Visual
-                            Self-Localization</em> (CVPR 2013)
+                            Self-Localization</em> (CVPR '13)
+                        </dd>
+                        <dt>Particle filtering diagrams</dt>
+                        <dd>
+                            From D. Fox, W. Burgard, F. Dellaert, S. Thrun,
+                            <em>Monte Carlo Localization: Efficient Position
+                            Estimation for Mobile Robots</em> (AAAI '99)
                         </dd>
                     </dl>
                 </section>
