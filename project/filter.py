@@ -58,6 +58,7 @@ class ParticleFilter(object):
         samples = np.random.choice(
             np.arange(self.num_points),
             size=self.num_points,
+            replace=True,
             p=self.weights
         )
 
