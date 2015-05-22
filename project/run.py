@@ -197,7 +197,10 @@ class TheMainLoop(object):
             }
             self.writer = FFmpegWriter(fps=args.fps, metadata=meta)
             self.writer.setup(plt.gcf(), args.movie, 64)
-            self.display = MapDisplay(plt.gca(), self.m, auto_focus=True)
+            self.display = MapDisplay(
+                plt.gca(), self.m, auto_focus=True,
+                auto_scale_rate=0.1
+            )
 
         if args.out is not None:
             self.stats_writer = StatsWriter(

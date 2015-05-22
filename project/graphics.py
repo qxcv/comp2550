@@ -77,8 +77,8 @@ class MapDisplay(object):
         zorder = self.CIRCLES_Z_ORDER
 
         # These are used for auto-scaling (if enabled)
-        min_x = min_y = -5
-        max_x = max_y = 5
+        min_x = min_y = float('inf')
+        max_x = max_y = float('-inf')
 
         for i in xrange(f.num_points):
             coords = f.coords[i]
@@ -125,7 +125,6 @@ class MapDisplay(object):
         )
         rv.append(vehicle)
 
-        # TODO
         if self.auto_scale_rate is not None:
             self.auto_scale(min_x, max_x, min_y, max_y)
 
@@ -172,12 +171,13 @@ class MapDisplay(object):
         current_ylim = np.array(self.ax.get_ylim())
         new_xlim = current_xlim - np.mean(current_xlim) + cx
         new_ylim = current_ylim - np.mean(current_ylim) + cy
-        self.set_xlim(*new_xlim)
-        self.set_ylim(*new_ylim)
+        self.ax.set_xlim(*new_xlim)
+        self.ax.set_ylim(*new_ylim)
 
     def auto_scale(self, xmin, xmax, ymin, ymax):
         """Zoom in or out the axes until the bounding box specified by
         {x,y}{min,max} is in view"""
+        # TODO: Actually use self.auto_scale_rate
         target_limits = np.array([[xmin, xmax], [ymin, ymax]])
         current_limits = np.array([
             self.ax.get_xlim(),
@@ -189,12 +189,14 @@ class MapDisplay(object):
         shifted_targets = target_limits - current_focus
 
         # new 1/2 width and new 1/2 height
-        x_span, y_span = np.amax(np.abs(shifted_targets), axis=1)
+        x_span, y_span = np.abs(shifted_targets).max(axis=1)
+        x_span = max(100, x_span)
+        y_span = max(100, y_span)
 
         # Now set bounding boxes
         x_mean, y_mean = current_focus
-        np.xlim(x_mean - x_span, x_mean + x_span)
-        np.ylim(x_mean - x_span, y_mean + y_span)
+        self.ax.set_xlim(x_mean - x_span, x_mean + x_span)
+        self.ax.set_ylim(y_mean - y_span, y_mean + y_span)
 
     def redraw(self):
         self.ax.set_aspect('equal', 'datalim')
