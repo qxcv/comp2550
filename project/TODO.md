@@ -11,3 +11,4 @@
    path of the vehicle at an intersection could make the filter more responsive
    during sharp turns.
 4. Make sure that GPS fixes in Jose's data are ignored when 'signal' is 0.
+5. Figure out how to write movies for presentation on Wednesday.

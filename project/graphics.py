@@ -2,18 +2,18 @@
 
 from math import cos, sin, sqrt, pi
 
-from matplotlib import patches, transforms, pyplot as plt
+from matplotlib import patches, transforms
 
 # Base particle radius, metres
 PARTICLE_RAD = 1
 
 
-def mpl_draw_map(map, region=None):
+def mpl_draw_map(ax, map, region=None):
     for begin, end in map.segments:
-        plt.plot((begin[0], end[0]), (begin[1], end[1]), 'b-')
+        ax.plot((begin[0], end[0]), (begin[1], end[1]), 'b-')
 
 
-def plot_vehicle_tri(coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
+def plot_vehicle_tri(ax, coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
     """Plot a marker representing a vehicle (either ground truth or
     estimate)"""
     vertices = [
@@ -26,7 +26,6 @@ def plot_vehicle_tri(coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
         vertices, closed=True, facecolor=color, edgecolor=(0, 0, 0),
         zorder=zorder
     )
-    ax = plt.gca()
     tri.set_transform(transforms.Affine2D()
                                 .scale(10)
                                 .rotate(yaw - pi/2)
@@ -35,14 +34,13 @@ def plot_vehicle_tri(coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
     return ax.add_patch(tri)
 
 
-def plot_vehicle_square(coords, color=(0, 1, 0, 0.5), zorder=None):
+def plot_vehicle_square(ax, coords, color=(0, 1, 0, 0.5), zorder=None):
     # It will be a side_length * side_length square
     side_length = 8
     # Unit rectangle at the origin
     rect = patches.Rectangle(
         (-0.5, -0.5), 1, 1, facecolor=color
     )
-    ax = plt.gca()
     rect.set_transform(transforms.Affine2D()
                                  .scale(side_length)
                                  .translate(*coords)
@@ -58,12 +56,11 @@ class MapDisplay(object):
     ESTIMATE_Z_ORDER = 10
     CIRCLES_Z_ORDER = 0
 
-    def __init__(self, map):
+    def __init__(self, ax, map):
+        self.ax = ax
         self.map = map
-        plt.ion()
-        plt.gca().set_aspect('equal', 'datalim')
-        mpl_draw_map(map)
-        self.have_shown = False
+        ax.set_aspect('equal', 'datalim')
+        mpl_draw_map(ax, map)
 
         # Junk will be cleaned up when new points are drawn
         self.filter_junk = []
@@ -94,11 +91,11 @@ class MapDisplay(object):
             line_end = (
                 coords[0] + radius*cos(yaw), coords[1] + radius*sin(yaw)
             )
-            line_handle = plt.plot(
+            line_handle = self.ax.plot(
                 (coords[0], line_end[0]), (coords[1], line_end[1]),
                 color=(0, 0, 0, 0.8), zorder=zorder
             )
-            plt.gca().add_patch(circ)
+            self.ax.add_patch(circ)
 
             # Add junk to be cleaned up next time
             rv.append(line_handle)
@@ -108,7 +105,7 @@ class MapDisplay(object):
 
         pred_x, pred_y, pred_yaw = f.state_estimate()
         vehicle = plot_vehicle_tri(
-            (pred_x, pred_y), pred_yaw, zorder=self.ESTIMATE_Z_ORDER
+            self.ax, (pred_x, pred_y), pred_yaw, zorder=self.ESTIMATE_Z_ORDER
         )
         rv.append(vehicle)
 
@@ -132,26 +129,20 @@ class MapDisplay(object):
             self.gt_junk.remove()
         if yaw is None:
             self.gt_junk = plot_vehicle_square(
-                pos, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
+                self.ax, pos, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
             )
         else:
             self.gt_junk = plot_vehicle_tri(
-                pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
+                self.ax, pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
             )
 
     def update_last_fix(self, pos):
         if self.last_fix_junk is not None:
             for junk in self.last_fix_junk:
                 junk.remove()
-        self.last_fix_junk = plt.plot(
+        self.last_fix_junk = self.ax.plot(
             pos[0], pos[1], marker='x', color='r', markersize=50
         )
 
     def redraw(self):
-        plt.gca().set_aspect('equal', 'datalim')
-        if not self.have_shown:
-            plt.gcf().canvas.set_window_title('Map viewer')
-            plt.show()
-            self.have_shown = True
-        else:
-            plt.draw()
+        self.ax.set_aspect('equal', 'datalim')
