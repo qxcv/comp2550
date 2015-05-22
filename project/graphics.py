@@ -4,6 +4,8 @@ from math import cos, sin, sqrt, pi
 
 from matplotlib import patches, transforms
 
+import numpy as np
+
 # Base particle radius, metres
 PARTICLE_RAD = 1
 
@@ -56,11 +58,14 @@ class MapDisplay(object):
     ESTIMATE_Z_ORDER = 10
     CIRCLES_Z_ORDER = 0
 
-    def __init__(self, ax, map):
+    def __init__(self, ax, map, smooth_zoom_rate=None, auto_focus=False,
+                 auto_scale_rate=None):
         self.ax = ax
         self.map = map
         ax.set_aspect('equal', 'datalim')
         mpl_draw_map(ax, map)
+        self.auto_focus = auto_focus
+        self.auto_scale_rate = auto_scale_rate
 
         # Junk will be cleaned up when new points are drawn
         self.filter_junk = []
@@ -70,10 +75,21 @@ class MapDisplay(object):
     def draw_filter(self, f):
         rv = []
         zorder = self.CIRCLES_Z_ORDER
+
+        # These are used for auto-scaling (if enabled)
+        min_x = min_y = -5
+        max_x = max_y = 5
+
         for i in xrange(f.num_points):
             coords = f.coords[i]
             weight = f.weights[i]
             yaw = f.yaws[i]
+
+            # Update maxima
+            min_x = min(coords[0], min_x)
+            min_y = min(coords[1], min_y)
+            max_x = max(coords[0], max_x)
+            max_y = max(coords[1], max_y)
 
             # Significance of sqrt is that it makes circle areas proportional
             # to weight
@@ -109,6 +125,10 @@ class MapDisplay(object):
         )
         rv.append(vehicle)
 
+        # TODO
+        if self.auto_scale_rate is not None:
+            self.auto_scale(min_x, max_x, min_y, max_y)
+
         # Return all the junk we generated
         return rv
 
@@ -135,6 +155,8 @@ class MapDisplay(object):
             self.gt_junk = plot_vehicle_tri(
                 self.ax, pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
             )
+        if self.auto_focus:
+            self.focus_on(*pos)
 
     def update_last_fix(self, pos):
         if self.last_fix_junk is not None:
@@ -143,6 +165,36 @@ class MapDisplay(object):
         self.last_fix_junk = self.ax.plot(
             pos[0], pos[1], marker='x', color='r', markersize=50
         )
+
+    def focus_on(self, cx, cy):
+        """Center the axes on (cx, cy) whilst retaining scale"""
+        current_xlim = np.array(self.ax.get_xlim())
+        current_ylim = np.array(self.ax.get_ylim())
+        new_xlim = current_xlim - np.mean(current_xlim) + cx
+        new_ylim = current_ylim - np.mean(current_ylim) + cy
+        self.set_xlim(*new_xlim)
+        self.set_ylim(*new_ylim)
+
+    def auto_scale(self, xmin, xmax, ymin, ymax):
+        """Zoom in or out the axes until the bounding box specified by
+        {x,y}{min,max} is in view"""
+        target_limits = np.array([[xmin, xmax], [ymin, ymax]])
+        current_limits = np.array([
+            self.ax.get_xlim(),
+            self.ax.get_ylim()
+        ])
+
+        # Where are we focused at the moment?
+        current_focus = np.mean(current_limits, axis=1).reshape((2, 1))
+        shifted_targets = target_limits - current_focus
+
+        # new 1/2 width and new 1/2 height
+        x_span, y_span = np.amax(np.abs(shifted_targets), axis=1)
+
+        # Now set bounding boxes
+        x_mean, y_mean = current_focus
+        np.xlim(x_mean - x_span, x_mean + x_span)
+        np.ylim(x_mean - x_span, y_mean + y_span)
 
     def redraw(self):
         self.ax.set_aspect('equal', 'datalim')
