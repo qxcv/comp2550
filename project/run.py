@@ -125,6 +125,10 @@ parser.add_argument(
     '--gui', action='store_true', default=False, help="Enable GUI"
 )
 parser.add_argument(
+    '--movie', type=str, default=None,
+    help="Record a movie and save it in the given file"
+)
+parser.add_argument(
     '--particles', type=int, default=100, help="Number of particles to use"
 )
 parser.add_argument(
@@ -144,139 +148,156 @@ parser.add_argument(
     help="Should the IMU be disabled for the map filter?"
 )
 
-if __name__ == '__main__':
-    args = parser.parse_args()
-    disable_for = 0
-    proj = coordinate_projector(KARLSRUHE_CENTER)
-    if args.data_path.endswith('.bz2'):
-        trajectory_fp = BZ2File(args.data_path)
-    else:
-        trajectory_fp = open(args.data_path, 'rb')
-    if args.jose:
-        assert args.noimu, "Jose's data has no IMU info; use --noimu"
-        parsed = parse_jose_map_trajectory(trajectory_fp, proj)
-        m = JoseMap(args.map_path, proj)
-    else:
-        parsed = parse_map_trajectory(trajectory_fp, args.freq, proj)
-        m = Map(args.map_path, proj)
-    map_f = None
-    plain_f = None
 
-    obs_per_fix = int(round(args.freq / float(args.gpsfreq)))
-    if obs_per_fix < 1:
-        print("Due to --gpsfreq {}, no GPS samples will be included!".format(
-            args.gpsfreq
-        ))
-        obs_per_fix = 0
-
-    if args.gui:
-        display = MapDisplay(m)
-
-    if args.out is not None:
-        stats_writer = StatsWriter(
-            args.out,
-            enable_map_f=args.enablemapfilter,
-            enable_plain_f=args.enableplainfilter,
-            enable_raw_gps=args.enablerawgps
-        )
-
-    obs_since_fix = 0
-    last_fix = None
-    last_time = None
-    noisified = noisify(
-        parsed, args.gpsstddev, args.speederror, args.gyrostddev
-    )
-
-    assert not args.noimu or args.enablemapfilter, "Map filter must be " \
-        "enabled for --noimu to take effect"
-
-    for obs, noisy_obs in noisified:
-        if last_time is not None:
-            dt = obs.time - last_time
+class TheMainLoop(object):
+    def __init__(self, args):
+        self.args = args
+        self.disable_for = 0
+        proj = coordinate_projector(KARLSRUHE_CENTER)
+        if args.data_path.endswith('.bz2'):
+            trajectory_fp = BZ2File(args.data_path)
         else:
-            dt = None
-        last_time = obs.time
-
-        if last_fix is None and args.enablerawgps:
-            last_fix = noisy_obs.pos
-
-        give_fix = obs_since_fix >= obs_per_fix
-        if give_fix:
-            if last_fix is not None:
-                last_fix = noisy_obs.pos
-            obs_since_fix = 1
-            if args.gui:
-                display.update_last_fix(noisy_obs.pos)
+            trajectory_fp = open(args.data_path, 'rb')
+        if args.jose:
+            assert args.noimu, "Jose's data has no IMU info; use --noimu"
+            parsed = parse_jose_map_trajectory(trajectory_fp, proj)
+            self.m = JoseMap(args.map_path, proj)
         else:
-            obs_since_fix += 1
+            parsed = parse_map_trajectory(trajectory_fp, args.freq, proj)
+            self.m = Map(args.map_path, proj)
+        self.map_f = None
+        self.plain_f = None
 
-        if args.enablemapfilter and map_f is None:
-            map_f = ParticleFilter(
-                args.particles, noisy_obs.pos, 5, have_imu=not args.noimu
+        self.obs_per_fix = int(round(args.freq / float(args.gpsfreq)))
+        if self.obs_per_fix < 1:
+            print(
+                "Due to --gpsfreq {}, no GPS samples will be included!"
+                .format(args.gpsfreq)
             )
-        elif map_f is not None:
-            update_filter(map_f, noisy_obs, dt, give_fix, m)
+            self.obs_per_fix = 0
 
-        if args.enableplainfilter and plain_f is None:
-            plain_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
-        elif plain_f is not None:
-            update_filter(plain_f, noisy_obs, dt, give_fix)
-
-        if args.gui and not disable_for:
-            # Make a list of filters for the display to update
-            filters = []
-            if plain_f is not None:
-                filters.append(plain_f)
-            if map_f is not None:
-                filters.append(map_f)
-
-            if filters:
-                display.update_filters(filters)
-
-            display.update_ground_truth(
-                obs.pos, obs['yaw'] if 'yaw' in obs else None
-            )
-            display.redraw()
-
-            while True:
-                # Interaction code
-                tcflush(stdin, TCIFLUSH)
-                d_str = raw_input("Command (enter for next frame): ").strip()
-                if not d_str:
-                    break
-
-                split = d_str.split()
-                cmd = split[0]
-                opts = split[1:]
-
-                if cmd in ['n', 'next']:
-                    if not opts:
-                        break
-
-                    try:
-                        disable_for_s, = opts
-                        disable_for = int(disable_for_s)
-                        break
-                    except ValueError:
-                        print(
-                            "Invalid argument to 'next'. Please either supply "
-                            "a number of steps to skip or no argument at all."
-                        )
-                elif cmd in ['c', 'continue']:
-                    disable_for = -1
-                    break
-                elif cmd in ['q', 'quit']:
-                    plt.close('all')
-                    exit(0)
-
-                print("Unkown command {}"
-                      .format(cmd))
-
-        if disable_for > 0:
-            disable_for -= 1
+        if args.gui:
+            self.display = MapDisplay(self.m)
 
         if args.out is not None:
-            stats_writer.update(
-                obs, map_f=map_f, plain_f=plain_f,
-                last_fix=last_fix
+            self.stats_writer = StatsWriter(
+                args.out,
+                enable_map_f=args.enablemapfilter,
+                enable_plain_f=args.enableplainfilter,
+                enable_raw_gps=args.enablerawgps
             )
+
+        self.obs_since_fix = 0
+        self.last_fix = None
+        self.last_time = None
+        self.noisified = noisify(
+            parsed, args.gpsstddev, args.speederror, args.gyrostddev
+        )
+
+        assert not args.noimu or args.enablemapfilter, "Map filter must be " \
+            "enabled for --noimu to take effect"
+
+    def run(self):
+        for obs, noisy_obs in self.noisified:
+            if self.last_time is not None:
+                dt = obs.time - self.last_time
+            else:
+                dt = None
+            self.last_time = obs.time
+
+            if self.last_fix is None and self.args.enablerawgps:
+                self.last_fix = noisy_obs.pos
+
+            give_fix = self.obs_since_fix >= self.obs_per_fix
+            if give_fix:
+                if self.last_fix is not None:
+                    self.last_fix = noisy_obs.pos
+                self.obs_since_fix = 1
+                if args.gui:
+                    self.display.update_last_fix(noisy_obs.pos)
+            else:
+                self.obs_since_fix += 1
+
+            if self.args.enablemapfilter and self.map_f is None:
+                self.map_f = ParticleFilter(
+                    args.particles, noisy_obs.pos, 5, have_imu=not args.noimu
+                )
+            elif self.map_f is not None:
+                update_filter(self.map_f, noisy_obs, dt, give_fix, self.m)
+
+            if args.enableplainfilter and self.plain_f is None:
+                self.plain_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+            elif self.plain_f is not None:
+                update_filter(self.plain_f, noisy_obs, dt, give_fix)
+
+            if args.gui and not self.disable_for:
+                self.update_display(obs)
+                self.interact()
+
+            if self.disable_for > 0:
+                self.disable_for -= 1
+
+            if args.out is not None:
+                self.stats_writer.update(
+                    obs, map_f=self.map_f, plain_f=self.plain_f,
+                    last_fix=self.last_fix
+                )
+
+    def update_display(self, obs):
+        # Make a list of filters for the display to update
+        filters = []
+        if self.plain_f is not None:
+            filters.append(self.plain_f)
+        if self.map_f is not None:
+            filters.append(self.map_f)
+
+        if filters:
+            self.display.update_filters(filters)
+
+        self.display.update_ground_truth(
+            obs.pos, obs['yaw'] if 'yaw' in obs else None
+        )
+        self.display.redraw()
+
+    def interact(self):
+        while True:
+            # Interaction code
+            tcflush(stdin, TCIFLUSH)
+            d_str = raw_input(
+                "Command (enter for next frame): "
+            ).strip()
+            if not d_str:
+                break
+
+            split = d_str.split()
+            cmd = split[0]
+            opts = split[1:]
+
+            if cmd in ['n', 'next']:
+                if not opts:
+                    break
+
+                try:
+                    disable_for_s, = opts
+                    self.disable_for = int(disable_for_s)
+                    break
+                except ValueError:
+                    print(
+                        "Invalid argument to 'next'. Please either "
+                        "supply a number of steps to skip or no "
+                        "argument at all."
+                    )
+            elif cmd in ['c', 'continue']:
+                self.disable_for = -1
+                break
+            elif cmd in ['q', 'quit']:
+                plt.close('all')
+                exit(0)
+
+            print("Unkown command {}"
+                  .format(cmd))
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    loop = TheMainLoop(args)
+    loop.run()
