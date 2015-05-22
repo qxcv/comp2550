@@ -208,10 +208,10 @@
 
                 <section>
                     <section>
-                        <h3>Particle filters</h3>
+                        <h3>Particle filters: intuition</h3>
 
                         <p>
-                            Intuitively: represent vehicle's position using
+                            Particle filters represent vehicle's position using
                             weighted &ldquo;particles&rdquo; distributed
                             throughout the environment
                         </p>
@@ -244,14 +244,23 @@
                             (Fox et al., 1999)
                         </p>
 
+                        <!--
+                            NOTE: In a later paper, the same localisation
+                            diagrams were presented as being from Minerva rather
+                            than RHINO. Think that it was actually RHINO (an RWI
+                            B21 robot), since the diagram itself was attributed
+                            to an RWI B21, but Minerva was an RWI B18
+                        -->
+
                         <p>
-                            RHINO (pictured) was fitted with:
+                            RHINO (pictured) used:
                         </p>
 
                         <ul>
                             <li>Sonar sensors</li>
                             <li>Laser range finders</li>
                             <li>Odometer</li>
+                            <li>Environment map</li>
                         </ul>
                     </section>
 
@@ -282,7 +291,9 @@
 
                 <section>
                     <section>
-                        <h3><em>Why</em> do particle filters work?</h3>
+                        <h3>Particle filters: details</h3>
+                        <p>Why do they work?</p>
+                        <p>How are they implemented?</p>
                     </section>
 
                     <section>
