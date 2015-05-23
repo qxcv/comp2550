@@ -8,8 +8,10 @@ from bz2 import BZ2File
 
 import numpy as np
 
-from matplotlib import pyplot as plt
-import matplotlib.animation as manimation
+import matplotlib
+# Lazy loading so that we can set the backend
+plt = None
+manimation = None
 
 from filter import ParticleFilter
 from graphics import MapDisplay
@@ -341,6 +343,11 @@ class TheMainLoop(object):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    if args.movie is not None:
+        matplotlib.use('Agg')
+    if args.movie is not None or args.gui:
+        import matplotlib.pyplot as plt
+        import matplotlib.animation as manimation
     loop = TheMainLoop(args)
     loop.run()
     loop.cleanup()

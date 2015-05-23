@@ -41,6 +41,13 @@
             .reveal .credits {
                 font-size: 0.6em;
             }
+
+            .reveal #map-filter, .reveal #plain-filter {
+                display: inline-block;
+                margin: none;
+                padding: none;
+                outline: 0;
+            }
         </style>
     </head>
 
@@ -333,7 +340,58 @@
                 </section>
 
                 <section>
-                    <h3>Results</h3>
+                    <h3>Demonstration</h3>
+
+                    <figure class=inline-fig>
+                        <video width=450
+                            id=map-filter src=videos/map-filter.webm>
+                        </video>
+                        <figcaption>
+                            With map data
+                        </figcaption>
+                    </figure>
+
+                    <figure class=inline-fig>
+                        <video width=450
+                            id=plain-filter src=videos/plain-filter.webm>
+                        </video>
+                        <figcaption>
+                            Without map data
+                        </figcaption>
+                    </figure>
+
+<script>
+var vid1 = document.getElementById("map-filter");
+var vid2 = document.getElementById("plain-filter");
+vid1.playbackRate = vid2.playbackRate = 2;
+
+function sync(master, slave) {
+    return function() {
+        vid1.playbackRate = vid2.playbackRate = 2;
+        if (!master.paused) {
+            slave.currentTime = master.currentTime;
+            slave.play();
+        } else {
+            slave.pause();
+        }
+    }
+}
+
+function clickHandler() {
+    if (vid1.paused) {
+        vid1.play();
+    } else {
+        vid1.pause();
+    }
+}
+
+vid1.addEventListener('playing', sync(vid1, vid2));
+vid1.addEventListener('pause', sync(vid1, vid2));
+vid1.addEventListener('seeked', sync(vid1, vid2));
+vid1.addEventListener('ended', sync(vid1, vid2));
+vid1.addEventListener('click', clickHandler);
+vid2.addEventListener('click', clickHandler);
+</script>
                 </section>
 
                 <section>
