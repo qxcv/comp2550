@@ -207,11 +207,11 @@
                     <h3>Project goals</h3>
 
                     <ol>
-                        <li class=fragment>
-                            Produce a map-based localisation algorithm which is
+                        <li>
+                            Produce robust map-based localisation algorithm which is
                             robust to sensor noise
                         </li>
-                        <li class=fragment>
+                        <li>
                             Investigate performance of particle filters with
                             &ldquo;consumer grade&rdquo; equipment and map data
                         </li>
@@ -224,8 +224,7 @@
 
                         <p>
                             Particle filters represent vehicle's position using
-                            &ldquo;particles&rdquo; distributed throughout the
-                            environment
+                            large number of &ldquo;particles&rdquo;
                         </p>
 
                         <ol>
@@ -233,11 +232,11 @@
                                 When vehicle moves, particles move
                             </li>
                             <li>
-                                Introduce &ldquo;weights&rdquo; to reflect sensor data
-                                likelihood
+                                Introduce &ldquo;weights&rdquo; representing
+                                particle likelihood
                             </li>
                             <li>
-                                Weed out low-weight particles
+                                Focus on high-weight particles
                             </li>
                         </ol>
                     </section>
@@ -360,11 +359,6 @@
                             </li>
                         </ol>
                     </section>
-
-                    <section>
-                        <ol>
-                        </ol>
-                    </section>
                 </section>
 
                 <section>
@@ -372,7 +366,7 @@
                 </section>
 
                 <section>
-                    <h3>Practical considerations</h3>
+                    <h3>Complete algorithm</h3>
                 </section>
 
                 <section>
@@ -397,7 +391,17 @@
                     </figure>
 
                     <p>
-                        Both videos produced 
+                        Both filters using noisy odometry at 10Hz and
+                        positioning data with zero-mean Gaussian noise at 1Hz.
+                    </p>
+
+                    <p>
+                        <small>
+                            Source: <a
+                                href="https://github.com/qxcv/comp2550/">
+                                github.com/qxcv/comp2550
+                            </a>
+                        </small>
                     </p>
 
 <script>
@@ -435,7 +439,21 @@ vid2.addEventListener('click', clickHandler);
                 </section>
 
                 <section>
-                    <h3>Conclusion</h3>
+                    <h3>Challenges</h3>
+
+                    <p>What I haven't covered in this talk:</p>
+
+                    <ul>
+                        <li>
+                            Missing odometry data
+                        </li>
+                        <li>
+                            Priors on motion
+                        </li>
+                        <li>
+                            Bimodal particle distributions
+                        </li>
+                    </ul>
                 </section>
 
                 <section>
@@ -444,13 +462,13 @@ vid2.addEventListener('click', clickHandler);
                     <dl class=credits>
                         <dt>&ldquo;TomTom&rdquo;</dt>
                         <dd>
-                            <a href="https://flic.kr/p/7d9qnS">Tom Haller</a>,
-                            CC-BY
+                            <a href="https://flic.kr/p/7d9qnS">Tom Haller</a>
+                            on Flickr, CC-BY
                         </dd>
                         <dt>&ldquo;Hands-free Driving&rdquo;</dt>
                         <dd>
-                            <a href="https://flic.kr/p/7apCYV">Steve Jurvetson</a>,
-                            CC-BY
+                            <a href="https://flic.kr/p/7apCYV">Steve
+                            Jurvetson</a> on Flickr, CC-BY
                         </dd>
                         <dt>GPS accuracy illustration</dt>
                         <dd>
@@ -460,7 +478,7 @@ vid2.addEventListener('click', clickHandler);
                         </dd>
                         <dt>Probabilistic localisation graphic</dt>
                         <dd>
-                            From M.A. Brubaker, A. Geiger, R. Urtasun, <em>Lost!
+                            From M.A. Brubaker, A. Geiger and R. Urtasun, <em>Lost!
                             Leveraging the Crowd for Probabilistic Visual
                             Self-Localization</em> (CVPR '13)
                         </dd>
@@ -468,11 +486,11 @@ vid2.addEventListener('click', clickHandler);
                         <dd>
                             <a href="http://www.iai.uni-bonn.de/~rhino/tourguide/html/rhino-me.html">
                                 Wolfram Burgard
-                            </a>
+                            </a> at the University of Bonn
                         </dd>
                         <dt>Particle filtering diagrams</dt>
                         <dd>
-                            From D. Fox, W. Burgard, F. Dellaert, S. Thrun,
+                            From D. Fox, W. Burgard, F. Dellaert and S. Thrun,
                             <em>Monte Carlo Localization: Efficient Position
                             Estimation for Mobile Robots</em> (AAAI '99)
                         </dd>

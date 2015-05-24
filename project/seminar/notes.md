@@ -7,93 +7,66 @@
 
 ## Localisation slide
 
-> If you've ever gotten lost and pulled up a map on your phone to figure out
-> where you are, then you've performed localisation. That's just a roboticist's
-> way of saying that you figured out where you were. For pedestrians, this is a
-> pretty easy problem; even if you didn't have your phone with you, you could
-> probably have figured out where you were just by walking around for a while
-> until you found a building you recognised or something like that. For
-> machines, though, this is often a lot harder, because you need to know where
-> you are with enough precision to, say, figure out which lane you're in (if
-> you're a navigation system), or even to make sure you don't run off the edge
-> of the road (if you're an autonomous vehicle), and you need to have this
-> information constantly available and up-to-date.
+- Phone analogy (if you've used a map on your phone, you've performed
+  localisation)
+- Easy for pedestrians, but harder when you have to do it continually, or with
+  very high precision
+- Important that it's reliable; can cause frustration (navigation systems) or
+  safety hazards (self-driving cars) otherwise
 
 ## "Localisation is messy"
 
-> So this is important, but surely it's a solved problem, right? I mean, we have
-> GPS receivers everywhere, we have inertial measurement units which can figure
-> out roughly where you are just by integrating your positional and angular
-> acceleration over time, so we should be able to do this task really well.
-
-> Well, we can do it well when we need to, but there are some things that still
-> make it hard. For instance, GPS is not a panacea: this figure down here is
-> from a paper about trying to classify the accuracy of GPS fixes. The to make
-> that plot, the researchers grabbed a GPS receiver drove around a built-up area
-> with it. So you can see the road network which they travelled along, and you
-> can also see how the GPS fixes they got---the coloured dots---are way out in
-> places. This is due to stuff like multipath interference, where GPS signals
-> reflect off buildings. It's definitely not something you want to use if your
-> system needs to have high accuracy.
+- We have lots of sensors to use for this
+- They're not always reliable
+- GPS is a good example
+- Picture is from paper on classifying accuracy of GPS fixes. Trace taken from
+  driving around with SiRFstarIII chip in a car. Goes off road frequently, which
+  doesn't make sense.
 
 ## Using map data
 
-> As you might have guessed by looking at the road network there, it turns out
-> that there's a readily available source of data that we can use to correct
-> inaccurate sensor data, and that's road maps! This is an especially promising
-> approach now that we have things like the OpenStreetMap project, where you
-> can download high accuracy street map data---and we'll see an example of that
-> at the end of the presentation---for free.
+- Vehicles are on the road most of the time, so why not use our knowledge of the
+  road network to only localise on road?
+- Becoming much easier with OpenStreetMap
 
 ## Past work
 
-> The fact that you can use map data like this is something that researchers
-> have known for a while, so there are already a bunch of algorithms out there
-> to do what's called "map matching", where you take your GPS observations, your
-> gyroscope data, whatever you have available, and you try to find a position on
-> the road network which seems most likely given that data.
+- Lots of people have tried this in the past with varying degrees of success.
+- Field called "map matching": assume car is on road, snap to road
+- Couple of approaches, most common is heuristic
 
-> The most common way of doing this is pretty hacky: you just write a whole
-> bunch of heuristics to rule out unlikely roads in the map---call them road
-> segments---and use that to figure out which road segment you're probably on.
-> Then you take your GPS fix, and you pretend that your vehicle is on the part
-> of that most likely road segment. This actually works pretty well---the
-> authors in the paper I've listed there claimed that their algorithm correctly
-> identified which road segment the vehicle was on 99% of the time---but there
-> are a lot of common problems with these approaches. For example, a lot of
-> these algorithms can really be messed up if they localise the vehicle on the
-> wrong road, because they'll only let the vehicle move to adjacent roads in
-> subsequent steps, and sometimes it takes a lot of steps to do that.
+- Start with "best guess" for previous position
+- Write a bunch of rules which score road segments in the map as "likely" or
+  "unlikely" based on previous position and new data
+- Pick best segment and snap to it
+- Good performance; fuzzy logic paper reported 99.2% accuracy on data set of
+  several kilometers
+- Has a few problems:
+  1. Hard to come up with useful rules; less complicated algorithms get anywhere
+     between 70% and 90% segment classification accuracy. Would like more
+     principled approach
+  2. Can have problems with mismatches, especially if it mismatches the initial
+     location, since it might rule out matching to roads not adjacent to the
+     first one during subsequent steps.
 
-> Probabilistic approaches to map matching avoid that issue by reasoning about
-> the vehicle's position as a probability distribution over possible locations,
-> rather than just a single "best guess". Up on the slide there I have a diagram
-> from a paper where they did that using something called a Gaussian mixture
-> model, and you see that all of the positions on the road have an assigned
-> probability---red is really high probability---and the vehicle manages to
-> narrow down it's position over time. In fact, that image is from a computer
-> vision paper, since they didn't even use GPS or IMUs---they just used a street
-> map and a bunch of frames from a stereo video camera! So probabilistic
-> approaches can be really robust, and they're also good at incorporating
-> unusual data---like video frames, or street maps.
-
-> One of the most common probabilistic approaches is called particle filtering.
-> It's quite effective for a lot of tasks, and the basic idea is ridiculously
-> simple, but when I was researching this area, I found that there weren't a lot
-> of people using it, and the ones who were using it were also making use of all
-> sorts of difficult-to-come-by information, like extremely high accuracy maps,
-> GPS augmentation systems, and so on.
+- Fix this using probability distribution over positions rather than just one
+  "best guess"
+- Figure on screen is of Gaussian mixture model. Shows how some regions have
+  high probability initially and some low, and this narrows down over time until
+  you get the right location.
+- Common approach is particle filtering, which I will explain soon
+- Particle filtering is flexible and fast, but not many people using it
+- Ones who were using particle filtering also used emaps, augmented GPS, etc.
 
 ## Project goals
 
-> So, for this project, I ended up with two goals: firstly, I wanted to build a
-> localisation algorithm which, like map-matching algorithms, was robust to
-> sensor noise. Secondly, though, I wanted to figure out why other people
-> weren't using particle filters, and how particle filters could be adapted to
-> work without all of these onerous requirements like "enhanced maps" and
-> augmented GPS.
+- For this project, I wanted to produce a reliable localisation system, but also
+  wanted to investigate how particle filters could be applied to localisation in
+  a more practical way, without the onerous requirements of other research.
 
 ## Particle filters
+
+**NOTE:** 7 minutes up to this point! Need to trim about 30% of that out.
 
 > So, I've been talking about particle filters a bit, but I haven't explained
 > what they are! Intuitively, a particle filter represents the position of a
@@ -132,3 +105,11 @@
 > right of the map and we get our actual position.
 
 ## Particle filter details
+
+## Incorporating map data
+
+## Full setup
+
+## Demonstration
+
+## Conclusion
