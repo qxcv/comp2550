@@ -76,7 +76,7 @@ class StatsWriter(object):
 
 def update_filter(f, obs, dt, give_fix=False, m=None):
     if give_fix:
-        f.gps_update(obs.pos, 10)
+        f.gps_update(obs.pos, 20)
     f.auto_resample()
     if m is not None:
         f.map_update(m)
@@ -113,7 +113,7 @@ parser.add_argument(
     help="Frequency at which GPS observations will be used"
 )
 parser.add_argument(
-    '--gpsstddev', type=float, default=4,
+    '--gpsstddev', type=float, default=8,
     help="Standard deviation of white GPS noise"
 )
 parser.add_argument(

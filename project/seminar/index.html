@@ -130,7 +130,7 @@
 
                 <section>
                     <section>
-                        <h3>Past work</h3>
+                        <h3>Existing approaches</h3>
                         <p>
                             Two broad families of &ldquo;map matching&rdquo;
                             algorithms: heuristic and probabilistic
@@ -181,18 +181,24 @@
                             <strong>Probabilistic methods</strong> represent
                             vehicle's position as a probability distribution
                             over locations
-                            <figure>
-                                <img
-                                    src=images/brubaker-et-al.png
-                                    alt="Probability distribution over vehicle positions being narrowed down by Brubaker et al.'s algorithm">
-                                <figcaption>
-                                    <em>
-                                        Lost! leveraging the crowd for
-                                        probabilistic visual
-                                        self-localization
-                                    </em> (Brubaker et al., 2013)
-                                </figcaption>
-                            </figure>
+                        </p>
+
+                        <figure>
+                            <img
+                                src=images/brubaker-et-al.png
+                                alt="Probability distribution over vehicle positions being narrowed down by Brubaker et al.'s algorithm">
+                            <figcaption>
+                                <em>
+                                    Lost! leveraging the crowd for
+                                    probabilistic visual
+                                    self-localization
+                                </em> (Brubaker et al., 2013)
+                            </figcaption>
+                        </figure>
+
+                        <p>
+                            <strong>Particle filtering</strong> is a common
+                            probabilistic method
                         </p>
                     </section>
                 </section>
@@ -203,12 +209,11 @@
                     <ol>
                         <li class=fragment>
                             Produce a map-based localisation algorithm which is
-                            robust to GPS dropouts
+                            robust to sensor noise
                         </li>
                         <li class=fragment>
-                            Secondary goal: investigate performance of particle
-                            filters with &ldquo;consumer grade&rdquo; equipment
-                            and map data
+                            Investigate performance of particle filters with
+                            &ldquo;consumer grade&rdquo; equipment and map data
                         </li>
                     </ol>
                 </section>
@@ -219,8 +224,8 @@
 
                         <p>
                             Particle filters represent vehicle's position using
-                            weighted &ldquo;particles&rdquo; distributed
-                            throughout the environment
+                            &ldquo;particles&rdquo; distributed throughout the
+                            environment
                         </p>
 
                         <ol>
@@ -228,12 +233,11 @@
                                 When vehicle moves, particles move
                             </li>
                             <li>
-                                Update particle weights to reflect sensor data
+                                Introduce &ldquo;weights&rdquo; to reflect sensor data
                                 likelihood
                             </li>
                             <li>
-                                Resample periodically to weed out low-weight
-                                particles
+                                Weed out low-weight particles
                             </li>
                         </ol>
                     </section>
@@ -322,12 +326,44 @@
                             </li>
                         </ul>
 
+                        <p>
+                            &ldquo;Best guess&rdquo; is $\mathbb E[z_t \mid
+                            x_{1:t}]$
+                        </p>
+
+                        <!--
                         <p>\[
                             p(z_t \mid x_{1:t}) =
                             \int\! p(z_t\mid z_{t-1})
                                    p(z_{t-1}\mid x_{1:t-1})
                             \,dz_{t-1}
                         \]</p>
+                        -->
+                    </section>
+
+                    <section>
+                        <p>
+                            Approximating $\mathbb E[z_{t+1} \mid x_{1:t+1}]$ with
+                            particles:
+                        </p>
+
+                        <ol>
+                            <li>
+                                Start with $N$ particles $\{x^{(i)}_t\}_{i=1}^N$
+                                drawn from $p(x_t \mid z_{1:t})$.
+                            </li>
+                            <li>
+                                Predict: sample from $p(x_{t+1} \mid z_{1:t})$
+                            </li>
+                            <li>
+                                Update: 
+                            </li>
+                        </ol>
+                    </section>
+
+                    <section>
+                        <ol>
+                        </ol>
                     </section>
                 </section>
 
@@ -340,14 +376,14 @@
                 </section>
 
                 <section>
-                    <h3>Demonstration</h3>
+                    <h3>Demonstration (2x real time)</h3>
 
                     <figure class=inline-fig>
                         <video width=450
                             id=map-filter src=videos/map-filter.webm>
                         </video>
                         <figcaption>
-                            With map data
+                            Particle filtering with map data
                         </figcaption>
                     </figure>
 
@@ -356,9 +392,13 @@
                             id=plain-filter src=videos/plain-filter.webm>
                         </video>
                         <figcaption>
-                            Without map data
+                            Particle filtering without map data
                         </figcaption>
                     </figure>
+
+                    <p>
+                        Both videos produced 
+                    </p>
 
 <script>
 var vid1 = document.getElementById("map-filter");
