@@ -48,6 +48,22 @@
                 padding: none;
                 outline: 0;
             }
+
+            .reveal .coloured {
+                text-shadow: 0px 0px 3px black;
+            }
+
+            .reveal .red {
+                color: red;
+            }
+
+            .reveal .blue {
+                color: blue;
+            }
+
+            .reveal .green {
+                color: green;
+            }
         </style>
     </head>
 
@@ -301,63 +317,105 @@
 
                 <section>
                     <section>
-                        <h3>Particle filters: details</h3>
-                        <p>Why do they work?</p>
-                        <p>How are they implemented?</p>
-                    </section>
+                        <h3>How does it work?</h3>
 
-                    <section>
-                        <figure>
-                            <img style="padding: 5px; height: 180px;"
-                                src=images/pf/pf.svg
-                                alt="Bayes net showing a Markov process with hidden states">
-                        </figure>
+                        <p>
+                            <em>Sequential importance resampling</em> approach,
+                            outlined by Fox et al.
+                        </p>
+
+                        <p>Each particle $s_t^{(i)}$ is a sample from</p>
+
+                        <p>\[
+                            p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2} \ldots, o_0)
+                        \]</p>
+
+                        <p>Where, at time $t$:</p>
 
                         <ul>
-                            <li>
-                                $z_t$ denotes the state of the vehicle
-                                (position, velocity, acceleration, etc.) at time
-                                $t$
-                            </li>
-                            <li>
-                                $x_t$ denotes the observations made in state
-                                $z_t$ (gyroscope data, GPS readings, etc.)
-                            </li>
+                            <li>$s_t$ is the state</li>
+                            <li>$o_t$ denotes the observations</li>
+                            <li>$a_t$ denotes actions</li>
                         </ul>
-
-                        <p>
-                            &ldquo;Best guess&rdquo; is $\mathbb E[z_t \mid
-                            x_{1:t}]$
-                        </p>
-
-                        <!--
-                        <p>\[
-                            p(z_t \mid x_{1:t}) =
-                            \int\! p(z_t\mid z_{t-1})
-                                   p(z_{t-1}\mid x_{1:t-1})
-                            \,dz_{t-1}
-                        \]</p>
-                        -->
                     </section>
 
                     <section>
-                        <p>
-                            Approximating $\mathbb E[z_{t+1} \mid x_{1:t+1}]$ with
-                            particles:
-                        </p>
+                        <p>Take action $a_t$ at time $t$, produces state
+                        $s_{t+1}$ and sensor measurements $o_{t+1}$</p>
 
                         <ol>
                             <li>
-                                Start with $N$ particles $\{x^{(i)}_t\}_{i=1}^N$
-                                drawn from $p(x_t \mid z_{1:t})$.
+                                <strong>Predict:</strong> move each particle
+                                according to odometry
+
+                                \[
+                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
+                                \]
                             </li>
                             <li>
-                                Predict: sample from $p(x_{t+1} \mid z_{1:t})$
+                                <strong>Update:</strong> weight particles by
+                                observation likelihood
+
+                                \[
+                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
+                                \]
                             </li>
                             <li>
-                                Update: 
+                                <strong>Resample:</strong> choose new particles
+                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
+                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
                             </li>
                         </ol>
+                    </section>
+
+                    <section data-transition=none>
+                        <figure>
+                            <img src=images/pf-1.png
+                                alt="Particle filter initialisation">
+                            <figcaption>
+                                Particles initialised around $x = 0$
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section data-transition=none>
+                        <figure>
+                            <img src=images/pf-2.png
+                                alt="Particle filter initialisation">
+                            <figcaption>
+                                Robot moves to $x = 1$
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section data-transition=none>
+                        <figure>
+                            <img src=images/pf-3.png
+                                alt="Particle filter initialisation">
+                            <figcaption>
+                                <strong>Predict:</strong> Robot predicts particle positions $ $
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section data-transition=none>
+                        <figure>
+                            <img src=images/pf-4.png
+                                alt="Particle filter initialisation">
+                            <figcaption>
+                                <strong>Update:</strong> Robot makes observation $ $
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section data-transition=none>
+                        <figure>
+                            <img src=images/pf-5.png
+                                alt="Particle filter initialisation">
+                            <figcaption>
+                                <strong>Resample:</strong> Particles resampled by weight $ $
+                            </figcaption>
+                        </figure>
                     </section>
                 </section>
 
@@ -394,6 +452,17 @@
                         Both filters using noisy odometry at 10Hz and
                         positioning data with zero-mean Gaussian noise at 1Hz.
                     </p>
+
+                    <!--
+                    <p>
+                        <span class="coloured green">Green</span> triangle is
+                        ground truth, <span class="coloured blue">blue</span>
+                        triangle is estimate, <span class="coloured
+                            red">red</span> circles are particles, <span
+                            class="coloured red">red</span> crosses are GPS
+                        fixes
+                    </p>
+                    -->
 
                     <p>
                         <small>
@@ -453,6 +522,9 @@ vid2.addEventListener('click', clickHandler);
                         <li>
                             Bimodal particle distributions
                         </li>
+                        <li>
+                            Correcting the map
+                        </li>
                     </ul>
                 </section>
 
@@ -493,6 +565,12 @@ vid2.addEventListener('click', clickHandler);
                             From D. Fox, W. Burgard, F. Dellaert and S. Thrun,
                             <em>Monte Carlo Localization: Efficient Position
                             Estimation for Mobile Robots</em> (AAAI '99)
+                        </dd>
+                        <dt>&ldquo;Robot with a claw&rdquo;</dt>
+                        <dd>
+                            <a href="https://openclipart.org/detail/21684/robot-with-a-claw">
+                                Silveira_Neto
+                            </a> on openclipart.org
                         </dd>
                     </dl>
                 </section>
