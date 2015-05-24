@@ -28,26 +28,36 @@ def plot_vehicle_tri(ax, coords, yaw, color=(0, 0, 1, 0.5), zorder=None):
         vertices, closed=True, facecolor=color, edgecolor=(0, 0, 0),
         zorder=zorder
     )
-    tri.set_transform(transforms.Affine2D()
-                                .scale(10)
-                                .rotate(yaw - pi/2)
-                                .translate(*coords)
-                      + ax.transData)
+    update_vehicle_tri(ax, tri, coords, yaw)
     return ax.add_patch(tri)
 
 
+def update_vehicle_tri(ax, patch, coords, yaw):
+    """Update transform for an existing vehicle triangle patch. Faster than
+    removing the patch and drawing it again."""
+    patch.set_transform(transforms.Affine2D()
+                                  .scale(10)
+                                  .rotate(yaw - pi/2)
+                                  .translate(*coords)
+                        + ax.transData)
+    return patch
+
+
 def plot_vehicle_square(ax, coords, color=(0, 1, 0, 0.5), zorder=None):
-    # It will be a side_length * side_length square
-    side_length = 8
-    # Unit rectangle at the origin
+    # Unit rectangle at the origin, scaled later
     rect = patches.Rectangle(
         (-0.5, -0.5), 1, 1, facecolor=color
     )
-    rect.set_transform(transforms.Affine2D()
-                                 .scale(side_length)
-                                 .translate(*coords)
-                       + ax.transData)
+    update_vehicle_square(ax, rect, coords)
     return ax.add_patch(rect)
+
+
+def update_vehicle_square(ax, patch, coords):
+    patch.set_transform(transforms.Affine2D()
+                                  .scale(8)
+                                  .translate(*coords)
+                        + ax.transData)
+    return patch
 
 
 class MapDisplay(object):
@@ -68,12 +78,13 @@ class MapDisplay(object):
         self.auto_scale_rate = auto_scale_rate
 
         # Junk will be cleaned up when new points are drawn
-        self.filter_junk = []
-        self.gt_junk = None
+        self.gt_patch = None
         self.last_fix_junk = None
+        self.estimate_patch = None
+        self.circles = []
+        self.lines = []
 
     def draw_filter(self, f):
-        rv = []
         zorder = self.CIRCLES_Z_ORDER
 
         # These are used for auto-scaling (if enabled)
@@ -97,63 +108,77 @@ class MapDisplay(object):
                 weight * f.num_points
             )
 
+            # assert len(self.circles) == len(self.lines)
+
             # Draw the circle itself
-            circ = patches.Circle(
-                coords, radius, facecolor=(1, 0, 0, 0.2),
-                edgecolor=(1, 0, 0, 0.8), zorder=zorder
-            )
+            circ_trn = transforms.Affine2D() \
+                                 .scale(radius) \
+                                 .translate(*coords) \
+                + self.ax.transData
+            if i >= len(self.circles):
+                circ = patches.Circle(
+                    (0, 0), 1, facecolor=(1, 0, 0, 0.2),
+                    edgecolor=(1, 0, 0, 0.8), zorder=zorder
+                )
+                self.circles.append(circ)
+                self.ax.add_patch(circ)
+            else:
+                circ = self.circles[i]
+            circ.set_transform(circ_trn)
 
             # Draw the line in the center
             line_end = (
                 coords[0] + radius*cos(yaw), coords[1] + radius*sin(yaw)
             )
-            line_handle = self.ax.plot(
-                (coords[0], line_end[0]), (coords[1], line_end[1]),
-                color=(0, 0, 0, 0.8), zorder=zorder
+            line_data = (
+                (coords[0], line_end[0]), (coords[1], line_end[1])
             )
-            self.ax.add_patch(circ)
-
-            # Add junk to be cleaned up next time
-            rv.append(line_handle)
-            rv.append(circ)
+            if i >= len(self.lines):
+                line_handle, = self.ax.plot(
+                    *line_data, color=(0, 0, 0, 0.8), zorder=zorder
+                )
+                self.lines.append(line_handle)
+            else:
+                line_handle = self.lines[i]
+                line_handle.set_data(*line_data)
 
             zorder -= 1
 
         pred_x, pred_y, pred_yaw = f.state_estimate()
-        vehicle = plot_vehicle_tri(
-            self.ax, (pred_x, pred_y), pred_yaw, zorder=self.ESTIMATE_Z_ORDER
-        )
-        rv.append(vehicle)
+        if self.estimate_patch is None:
+            self.estimate_patch = plot_vehicle_tri(
+                self.ax, (pred_x, pred_y), pred_yaw,
+                zorder=self.ESTIMATE_Z_ORDER
+            )
+        else:
+            update_vehicle_tri(
+                self.ax, self.estimate_patch, (pred_x, pred_y), pred_yaw
+            )
 
         if self.auto_scale_rate is not None:
             self.auto_scale(min_x, max_x, min_y, max_y)
 
-        # Return all the junk we generated
-        return rv
-
     def update_filters(self, filters):
-        for junk in self.filter_junk:
-            if isinstance(junk, list):
-                for subjunk in junk:
-                    subjunk.remove()
-            else:
-                junk.remove()
-
-        self.filter_junk = []
         for f in filters:
-            self.filter_junk.extend(self.draw_filter(f))
+            self.draw_filter(f)
 
     def update_ground_truth(self, pos, yaw=None):
-        if self.gt_junk is not None:
-            self.gt_junk.remove()
-        if yaw is None:
-            self.gt_junk = plot_vehicle_square(
-                self.ax, pos, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
-            )
+        if self.gt_patch is not None:
+            if yaw is None:
+                update_vehicle_square(self.ax, self.gt_patch, pos)
+            else:
+                update_vehicle_tri(self.ax, self.gt_patch, pos, yaw)
         else:
-            self.gt_junk = plot_vehicle_tri(
-                self.ax, pos, yaw, (0, 1, 0, 0.8), zorder=self.TRUTH_Z_ORDER
-            )
+            if yaw is None:
+                self.gt_patch = plot_vehicle_square(
+                    self.ax, pos, (0, 1, 0, 0.8),
+                    zorder=self.TRUTH_Z_ORDER
+                )
+            else:
+                self.gt_patch = plot_vehicle_tri(
+                    self.ax, pos, yaw, (0, 1, 0, 0.8),
+                    zorder=self.TRUTH_Z_ORDER
+                )
         if self.auto_focus:
             self.focus_on(*pos)
 
