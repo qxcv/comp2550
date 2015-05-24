@@ -248,7 +248,7 @@ class TheMainLoop(object):
                 if self.last_fix is not None:
                     self.last_fix = noisy_obs.pos
                 self.obs_since_fix = 1
-                if args.gui:
+                if args.gui or args.movie:
                     self.display.update_last_fix(noisy_obs.pos)
             else:
                 self.obs_since_fix += 1

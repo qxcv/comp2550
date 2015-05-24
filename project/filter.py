@@ -126,7 +126,7 @@ class ParticleFilter(object):
         # TODO:
         #  1) REALISTIC noise model is needed! Can find this experimentally.
         noisy_yaws = np.random.normal(
-            yaw_diff, 0.6, (self.num_points,)
+            yaw_diff, 0.3, (self.num_points,)
         )
         # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
         # when we resample
@@ -134,16 +134,18 @@ class ParticleFilter(object):
         # We're using a Gaussian because it's easy to sample from and gives
         # values in (-inf, inf)
         odom_noisy = np.random.normal(
-            forward_speed, abs(forward_speed) * 0.8, size=(self.num_points,)
+            forward_speed, abs(forward_speed) * 0.6, size=(self.num_points,)
         )
         noisy_odom = dt * odom_noisy
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
 
     def predict_no_imu(self, dt):
+        """Run predict step of PF when no IMU is available. Uses a fixed,
+        hand-derived distribution for transition probabilities."""
         # Run investigate_transitions.py for some insight into the choice of
         # covariance here. I've chosen a much larger covariance than the sample
-        # covariance, since we need the particles to jump aroudn a bit.
+        # covariance, since we need the particles to jump around a bit.
         new_velocities = self.velocities + np.random.multivariate_normal(
             [0, 0], dt * 1 * np.eye(2), len(self.velocities)
         )

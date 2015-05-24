@@ -79,7 +79,7 @@ class MapDisplay(object):
 
         # Junk will be cleaned up when new points are drawn
         self.gt_patch = None
-        self.last_fix_junk = None
+        self.last_fix_data = None
         self.estimate_patch = None
         self.circles = []
         self.lines = []
@@ -183,12 +183,12 @@ class MapDisplay(object):
             self.focus_on(*pos)
 
     def update_last_fix(self, pos):
-        if self.last_fix_junk is not None:
-            for junk in self.last_fix_junk:
-                junk.remove()
-        self.last_fix_junk = self.ax.plot(
-            pos[0], pos[1], marker='x', color='r', markersize=50
-        )
+        if self.last_fix_data is None:
+            self.last_fix_data, = self.ax.plot(
+                *pos, marker='x', color='r', markersize=50
+            )
+        else:
+            self.last_fix_data.set_data(*pos)
 
     def focus_on(self, cx, cy):
         """Center the axes on (cx, cy) whilst retaining scale"""

@@ -11,8 +11,7 @@
    path of the vehicle at an intersection could make the filter more responsive
    during sharp turns.
 4. Make sure that GPS fixes in Jose's data are ignored when 'signal' is 0.
-5. Speed up movie writing :P
-6. Look into increasing variance of Gaussian for GPS measurement likelihoods. At
+5. Look into increasing variance of Gaussian for GPS measurement likelihoods. At
    the moment, the particles are getting annihilated during GPS updates. I might
    also want to look into using less noise, since the plain map filter is seriously
    suffering for the amount of noise in its transition equations.
