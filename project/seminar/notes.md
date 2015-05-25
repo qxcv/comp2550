@@ -66,48 +66,38 @@
 
 ## Particle filters
 
-> So, I've been talking about particle filters a bit, but I haven't explained
-> what they are! Intuitively, a particle filter represents the position of a
-> vehicle using a whole bunch of "particles", each of which has a position, a
-> heading, maybe even a velocity or an acceleration depending on the type of
-> particle filter. These are actually samples from a probability distribution
-> which we'll talk about later, but it might help to think of them as being like
-> hypotheses for where the vehicle is. When the vehicle moves, and we get
-> readings from the steering wheel and the speedometer, we can update the
-> positions of the particles accordingly, and then we can introduce "weights"
-> which tells us how much the particles' new positions agree with, say, laser
-> scan data or GPS fixes. Finally, we can use a technique called resampling to
-> make sure that we focus most of our effort on tracking high-weight particles,
-> and ignore the less important ones.
+- Idea if that we have a large number of "particles" which represent possible
+  vehicle states. Include position, heading, etc.
+- Start out with particles spread around the environment in some reasonable
+  pattern
+- When we take an action (wheels say we've moved), move the particles
+- Add weights to particles representing how likely a particle is to be the state
+  which generated an observation
+- Focus on high-weight particles, since that's where the vehicle is likely to be
 
-> So here's an example of what this looks like for a robot which has an
-> odometer, a map of its environment, and a bunch of sonar sensors which can
-> tell it how far it is from walls.
+- Particles are actually distributed according to distribution on screen
+- Aim of each step of particle filtering is to take particles which are
+  distributed according to that distribution at time $t$, and produce a new step
+  of particles sampled from the distribution at time $t + 1$
 
-> At first, we start out with all of our particles scattered throughout the map,
-> since we really have no idea where we are.
-
-> After we've moved for a while, a lot of the particles have ended up in weird
-> places which don't reflect the data we're getting from our laser sensors, so
-> we've replaced them with new particles that seem more reasonable. You
-> can see that we've travelled forward a few metres and ended up a
-> doorway---which our laser sensors will be able to tell us---and there are two
-> locations where we could expect that to be the case: down here, where we might
-> have gone from the right-hand side of the corridor down to the bottom edge,
-> and up here, where we might have gone from the left-hand side to the top. The
-> particle ends up keeping both of these "hypotheses", since it hasn't seen any
-> strong evidence which would suggest that one is more likely that the other.
-
-> Once we move forward a little more, though, we find ourselves in a long,
-> narrow corridor, so we can throw away the other particles down in the bottom
-> right of the map and we get our actual position.
-
-## Particle filter details
+- Graphical example:
+  1. Start with particles initialises around where the robot probably is
+  2. Robot moves, like taking action
+  3. Move particles according to transition distribution (stratified sampling).
+     Accounts for movement sensor noise (odom, gyro, etc.)
+  4. Get an observation (GPS-like), represent particle likelihood using
+     Gaussian. Weights are given by Gaussian.
+  5. Resample according to weights. Will trim off low weight particles and
+     duplicate high-weight ones.
 
 ## Incorporating map data
 
-## Full setup
+**TODO**
 
 ## Demonstration
 
-## Conclusion
+**TODO**
+
+## Challenges
+
+**TODO**

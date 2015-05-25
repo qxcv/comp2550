@@ -49,20 +49,8 @@
                 outline: 0;
             }
 
-            .reveal .coloured {
-                text-shadow: 0px 0px 3px black;
-            }
-
-            .reveal .red {
-                color: red;
-            }
-
-            .reveal .blue {
-                color: blue;
-            }
-
-            .reveal .green {
-                color: green;
+            .reveal .robocap {
+                height: 3.5em;
             }
         </style>
     </head>
@@ -223,12 +211,12 @@
 
                     <ol>
                         <li>
-                            Produce robust map-based localisation algorithm which is
-                            robust to sensor noise
+                            Investigate performance of particle filters for map
+                            matching
                         </li>
                         <li>
-                            Investigate performance of particle filters with
-                            &ldquo;consumer grade&rdquo; equipment and map data
+                            Produce map-based localisation algorithm which is
+                            robust to sensor noise
                         </li>
                     </ol>
                 </section>
@@ -280,41 +268,12 @@
                         </ul>
                     </section>
 
-                    <section>
-                        <p>Take action $a_t$ at time $t$, produces state
-                        $s_{t+1}$ and sensor measurements $o_{t+1}$</p>
-
-                        <ol>
-                            <li>
-                                <strong>Predict:</strong> move each particle
-                                according to odometry
-
-                                \[
-                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
-                                \]
-                            </li>
-                            <li>
-                                <strong>Update:</strong> weight particles by
-                                observation likelihood
-
-                                \[
-                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
-                                \]
-                            </li>
-                            <li>
-                                <strong>Resample:</strong> choose new particles
-                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
-                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
-                            </li>
-                        </ol>
-                    </section>
-
                     <section data-transition=none>
                         <figure>
                             <img src=images/pf-1.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                Particles initialised around $x = 0$
+                            <figcaption class=robocap>
+                                Particles initialised around robot at $t = 0$
                             </figcaption>
                         </figure>
                     </section>
@@ -323,7 +282,7 @@
                         <figure>
                             <img src=images/pf-2.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
+                            <figcaption class=robocap>
                                 Robot moves to $x = 1$
                             </figcaption>
                         </figure>
@@ -333,8 +292,13 @@
                         <figure>
                             <img src=images/pf-3.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Predict:</strong> Robot predicts particle positions $ $
+                            <figcaption class=robocap>
+                                <strong>Predict:</strong> move each particle
+                                according to odometry
+
+                                \[
+                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
+                                \]
                             </figcaption>
                         </figure>
                     </section>
@@ -343,8 +307,13 @@
                         <figure>
                             <img src=images/pf-4.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Update:</strong> Robot makes observation $ $
+                            <figcaption class=robocap>
+                                <strong>Update:</strong> weight particles by
+                                observation likelihood
+
+                                \[
+                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
+                                \]
                             </figcaption>
                         </figure>
                     </section>
@@ -353,8 +322,10 @@
                         <figure>
                             <img src=images/pf-5.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Resample:</strong> Particles resampled by weight $ $
+                            <figcaption class=robocap>
+                                <strong>Resample:</strong> choose new particles
+                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
+                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
                             </figcaption>
                         </figure>
                     </section>
@@ -417,17 +388,6 @@
                         Both filters using noisy odometry at 10Hz and
                         positioning data with zero-mean Gaussian noise at 1Hz.
                     </p>
-
-                    <!--
-                    <p>
-                        <span class="coloured green">Green</span> triangle is
-                        ground truth, <span class="coloured blue">blue</span>
-                        triangle is estimate, <span class="coloured
-                            red">red</span> circles are particles, <span
-                            class="coloured red">red</span> crosses are GPS
-                        fixes
-                    </p>
-                    -->
 
                     <p>
                         <small>
@@ -513,7 +473,7 @@ vid2.addEventListener('click', clickHandler);
                             Localization Accuracy Classification: A
                             Context-Based Approach</em> (IEEE ITS, 2013)
                         </dd>
-                        <dt>Probabilistic localisation graphic</dt>
+                        <dt>Map-aided localisation process graphic</dt>
                         <dd>
                             From M.A. Brubaker, A. Geiger and R. Urtasun, <em>Lost!
                             Leveraging the Crowd for Probabilistic Visual
@@ -521,7 +481,7 @@ vid2.addEventListener('click', clickHandler);
                         </dd>
                         <dt>&ldquo;Robot with a claw&rdquo;</dt>
                         <dd>
-                            <a href="https://openclipart.org/detail/21684/robot-with-a-claw">
+                            <a href=https://openclipart.org/detail/21684/robot-with-a-claw>
                                 Silveira_Neto
                             </a> on openclipart.org
                         </dd>
