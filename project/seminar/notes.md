@@ -66,8 +66,6 @@
 
 ## Particle filters
 
-**NOTE:** 7 minutes up to this point! Need to trim about 30% of that out.
-
 > So, I've been talking about particle filters a bit, but I haven't explained
 > what they are! Intuitively, a particle filter represents the position of a
 > vehicle using a whole bunch of "particles", each of which has a position, a

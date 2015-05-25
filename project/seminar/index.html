@@ -126,7 +126,7 @@
                     </figure>
                 </section>
 
-                <section>
+                <section data-background=images/anu.svg>
                     <h3>Improving the situation with maps</h3>
                     <ol>
                         <li>
@@ -235,7 +235,7 @@
 
                 <section>
                     <section>
-                        <h3>Particle filters: intuition</h3>
+                        <h3>Particle filters</h3>
 
                         <p>
                             Particle filters represent vehicle's position using
@@ -257,76 +257,12 @@
                     </section>
 
                     <section>
-                        <figure style="float: right">
-                            <img style="float: right;" src=images/rhino.jpg
-                                 alt="Picture of RHINO">
-                        </figure>
-
                         <p>
-                            <strong>Example:</strong>
-                            <em>Monte Carlo Localization: Efficient Position
-                            Estimation for Mobile Robots</em>
-                            (Fox et al., 1999)
-                        </p>
-
-                        <!--
-                            NOTE: In a later paper, the same localisation
-                            diagrams were presented as being from Minerva rather
-                            than RHINO. Think that it was actually RHINO (an RWI
-                            B21 robot), since the diagram itself was attributed
-                            to an RWI B21, but Minerva was an RWI B18
-                        -->
-
-                        <p>
-                            RHINO (pictured) used:
-                        </p>
-
-                        <ul>
-                            <li>Sonar sensors</li>
-                            <li>Laser range finders</li>
-                            <li>Odometer</li>
-                            <li>Environment map</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-1.png
-                                alt="Initialisation of the particle filter">
-                            <figcaption>
-                                Initially, particles spread out uniformly
-                            </figcaption>
-                        </figure>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-2.png
-                                alt="Bimodal particle distribution">
-                            <figcaption>
-                                Robot turns, detects corridor
-                            </figcaption>
-                        </figure>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-3.png
-                                alt="Particle filter converged">
-                            <figcaption>
-                                Correct position identified
-                            </figcaption>
-                        </figure>
-                    </section>
-                </section>
-
-                <section>
-                    <section>
-                        <h3>How does it work?</h3>
-
-                        <p>
-                            <em>Sequential importance resampling</em> approach,
-                            outlined by Fox et al.
+                            <strong>Sequential importance resampling</strong>
+                            approach, outlined by Fox, Burgard, Dellaert and
+                            Thrun in <em>Monte Carlo Localization: Efficient
+                            Position Estimation for Mobile Robots</em> (AAAI
+                            '99)
                         </p>
 
                         <p>Each particle $s_t^{(i)}$ is a sample from</p>
@@ -425,11 +361,35 @@
                 </section>
 
                 <section>
-                    <h3>Incorporating map data</h3>
-                </section>
+                    <section>
+                        <h3>Incorporating map data</h3>
 
-                <section>
-                    <h3>Complete algorithm</h3>
+                        <p>
+                            Key idea: use distance $d$ to nearest road segment
+                            to calculate pseudo-likelihood
+                        </p>
+
+                        <p>
+                            In this case:
+
+                            \[
+                                w_t^{(i)} = \frac{1}{1 + d}
+                            \]
+                        </p>
+
+                        <p>Fast and gives reasonable results</p>
+                    </section>
+
+                    <section>
+                        <figure>
+                            <img src=images/map-likelihood.png
+                                alt="Log likelihood for a small road map">
+                            <figcaption>
+                                Logarithm of pseudo-likelihood for small road
+                                map
+                            </figcaption>
+                        </figure>
+                    </section>
                 </section>
 
                 <section>
@@ -558,18 +518,6 @@ vid2.addEventListener('click', clickHandler);
                             From M.A. Brubaker, A. Geiger and R. Urtasun, <em>Lost!
                             Leveraging the Crowd for Probabilistic Visual
                             Self-Localization</em> (CVPR '13)
-                        </dd>
-                        <dt>Portrait of RHINO</dt>
-                        <dd>
-                            <a href="http://www.iai.uni-bonn.de/~rhino/tourguide/html/rhino-me.html">
-                                Wolfram Burgard
-                            </a> at the University of Bonn
-                        </dd>
-                        <dt>Particle filtering diagrams</dt>
-                        <dd>
-                            From D. Fox, W. Burgard, F. Dellaert and S. Thrun,
-                            <em>Monte Carlo Localization: Efficient Position
-                            Estimation for Mobile Robots</em> (AAAI '99)
                         </dd>
                         <dt>&ldquo;Robot with a claw&rdquo;</dt>
                         <dd>
