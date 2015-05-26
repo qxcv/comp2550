@@ -92,12 +92,47 @@
 
 ## Incorporating map data
 
-**TODO**
+- We just use function of distance to nearest lane in the road map
+- Very fast to compute; put all the lanes in a k-d tree and find the distance to
+  the nearest one.
+- Specific form here still results in acceptable behaviour when mixed with
+  Gaussian GPS pseudo-likelihoods
+- Only a *pseudo*-likelihood; believing that there is a likelihood function like
+  this over the road network is probabilistically flawed.
 
 ## Demonstration
 
-**TODO**
+- Both filters are fed gyroscope data, forward speed data and positioning data.
+  All three of these have noise, and all three are likely to be found in a real
+  localisation setup.
+- Positioning data is not GPS-like, since I couldn't find any data sets with
+  both labelled ground truth and noisy GPS information. Instead, it's white,
+  Gaussian noise. Nonetheless, it illustrates the impact of incorporating map
+  measurements into a localisation algorithm.
+- For performance reasons, I'm only resampling once the weights become
+  sufficiently imbalanced.
+- Maps result in significant decrease in lateral movement of particles due to
+  incorrect GPS fixes.
+- Source code available on GitHub
 
 ## Challenges
 
-**TODO**
+- 
+
+## Likely questions
+
+**Q:** Is your use of GPS and map likelihoods as independent multiplicative
+factors justified?
+
+**A:**
+
+**Q:** Are particle filters suitable for map-aided localisation, in your view?
+This is an important question, since finding the answer was one of the goals of
+your research.
+
+**A:**
+
+**Q:** Did you succeed in your second goal of producing a localisation algorithm
+which is robust to noise? Robust compared to what?
+
+**A:**
