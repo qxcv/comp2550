@@ -243,7 +243,7 @@
 
                         <p>
                             \[
-                                p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2} \ldots, o_0)
+                                p\left(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2} \ldots, o_0\right)
                             \]
                         </p>
 
@@ -290,7 +290,7 @@
                                 according to odometry
 
                                 \[
-                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
+                                    {s_t^{(i)}}' \sim p\left(s_{t+1} \mid s_t=s_t^{(i)}, a_t\right)
                                 \]
                             </figcaption>
                         </figure>
@@ -305,7 +305,7 @@
                                 observation likelihood
 
                                 \[
-                                    w_t^{(i)} = p(o_{t+1} \mid s_t=s_t^{(i)}, a_t)
+                                    w_t^{(i)} = p\left(o_{t+1} \mid s_t=s_t^{(i)}\right)
                                 \]
                             </figcaption>
                         </figure>
@@ -317,8 +317,8 @@
                                 alt="Particle filter initialisation">
                             <figcaption class=robocap>
                                 <strong>Resample:</strong> choose new particles
-                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
-                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
+                                $s_{t+1}^{(i)}$ from $\left\{{s_t^{(1)}}', \ldots,
+                                {s_t^{(m)}}'\right\}$ using $w_t^{(i)}$
                             </figcaption>
                         </figure>
                     </section>
