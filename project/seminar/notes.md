@@ -181,3 +181,10 @@ maps and detection of curb-like obstacles plugged into a 1D (road-lateral)
 histogram filter to provide GPS/IMU corrections. Other systems (KIT and CMU
 entries to DARPA Urban Grand Challenge) just used their expensive GPS/INS units
 (AFAICT, not certain).
+
+**Q:** How would you deal with bimodal particle distributions?
+
+**A:** I'm actually not sure. Intuitively, I would expect a clusting algorithm
+(e.g. K-means) followed by a standard expectation over the highest weight
+cluster to work well, but I don't know whether there's a standard way of
+accomplishing that.
