@@ -35,6 +35,9 @@
 - Field called "map matching": assume car is on road, snap to road
 - Couple of approaches, most common is heuristic
 
+**NOTE:** Skip the next few slides and just talk if you're running short on
+time here.
+
 - Start with "best guess" for previous position
 - Write a bunch of rules which score road segments in the map as "likely" or
   "unlikely" based on previous position and new data
@@ -99,6 +102,7 @@
   Gaussian GPS pseudo-likelihoods
 - Only a *pseudo*-likelihood; believing that there is a likelihood function like
   this over the road network is probabilistically flawed.
+- Form is Cauchy-like
 
 ## Demonstration
 
@@ -177,3 +181,10 @@ maps and detection of curb-like obstacles plugged into a 1D (road-lateral)
 histogram filter to provide GPS/IMU corrections. Other systems (KIT and CMU
 entries to DARPA Urban Grand Challenge) just used their expensive GPS/INS units
 (AFAICT, not certain).
+
+**Q:** How would you deal with bimodal particle distributions?
+
+**A:** I'm actually not sure. Intuitively, I would expect a clusting algorithm
+(e.g. K-means) followed by a standard expectation over the highest weight
+cluster to work well, but I don't know whether there's a standard way of
+accomplishing that.
