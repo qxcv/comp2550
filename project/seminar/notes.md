@@ -35,6 +35,9 @@
 - Field called "map matching": assume car is on road, snap to road
 - Couple of approaches, most common is heuristic
 
+**NOTE:** Skip the next few slides and just talk if you're running short on
+time here.
+
 - Start with "best guess" for previous position
 - Write a bunch of rules which score road segments in the map as "likely" or
   "unlikely" based on previous position and new data
@@ -99,6 +102,7 @@
   Gaussian GPS pseudo-likelihoods
 - Only a *pseudo*-likelihood; believing that there is a likelihood function like
   this over the road network is probabilistically flawed.
+- Form is Cauchy-like
 
 ## Demonstration
 
