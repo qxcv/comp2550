@@ -107,8 +107,9 @@
   localisation setup.
 - Positioning data is not GPS-like, since I couldn't find any data sets with
   both labelled ground truth and noisy GPS information. Instead, it's white,
-  Gaussian noise. Nonetheless, it illustrates the impact of incorporating map
-  measurements into a localisation algorithm.
+  Gaussian noise.
+- Slightly ridiculous setup, but does a good job of illustrating what the map
+  likelihood measurements are actually doing.
 - For performance reasons, I'm only resampling once the weights become
   sufficiently imbalanced.
 - Maps result in significant decrease in lateral movement of particles due to
@@ -117,6 +118,12 @@
 
 ## Challenges
 
+- If we don't know how fast the wheels are moving, we need to add extra
+  dimensions to state representation to figure out how our transitions should
+  work.
+- I'm adding velocity, and updating it using some simple Gaussian noise added at
+  each step, since that's what I found that the transition noise looked like in
+  the actual data set.
 - 
 
 ## Likely questions
@@ -136,3 +143,5 @@ your research.
 which is robust to noise? Robust compared to what?
 
 **A:**
+
+**Q:** How do self-driving cars (e.g. Junior) localise?
