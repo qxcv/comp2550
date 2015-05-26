@@ -41,7 +41,7 @@ if __name__ == '__main__':
         for j in xrange(y_samples):
             pos = (X[j, i], Y[j, i])
             dists[j, i] = m.nearest_lane_dist(pos)
-    results = np.log(1.0 / (1 + dists))
+    results = np.log(1.0 / (1 + dists**2))
 
     # Plot
     print("Plotting")

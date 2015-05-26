@@ -52,6 +52,10 @@
             .reveal .robocap {
                 height: 3.5em;
             }
+
+            .reveal .final-list {
+                font-size: 0.8em;
+            }
         </style>
     </head>
 
@@ -312,7 +316,7 @@
                                 observation likelihood
 
                                 \[
-                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
+                                    w_t^{(i)} = p(o_{t+1} \mid s_t=s_t^{(i)}, a_t)
                                 \]
                             </figcaption>
                         </figure>
@@ -344,7 +348,7 @@
                             In this case:
 
                             \[
-                                w_t^{(i)} = \frac{1}{1 + d}
+                                w_t^{(i)} = \frac{1}{1 + d^2}
                             \]
                         </p>
 
@@ -483,6 +487,39 @@ vid2.addEventListener('click', clickHandler);
                             </a> on openclipart.org
                         </dd>
                     </dl>
+                </section>
+
+                <section>
+                    <h3>Key points</h3>
+
+                    <ul class=final-list>
+                        <li>
+                            <strong>Vehicle localisation</strong> is the task of
+                            determining the position of a vehicle
+                        </li>
+                        <li>
+                            It's possible to improve vehicle localisation
+                            accuracy using <strong>street maps</strong>
+                        </li>
+                        <li>
+                            <strong>Particle filters</strong> are useful for
+                            fusing sensor data and map information
+                            <figure style="text-align: center;">
+                                <img width=200 src=images/pf-1.png>
+                                <img width=200 src=images/pf-3.png>
+                                <img width=200 src=images/pf-4.png>
+                                <img width=200 src=images/pf-5.png>
+                                <figcaption>
+                                    Initialise, predict, update, resample
+                                </figcaption>
+                            </figure>
+                        </li>
+                        <li>
+                            Map information is incorporated using a
+                            pseudo-likelihood, computed as a function of the
+                            distance to the nearest lane in the map
+                        </li>
+                    </ul>
                 </section>
             </div>
         </div>

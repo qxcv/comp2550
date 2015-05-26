@@ -4,7 +4,8 @@ import numpy as np
 
 
 class ParticleFilter(object):
-    def __init__(self, num_points, init_coords, init_sigma, have_map, have_imu):
+    def __init__(self, num_points, init_coords, init_sigma, have_map,
+                 have_imu):
         """Initialise num_points particles using an isotropic Gaussian with
         variance init_sigma and mean init_coords. If track_vel is True, the
         filter will store velocities as well as the headings and yaws which it
@@ -112,7 +113,7 @@ class ParticleFilter(object):
         dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
             dists[idx] = m.nearest_lane_dist(point)
-        factors = 1.0 / (1 + dists)
+        factors = 1.0 / (1 + dists ** 2)
         self.weights *= factors
 
     def predict(self, dt, *args):
