@@ -78,6 +78,7 @@
 
                 <section>
                     <h3>Localisation</h3>
+
                     <p>Localisation is the task of determining your position
                     within an environment given a series of sensor
                     observations. <strong>Extremely</strong> important task for
@@ -98,6 +99,7 @@
 
                 <section>
                     <h3>Real world localisation is messy</h3>
+
                     <ul>
                         <li>GPS is unreliable</li>
                         <li>Dead reckoning drifts</li>
@@ -120,6 +122,7 @@
 
                 <section>
                     <h3>Improving the situation with maps</h3>
+
                     <ol>
                         <li>
                             Cars are on the road most of the time
@@ -128,6 +131,7 @@
                             Detailed road maps are easy to find
                         </li>
                     </ol>
+
                     <p>
                         <strong>
                             We can use this information to improve localisation
@@ -138,17 +142,20 @@
                 <section>
                     <section>
                         <h3>Existing approaches</h3>
+
                         <p>
                             Two broad families of &ldquo;map matching&rdquo;
                             algorithms: heuristic and probabilistic
                         </p>
                     </section>
+
                     <section>
                         <p>
                             <strong>Heuristic methods</strong> use
                             hand-coded rules to rule out unlikely vehicle
                             positions
                         </p>
+
                         <figure>
                             <blockquote>
                                 <ul>
@@ -230,46 +237,28 @@
                         <h3>Particle filters</h3>
 
                         <p>
-                            Particle filters represent vehicle's position using
-                            large number of &ldquo;particles&rdquo;
+                            Represent vehicle's position using
+                            &ldquo;particles&rdquo; $s_t^{(i)}$ sampled from
                         </p>
 
-                        <ol>
-                            <li>
-                                When vehicle moves, particles move
-                            </li>
-                            <li>
-                                Introduce &ldquo;weights&rdquo; representing
-                                particle likelihood
-                            </li>
-                            <li>
-                                Focus on high-weight particles
-                            </li>
-                        </ol>
-                    </section>
-
-                    <section>
                         <p>
-                            <strong>Sequential importance resampling</strong>
-                            approach, outlined by Fox, Burgard, Dellaert and
-                            Thrun in <em>Monte Carlo Localization: Efficient
-                            Position Estimation for Mobile Robots</em> (AAAI
-                            '99)
+                            \[
+                                p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2} \ldots, o_0)
+                            \]
                         </p>
 
-                        <p>Each particle $s_t^{(i)}$ is a sample from</p>
+                        <p>
+                            Where $s_t$ is the state at time $t$, $o_{0:t}$ are
+                            observations and $a_{0:t-1}$ are actions.
+                        </p>
 
-                        <p>\[
-                            p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2} \ldots, o_0)
-                        \]</p>
-
-                        <p>Where, at time $t$:</p>
-
-                        <ul>
-                            <li>$s_t$ is the state</li>
-                            <li>$o_t$ denotes the observations</li>
-                            <li>$a_t$ denotes actions</li>
-                        </ul>
+                        <p>
+                            <small>
+                                See Fox, Burgard, Dellaert and Thrun, <em>Monte
+                                Carlo Localization: Efficient Position
+                                Estimation for Mobile Robots</em> (AAAI '99)
+                            </small>
+                        </p>
                     </section>
 
                     <section data-transition=none>
@@ -448,9 +437,11 @@ vid2.addEventListener('click', clickHandler);
                         <li>
                             Priors on motion
                         </li>
+                        <!--
                         <li>
                             Bimodal particle distributions
                         </li>
+                        -->
                     </ul>
                 </section>
 
