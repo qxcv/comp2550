@@ -110,6 +110,8 @@
   Gaussian noise.
 - Slightly ridiculous setup, but does a good job of illustrating what the map
   likelihood measurements are actually doing.
+- Jumping is to be expected, since we're calculating the most likely position
+  at a given time, rather than a smooth trajectory over past positions.
 - For performance reasons, I'm only resampling once the weights become
   sufficiently imbalanced.
 - Maps result in significant decrease in lateral movement of particles due to
@@ -124,24 +126,54 @@
 - I'm adding velocity, and updating it using some simple Gaussian noise added at
   each step, since that's what I found that the transition noise looked like in
   the actual data set.
-- 
+- Other approaches to particle filtering for incorporating map information
+  associated each particle with a road in the map, which potentially allowed
+  them to use an update equation which reflects our intuitive understanding of
+  where a car is likely to move from a given position on a road. This is more
+  expensive, but could improve performance on corner cases like L-bends, where
+  particles tend to disappear easily.
+- Sometimes the particle distribution becomes bimodal, which causes the
+  expectation formula used to output a nonsensical result (estimate in a region
+  of zero or near-zero probability mass). Not sure how to fix this in a
+  probabilistically reasonable way.
 
 ## Likely questions
 
 **Q:** Is your use of GPS and map likelihoods as independent multiplicative
 factors justified?
 
-**A:**
+**A:** Absolutely. If you assume independence of the map likelihood and the GPS
+likelihood given the true state---which is totally reasonable---then just
+multiplying the two likelihoods together works fine.
 
 **Q:** Are particle filters suitable for map-aided localisation, in your view?
 This is an important question, since finding the answer was one of the goals of
 your research.
 
-**A:**
+**A:** There's enough evidence to indicate that particle filtering is a viable
+approach to map-based localisation. However, the approach which I took---namely,
+attempting to track the "true" position of the vehicle (rather than clamping the
+vehicle's position to the road)---is not, in my view, a very good approach,
+since it results in the particles being decimated at bends in the road.
+Intuitively, we would prefer the particles to continue along the same road,
+which they would do if we clamped each particle to a specific segment.
 
 **Q:** Did you succeed in your second goal of producing a localisation algorithm
 which is robust to noise? Robust compared to what?
 
-**A:**
+**A:** Yes, the resultant algorithm is reasonably robust compared to both the
+plain particle filter and the raw GPS fixes. Having additional map matching
+algorithms for comparison would be nice, but I ran out of time to implement
+these.
 
 **Q:** How do self-driving cars (e.g. Junior) localise?
+
+**A:** Post-Urban Grand Challenge, Junior was localising using custom infrared
+maps of the ground plane, combined with a histogram filter (grid-based
+localisation). This achieved around 10cm accuracy, but required a vehicle with
+the appropriate infrared sensors to cove the route beforehand (not to mention
+much more processing!). For the challenge itself, they used road reflectivity
+maps and detection of curb-like obstacles plugged into a 1D (road-lateral)
+histogram filter to provide GPS/IMU corrections. Other systems (KIT and CMU
+entries to DARPA Urban Grand Challenge) just used their expensive GPS/INS units
+(AFAICT, not certain).
