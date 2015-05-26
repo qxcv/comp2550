@@ -66,50 +66,114 @@
 
 ## Particle filters
 
-**NOTE:** 7 minutes up to this point! Need to trim about 30% of that out.
+- Idea if that we have a large number of "particles" which represent possible
+  vehicle states. Include position, heading, etc.
+- Start out with particles spread around the environment in some reasonable
+  pattern
+- When we take an action (wheels say we've moved), move the particles
+- Add weights to particles representing how likely a particle is to be the state
+  which generated an observation
+- Focus on high-weight particles, since that's where the vehicle is likely to be
 
-> So, I've been talking about particle filters a bit, but I haven't explained
-> what they are! Intuitively, a particle filter represents the position of a
-> vehicle using a whole bunch of "particles", each of which has a position, a
-> heading, maybe even a velocity or an acceleration depending on the type of
-> particle filter. These are actually samples from a probability distribution
-> which we'll talk about later, but it might help to think of them as being like
-> hypotheses for where the vehicle is. When the vehicle moves, and we get
-> readings from the steering wheel and the speedometer, we can update the
-> positions of the particles accordingly, and then we can introduce "weights"
-> which tells us how much the particles' new positions agree with, say, laser
-> scan data or GPS fixes. Finally, we can use a technique called resampling to
-> make sure that we focus most of our effort on tracking high-weight particles,
-> and ignore the less important ones.
+- Particles are actually distributed according to distribution on screen
+- Aim of each step of particle filtering is to take particles which are
+  distributed according to that distribution at time $t$, and produce a new step
+  of particles sampled from the distribution at time $t + 1$
 
-> So here's an example of what this looks like for a robot which has an
-> odometer, a map of its environment, and a bunch of sonar sensors which can
-> tell it how far it is from walls.
-
-> At first, we start out with all of our particles scattered throughout the map,
-> since we really have no idea where we are.
-
-> After we've moved for a while, a lot of the particles have ended up in weird
-> places which don't reflect the data we're getting from our laser sensors, so
-> we've replaced them with new particles that seem more reasonable. You
-> can see that we've travelled forward a few metres and ended up a
-> doorway---which our laser sensors will be able to tell us---and there are two
-> locations where we could expect that to be the case: down here, where we might
-> have gone from the right-hand side of the corridor down to the bottom edge,
-> and up here, where we might have gone from the left-hand side to the top. The
-> particle ends up keeping both of these "hypotheses", since it hasn't seen any
-> strong evidence which would suggest that one is more likely that the other.
-
-> Once we move forward a little more, though, we find ourselves in a long,
-> narrow corridor, so we can throw away the other particles down in the bottom
-> right of the map and we get our actual position.
-
-## Particle filter details
+- Graphical example:
+  1. Start with particles initialises around where the robot probably is
+  2. Robot moves, like taking action
+  3. Move particles according to transition distribution (stratified sampling).
+     Accounts for movement sensor noise (odom, gyro, etc.)
+  4. Get an observation (GPS-like), represent particle likelihood using
+     Gaussian. Weights are given by Gaussian.
+  5. Resample according to weights. Will trim off low weight particles and
+     duplicate high-weight ones.
 
 ## Incorporating map data
 
-## Full setup
+- We just use function of distance to nearest lane in the road map
+- Very fast to compute; put all the lanes in a k-d tree and find the distance to
+  the nearest one.
+- Specific form here still results in acceptable behaviour when mixed with
+  Gaussian GPS pseudo-likelihoods
+- Only a *pseudo*-likelihood; believing that there is a likelihood function like
+  this over the road network is probabilistically flawed.
 
 ## Demonstration
 
-## Conclusion
+- Both filters are fed gyroscope data, forward speed data and positioning data.
+  All three of these have noise, and all three are likely to be found in a real
+  localisation setup.
+- Positioning data is not GPS-like, since I couldn't find any data sets with
+  both labelled ground truth and noisy GPS information. Instead, it's white,
+  Gaussian noise.
+- Slightly ridiculous setup, but does a good job of illustrating what the map
+  likelihood measurements are actually doing.
+- Jumping is to be expected, since we're calculating the most likely position
+  at a given time, rather than a smooth trajectory over past positions.
+- For performance reasons, I'm only resampling once the weights become
+  sufficiently imbalanced.
+- Maps result in significant decrease in lateral movement of particles due to
+  incorrect GPS fixes.
+- Source code available on GitHub
+
+## Challenges
+
+- If we don't know how fast the wheels are moving, we need to add extra
+  dimensions to state representation to figure out how our transitions should
+  work.
+- I'm adding velocity, and updating it using some simple Gaussian noise added at
+  each step, since that's what I found that the transition noise looked like in
+  the actual data set.
+- Other approaches to particle filtering for incorporating map information
+  associated each particle with a road in the map, which potentially allowed
+  them to use an update equation which reflects our intuitive understanding of
+  where a car is likely to move from a given position on a road. This is more
+  expensive, but could improve performance on corner cases like L-bends, where
+  particles tend to disappear easily.
+- Sometimes the particle distribution becomes bimodal, which causes the
+  expectation formula used to output a nonsensical result (estimate in a region
+  of zero or near-zero probability mass). Not sure how to fix this in a
+  probabilistically reasonable way.
+
+## Likely questions
+
+**Q:** Is your use of GPS and map likelihoods as independent multiplicative
+factors justified?
+
+**A:** Absolutely. If you assume independence of the map likelihood and the GPS
+likelihood given the true state---which is totally reasonable---then just
+multiplying the two likelihoods together works fine.
+
+**Q:** Are particle filters suitable for map-aided localisation, in your view?
+This is an important question, since finding the answer was one of the goals of
+your research.
+
+**A:** There's enough evidence to indicate that particle filtering is a viable
+approach to map-based localisation. However, the approach which I took---namely,
+attempting to track the "true" position of the vehicle (rather than clamping the
+vehicle's position to the road)---is not, in my view, a very good approach,
+since it results in the particles being decimated at bends in the road.
+Intuitively, we would prefer the particles to continue along the same road,
+which they would do if we clamped each particle to a specific segment.
+
+**Q:** Did you succeed in your second goal of producing a localisation algorithm
+which is robust to noise? Robust compared to what?
+
+**A:** Yes, the resultant algorithm is reasonably robust compared to both the
+plain particle filter and the raw GPS fixes. Having additional map matching
+algorithms for comparison would be nice, but I ran out of time to implement
+these.
+
+**Q:** How do self-driving cars (e.g. Junior) localise?
+
+**A:** Post-Urban Grand Challenge, Junior was localising using custom infrared
+maps of the ground plane, combined with a histogram filter (grid-based
+localisation). This achieved around 10cm accuracy, but required a vehicle with
+the appropriate infrared sensors to cove the route beforehand (not to mention
+much more processing!). For the challenge itself, they used road reflectivity
+maps and detection of curb-like obstacles plugged into a 1D (road-lateral)
+histogram filter to provide GPS/IMU corrections. Other systems (KIT and CMU
+entries to DARPA Urban Grand Challenge) just used their expensive GPS/INS units
+(AFAICT, not certain).

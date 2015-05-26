@@ -4,7 +4,7 @@ import numpy as np
 
 
 class ParticleFilter(object):
-    def __init__(self, num_points, init_coords, init_sigma, have_imu=True):
+    def __init__(self, num_points, init_coords, init_sigma, have_map, have_imu):
         """Initialise num_points particles using an isotropic Gaussian with
         variance init_sigma and mean init_coords. If track_vel is True, the
         filter will store velocities as well as the headings and yaws which it
@@ -24,6 +24,8 @@ class ParticleFilter(object):
 
         # Particle weights are initially uniform
         self.weights = np.ones(num_points) / num_points
+
+        self.have_map = have_map
 
         # Store speeds if necessary
         self.have_imu = have_imu
@@ -123,10 +125,14 @@ class ParticleFilter(object):
         """Update particles if we have IMU data (and thus do not need to keep
         velocity or other higher dimensional data around)"""
         assert self.have_imu
-        # TODO:
-        #  1) REALISTIC noise model is needed! Can find this experimentally.
+        if self.have_map:
+            # Need more noise with the map because of the bias that the road
+            # prior adds
+            yaw_sigma = 0.15
+        else:
+            yaw_sigma = 0.05
         noisy_yaws = np.random.normal(
-            yaw_diff, 0.3, (self.num_points,)
+            yaw_diff, yaw_sigma, (self.num_points,)
         )
         # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
         # when we resample

@@ -117,11 +117,11 @@ parser.add_argument(
     help="Standard deviation of white GPS noise"
 )
 parser.add_argument(
-    '--speederror', type=float, default=0.025,
+    '--speederror', type=float, default=0.01,
     help="Speed estimates accurate to 100*speederror percent"
 )
 parser.add_argument(
-    '--gyrostddev', type=float, default=0.05,
+    '--gyrostddev', type=float, default=0.02,
     help="Standard deviation of gyroscope noise (deg/s)"
 )
 parser.add_argument(
@@ -255,13 +255,16 @@ class TheMainLoop(object):
 
             if self.args.enablemapfilter and self.map_f is None:
                 self.map_f = ParticleFilter(
-                    args.particles, noisy_obs.pos, 5, have_imu=not args.noimu
+                    args.particles, noisy_obs.pos, 5, True,
+                    not args.noimu
                 )
             elif self.map_f is not None:
                 update_filter(self.map_f, noisy_obs, dt, give_fix, self.m)
 
             if args.enableplainfilter and self.plain_f is None:
-                self.plain_f = ParticleFilter(args.particles, noisy_obs.pos, 5)
+                self.plain_f = ParticleFilter(
+                    args.particles, noisy_obs.pos, 5, False, not args.noimu
+                )
             elif self.plain_f is not None:
                 update_filter(self.plain_f, noisy_obs, dt, give_fix)
 

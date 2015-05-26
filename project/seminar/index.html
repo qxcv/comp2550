@@ -49,20 +49,8 @@
                 outline: 0;
             }
 
-            .reveal .coloured {
-                text-shadow: 0px 0px 3px black;
-            }
-
-            .reveal .red {
-                color: red;
-            }
-
-            .reveal .blue {
-                color: blue;
-            }
-
-            .reveal .green {
-                color: green;
+            .reveal .robocap {
+                height: 3.5em;
             }
         </style>
     </head>
@@ -223,19 +211,19 @@
 
                     <ol>
                         <li>
-                            Produce robust map-based localisation algorithm which is
-                            robust to sensor noise
+                            Investigate performance of particle filters for map
+                            matching
                         </li>
                         <li>
-                            Investigate performance of particle filters with
-                            &ldquo;consumer grade&rdquo; equipment and map data
+                            Produce map-based localisation algorithm which is
+                            robust to sensor noise
                         </li>
                     </ol>
                 </section>
 
                 <section>
                     <section>
-                        <h3>Particle filters: intuition</h3>
+                        <h3>Particle filters</h3>
 
                         <p>
                             Particle filters represent vehicle's position using
@@ -257,76 +245,12 @@
                     </section>
 
                     <section>
-                        <figure style="float: right">
-                            <img style="float: right;" src=images/rhino.jpg
-                                 alt="Picture of RHINO">
-                        </figure>
-
                         <p>
-                            <strong>Example:</strong>
-                            <em>Monte Carlo Localization: Efficient Position
-                            Estimation for Mobile Robots</em>
-                            (Fox et al., 1999)
-                        </p>
-
-                        <!--
-                            NOTE: In a later paper, the same localisation
-                            diagrams were presented as being from Minerva rather
-                            than RHINO. Think that it was actually RHINO (an RWI
-                            B21 robot), since the diagram itself was attributed
-                            to an RWI B21, but Minerva was an RWI B18
-                        -->
-
-                        <p>
-                            RHINO (pictured) used:
-                        </p>
-
-                        <ul>
-                            <li>Sonar sensors</li>
-                            <li>Laser range finders</li>
-                            <li>Odometer</li>
-                            <li>Environment map</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-1.png
-                                alt="Initialisation of the particle filter">
-                            <figcaption>
-                                Initially, particles spread out uniformly
-                            </figcaption>
-                        </figure>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-2.png
-                                alt="Bimodal particle distribution">
-                            <figcaption>
-                                Robot turns, detects corridor
-                            </figcaption>
-                        </figure>
-                    </section>
-
-                    <section>
-                        <figure>
-                            <img src=images/fox-et-al-3.png
-                                alt="Particle filter converged">
-                            <figcaption>
-                                Correct position identified
-                            </figcaption>
-                        </figure>
-                    </section>
-                </section>
-
-                <section>
-                    <section>
-                        <h3>How does it work?</h3>
-
-                        <p>
-                            <em>Sequential importance resampling</em> approach,
-                            outlined by Fox et al.
+                            <strong>Sequential importance resampling</strong>
+                            approach, outlined by Fox, Burgard, Dellaert and
+                            Thrun in <em>Monte Carlo Localization: Efficient
+                            Position Estimation for Mobile Robots</em> (AAAI
+                            '99)
                         </p>
 
                         <p>Each particle $s_t^{(i)}$ is a sample from</p>
@@ -344,41 +268,12 @@
                         </ul>
                     </section>
 
-                    <section>
-                        <p>Take action $a_t$ at time $t$, produces state
-                        $s_{t+1}$ and sensor measurements $o_{t+1}$</p>
-
-                        <ol>
-                            <li>
-                                <strong>Predict:</strong> move each particle
-                                according to odometry
-
-                                \[
-                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
-                                \]
-                            </li>
-                            <li>
-                                <strong>Update:</strong> weight particles by
-                                observation likelihood
-
-                                \[
-                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
-                                \]
-                            </li>
-                            <li>
-                                <strong>Resample:</strong> choose new particles
-                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
-                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
-                            </li>
-                        </ol>
-                    </section>
-
                     <section data-transition=none>
                         <figure>
                             <img src=images/pf-1.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                Particles initialised around $x = 0$
+                            <figcaption class=robocap>
+                                Particles initialised around robot at $t = 0$
                             </figcaption>
                         </figure>
                     </section>
@@ -387,7 +282,7 @@
                         <figure>
                             <img src=images/pf-2.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
+                            <figcaption class=robocap>
                                 Robot moves to $x = 1$
                             </figcaption>
                         </figure>
@@ -397,8 +292,13 @@
                         <figure>
                             <img src=images/pf-3.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Predict:</strong> Robot predicts particle positions $ $
+                            <figcaption class=robocap>
+                                <strong>Predict:</strong> move each particle
+                                according to odometry
+
+                                \[
+                                    {s_t^{(i)}}' \sim p(s_{t+1} \mid s_t=s_t^{(i)}, a_t)
+                                \]
                             </figcaption>
                         </figure>
                     </section>
@@ -407,8 +307,13 @@
                         <figure>
                             <img src=images/pf-4.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Update:</strong> Robot makes observation $ $
+                            <figcaption class=robocap>
+                                <strong>Update:</strong> weight particles by
+                                observation likelihood
+
+                                \[
+                                    w_t^{(i)} = p(o_{t+1} \mid s_t)
+                                \]
                             </figcaption>
                         </figure>
                     </section>
@@ -417,19 +322,45 @@
                         <figure>
                             <img src=images/pf-5.png
                                 alt="Particle filter initialisation">
-                            <figcaption>
-                                <strong>Resample:</strong> Particles resampled by weight $ $
+                            <figcaption class=robocap>
+                                <strong>Resample:</strong> choose new particles
+                                $s_{t+1}^{(i)}$ from $\{{s_t^{(1)}}', \ldots,
+                                {s_t^{(m)}}'\}$ using $w_t^{(i)}$
                             </figcaption>
                         </figure>
                     </section>
                 </section>
 
                 <section>
-                    <h3>Incorporating map data</h3>
-                </section>
+                    <section>
+                        <h3>Incorporating map data</h3>
 
-                <section>
-                    <h3>Complete algorithm</h3>
+                        <p>
+                            Key idea: use distance $d$ to nearest road segment
+                            to calculate pseudo-likelihood
+                        </p>
+
+                        <p>
+                            In this case:
+
+                            \[
+                                w_t^{(i)} = \frac{1}{1 + d}
+                            \]
+                        </p>
+
+                        <p>Fast and gives reasonable results</p>
+                    </section>
+
+                    <section>
+                        <figure>
+                            <img src=images/map-likelihood.png
+                                alt="Log likelihood for a small road map">
+                            <figcaption>
+                                Logarithm of pseudo-likelihood for small road
+                                map
+                            </figcaption>
+                        </figure>
+                    </section>
                 </section>
 
                 <section>
@@ -457,17 +388,6 @@
                         Both filters using noisy odometry at 10Hz and
                         positioning data with zero-mean Gaussian noise at 1Hz.
                     </p>
-
-                    <!--
-                    <p>
-                        <span class="coloured green">Green</span> triangle is
-                        ground truth, <span class="coloured blue">blue</span>
-                        triangle is estimate, <span class="coloured
-                            red">red</span> circles are particles, <span
-                            class="coloured red">red</span> crosses are GPS
-                        fixes
-                    </p>
-                    -->
 
                     <p>
                         <small>
@@ -527,9 +447,6 @@ vid2.addEventListener('click', clickHandler);
                         <li>
                             Bimodal particle distributions
                         </li>
-                        <li>
-                            Correcting the map
-                        </li>
                     </ul>
                 </section>
 
@@ -537,12 +454,12 @@ vid2.addEventListener('click', clickHandler);
                     <h3>Image credits</h3>
                     <p><small>In order of appearance:</small></p>
                     <dl class=credits>
-                        <dt>&ldquo;TomTom&rdquo;</dt>
+                        <dt>Photo of personal navigation device</dt>
                         <dd>
                             <a href="https://flic.kr/p/7d9qnS">Tom Haller</a>
                             on Flickr, CC-BY
                         </dd>
-                        <dt>&ldquo;Hands-free Driving&rdquo;</dt>
+                        <dt>Image of autonomous vehicle</dt>
                         <dd>
                             <a href="https://flic.kr/p/7apCYV">Steve
                             Jurvetson</a> on Flickr, CC-BY
@@ -553,27 +470,15 @@ vid2.addEventListener('click', clickHandler);
                             Localization Accuracy Classification: A
                             Context-Based Approach</em> (IEEE ITS, 2013)
                         </dd>
-                        <dt>Probabilistic localisation graphic</dt>
+                        <dt>Static images of vehicle being localised on road network</dt>
                         <dd>
                             From M.A. Brubaker, A. Geiger and R. Urtasun, <em>Lost!
                             Leveraging the Crowd for Probabilistic Visual
                             Self-Localization</em> (CVPR '13)
                         </dd>
-                        <dt>Portrait of RHINO</dt>
+                        <dt>Robot clip art for particle filter illustration</dt>
                         <dd>
-                            <a href="http://www.iai.uni-bonn.de/~rhino/tourguide/html/rhino-me.html">
-                                Wolfram Burgard
-                            </a> at the University of Bonn
-                        </dd>
-                        <dt>Particle filtering diagrams</dt>
-                        <dd>
-                            From D. Fox, W. Burgard, F. Dellaert and S. Thrun,
-                            <em>Monte Carlo Localization: Efficient Position
-                            Estimation for Mobile Robots</em> (AAAI '99)
-                        </dd>
-                        <dt>&ldquo;Robot with a claw&rdquo;</dt>
-                        <dd>
-                            <a href="https://openclipart.org/detail/21684/robot-with-a-claw">
+                            <a href=https://openclipart.org/detail/21684/robot-with-a-claw>
                                 Silveira_Neto
                             </a> on openclipart.org
                         </dd>
@@ -599,11 +504,6 @@ vid2.addEventListener('click', clickHandler);
                 // Optional reveal.js plugins
                 dependencies: [
                     { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-                    { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
-                    { src: 'plugin/zoom-js/zoom.js', async: true },
-                    { src: 'plugin/notes/notes.js', async: true },
                     { src: 'plugin/math/math.js', async: true }
                 ]
             });
