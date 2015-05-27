@@ -58,8 +58,18 @@
 
     \section{Related work}
 
+    % TODO: Explain heuristic algorithms, then segue into probabilistic
+    % algorithms. Can really try to use up four or five pages this way.
+
+    % Also need to talk, in particular, about Selloum et al.'s, article, as well
+    % as Dellaert's article and the MCL papers.
+
     \section{Particle filtering}
 
+    \section{The localisation algorithm}
+    \label{sec:algorithm}
+
+    \subsection{Incorporating map data}
     % Efficiently incorporating map data
     Computing the distance between each particle and its nearest road segment is
     by far the most expensive step in the particle filtering process, so it is
@@ -69,8 +79,9 @@
     50ms to perform the calculations for 2000 particles on a map of 3220
     segments using a 2.5GHz Intel Core i5 processor.
 
-    \section{The localisation algorithm}
-    \label{sec:algorithm}
+    \subsection{GPS dropouts}
+
+    \subsection{Unavailability of odometry}
 
     \section{Results}
 
