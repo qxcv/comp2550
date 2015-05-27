@@ -37,12 +37,20 @@ class ParticleFilter(object):
 
     def normalise_weights(self):
         """Ensure that weights sum to one."""
-        self.weights = self.weights / np.sum(self.weights)
+        s = np.sum(self.weights)
+        if s < 1e-15:
+            self.weights = np.ones_like(self.weights) / self.weights.size
+        else:
+            self.weights = self.weights / s
 
     def effective_particles(self):
         """Filter should resample when this quantity falls below some
         threshold, which Gustaffson et al. (2002) recommend be set to 2N/3"""
-        return 1.0 / np.sum(np.square(self.weights))
+        sqsum = np.sum(np.square(self.weights))
+        if sqsum < 1e-15:
+            # Prevent numerical issues
+            return 0
+        return 1.0 / sqsum
 
     def auto_resample(self):
         """Resample iff the number of effective particles drops below two

@@ -51,6 +51,6 @@ if __name__ == '__main__':
     plt.colorbar()
     plt.xlabel('$x$-coordinate (m)')
     plt.ylabel('$y$-coordinate (m)')
-    plt.title(r'$\log(p((x, y) \mid\,\mathrm{map}))$')
+    plt.title(r'Log-likelihood')
     plt.tight_layout()
     plt.savefig('images/map-likelihood.png')
