@@ -51,7 +51,15 @@
 
     \maketitle
 
+    % TODO: Rewrite this once I figure out what the hell my report is actually
+    % about.
     \abstract{
+        In this paper, we propose a particle filtering method which fuses GPS
+        fixes, odometry data, and the information in a digital street map to
+        localise a road vehicle with superior accuracy to methods based on GPS
+        and odometry alone. We demonstrate that our algorithm is robust to GPS
+        dropouts, and give a variant of the algorithm which dispenses with the
+        requirement for odometry.
     }
 
     \section{Introduction}
@@ -108,7 +116,7 @@
     \end{enumerate}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
-    (personal communication, 12 May, 2015), which was produced from several
+    (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
     tunnel. The results of this test are presented in Figure % TODO
 
