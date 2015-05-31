@@ -1,7 +1,5 @@
 \documentclass[11pt]{article}
-
 \usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling}
-
 \hypersetup{
     % See
     % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
@@ -10,9 +8,7 @@
     citecolor={blue!50!black},
     urlcolor={blue!80!black}
 }
-
 \usepackage[round]{natbib}
-
 \usepackage[margin=1in]{geometry}
 
 % Report plan:
@@ -65,6 +61,19 @@
     \section{Introduction}
 
     \section{Related work}
+
+    The most common---and most extensively studied---type of map-augmented
+    localisation is map matching, where localisation is performed under the
+    simplifying assumption that the true location will always coincide with a
+    roadway, footpath or other mapped feature.
+
+    The approaches which presently dominate the map matching literature
+    typically use sets of hand-crafted rules to determine which road segment in
+    a digital map a vehicle is most likely to be travelling on, then attempt to
+    localise the vehicle within that road segment, typically by localising to
+    the point on the segment nearest to the last GPS fix or Kalman filter state
+    estimate \citep{quddus2007current}. These ``heuristic'' methods have a
+    number of % TODO: Talk about shortcomings
 
     % TODO: Explain heuristic algorithms, then segue into probabilistic
     % algorithms. Can really try to use up four or five pages this way.
