@@ -122,7 +122,7 @@ class ParticleFilter(object):
         dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
             dists[idx] = m.nearest_lane_dist(point)
-        factors = 1.0 / (1 + dists ** 2)
+        factors = 1.0 / ((1 + dists ** 2) ** 1.1)
         self.weights *= factors
 
     def predict(self, dt, *args):
