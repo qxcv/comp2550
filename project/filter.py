@@ -38,7 +38,8 @@ class ParticleFilter(object):
     def normalise_weights(self):
         """Ensure that weights sum to one."""
         s = np.sum(self.weights)
-        if s < 1e-15:
+        # Prevent overflow
+        if s <= 0:
             self.weights = np.ones_like(self.weights) / self.weights.size
         else:
             self.weights = self.weights / s

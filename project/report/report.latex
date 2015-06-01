@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[a4paper]{article}
 \usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling}
 \hypersetup{
     % See
@@ -76,7 +76,7 @@
     number of % TODO: Talk about shortcomings
 
     % TODO: Explain heuristic algorithms, then segue into probabilistic
-    % algorithms. Can really try to use up four or five pages this way.
+    % algorithms.
 
     % Also need to talk, in particular, about Selloum et al.'s, article, as well
     % as Dellaert's article and the MCL papers.

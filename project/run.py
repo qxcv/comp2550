@@ -243,7 +243,15 @@ class TheMainLoop(object):
             if self.last_fix is None and self.args.enablerawgps:
                 self.last_fix = noisy_obs.pos
 
-            give_fix = self.obs_since_fix >= self.obs_per_fix
+            if args.jose:
+                # Only give a GPS fix if it's fresh
+                visible = noisy_obs['signal']
+                fresh = noisy_obs.pos != self.last_fix
+                give_fix = visible and fresh
+            else:
+                # Give a GPS fix whenever --gpsfreq says we should
+                give_fix = self.obs_since_fix >= self.obs_per_fix
+
             if give_fix:
                 if self.last_fix is not None:
                     self.last_fix = noisy_obs.pos
