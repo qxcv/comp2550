@@ -1,6 +1,6 @@
 \documentclass[a4paper]{article}
 \usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling}
-\hypersetup{
+\hypersetup{%
     % See
     % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
     colorlinks,
@@ -49,7 +49,7 @@
 
     % TODO: Rewrite this once I figure out what the hell my report is actually
     % about.
-    \abstract{
+    \abstract{%
         In this paper, we propose a particle filtering method which fuses GPS
         fixes, odometry data, and the information in a digital street map to
         localise a road vehicle with superior accuracy to methods based on GPS
@@ -59,6 +59,55 @@
     }
 
     \section{Introduction}
+
+    Localisation is a critical task for intelligent transport systems, and
+    features in systems ranging from personal navigation devices
+    \citep{white2000some} to self-driving cars \citep{levinson2011towards}.
+    Accurate localisation data can also be used to augment vehicle-based systems
+    not directly related to navigation. For example, this work was motivated in
+    part by the visual road detection algorithm presented by
+    \citet{alvarez2014combining}, which projects road segments stored in a map
+    database into the field of view of a camera in order determine which pixels
+    produced by the camera are most likely to correspond to a road. Precise
+    information about the location of the vehicle is clearly of the utmost
+    importance in such systems.
+
+    This task is complicated by the noise present in sensor readings. Despite
+    its usefulness, GPS is a major offender in this regard: GPS accuracy can
+    range from around 2m in an open area to up to 15m in heavily built-up areas
+    \citep{modsching2006field}. Dead reckoning also suffers from significant
+    errors, although unlike GPS error these tend to gradually increase over
+    time. For instance, \citet{vlcek1993gps} report that low cost dead reckoning
+    systems---typically based on odometry and gyroscope data---yield errors of
+    between 2\% and 5\% of the distance travelled.
+
+%     TODO: Is it okay to do this? It's not plagiarism, but it may violate
+%     copyright. Should ask Steve or someone else who's likely to know. Maybe ANU
+%     has a specific policy here.
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=0.45\textwidth]{images/drawil-et-al.png}
+%         \caption{Figure from \citet{drawil2013gps} demonstrating the GPS fixes
+%         produced by a receiver in a vehicle as the vehicle drove through a built
+%         up area. Grey lines indicate roads, whilst coloured dots indicate GPS
+%         fixes, coloured according to the output of an automated precision
+%         classifier.}
+%         \label{fig:drawil-et-al}
+%     \end{figure}
+
+    % IDEA: Apparently along-track error is much lower than cross-track error in
+    % built-up areas because of the fact that buildings, which cause multipath
+    % interference, are located on either side of the road. This makes the fact
+    % that my algorithm reduces along-track error quite helpful.
+
+    % TODO: Talk about map matching and map-aided localisation
+
+    With the advent of the OpenStreetMap project\footnotemark---which provides,
+    free of charge, detailed road network maps covering most of the
+    globe---map-aided localisation is becoming a cheap and convenient way of
+    augmenting the accuracy of existing localisation systems.
+
+    \footnotetext{\url{http://www.openstreetmap.org/}}
 
     \section{Related work}
 
@@ -83,8 +132,7 @@
 
     \section{Particle filtering}
 
-    \section{The localisation algorithm}
-    \label{sec:algorithm}
+    \section{The localisation algorithm}\label{sec:algorithm}
 
     \subsection{Incorporating map data}
     % Efficiently incorporating map data
