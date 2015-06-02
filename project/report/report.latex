@@ -60,6 +60,9 @@
 
     \section{Introduction}
 
+    % TODO: Might want to use localisation of visually impaired users as another
+    % example (which I did in my proposal).
+
     Localisation is a critical task for intelligent transport systems, and
     features in systems ranging from personal navigation devices
     \citep{white2000some} to self-driving cars \citep{levinson2011towards}.
@@ -118,21 +121,47 @@
 
     \section{Related work}
 
-    The approaches which presently dominate the map matching literature
-    typically use sets of hand-crafted rules to determine which road segment in
-    a digital map a vehicle is most likely to be travelling on, then attempt to
-    localise the vehicle within that road segment, typically by localising to
-    the point on the segment nearest to the last GPS fix or Kalman filter state
-    estimate \citep{quddus2007current}. These ``heuristic'' methods have a
-    number of % TODO: Talk about shortcomings
+    The approaches which presently dominate the map-assisted localisation
+    literature are map matching methods which use sets of hand-crafted rules to
+    determine which road segment in a digital map a vehicle is most likely to be
+    travelling on, then attempt to localise the vehicle within that road
+    segment. Typically, these approaches work by first assigning a ``score'' to
+    each road segment in a digital street map based on the segment's distance
+    from the vehicle's estimated position, the segment's heading, and so on, and
+    then localise to the point on the highest scoring segment which is nearest
+    to the last GPS fix or Kalman filter state estimate
+    \citep{quddus2007current}.
 
-    % TODO: Explain heuristic algorithms, then segue into probabilistic
-    % algorithms.
+    These heuristic methods can achieve very high accuracy. For example,
+    \citet{quddus2006high} reported that the road segment scoring portion of
+    their algorithm was able to correctly identify 99.2\% of the 4,605 road
+    segments in one of their data sets. However, such high accuracy is not
+    representative of all heuristic map matching
+    algorithms---\citeauthor{quddus2006high} reported previous algorithms
+    achieving 70\%-98\% segment identification accuracy where theirs achieved
+    99.2\%---and usually requires large sets of hand-tuned rules. Moving from a
+    rural to an urban environment, for instance, can sometimes reduce the
+    usefulness of these rules, necessitating the production of yet more rules
+    and heuristics for different environments \citep{velaga2012improving}.
+    Further, heuristic map-matching algorithms are highly sensitive to initial
+    conditions, as producing an incorrect first match will likely cause
+    subsequent matches to be incorrect due to the fact that heuristic algorithms
+    often assign low scores to road segments far away from previously matched
+    segments \citep{syed2004fuzzy}.
+
+    Probabilistic approaches to map aided localisation manage to avoid some of
+    the pitfalls of heuristic approaches. Rather than producing a single ``best
+    guess'' of the vehicle's state at each time step, probabilistic methods
+    internally maintain a probability distribution over all possible vehicle
+    states. This distribution may be updated sequentially, and used to produce
+    the expectation of the vehicle's position at each time step. % TODO
 
     % Also need to talk, in particular, about Selloum et al.'s, article, as well
     % as Dellaert's article and the MCL papers.
 
     \section{Particle filtering}
+
+    Particle filtering---also known as Monte Carlo localisation---% TODO
 
     \section{The localisation algorithm}\label{sec:algorithm}
 
