@@ -83,7 +83,8 @@
 
 %     TODO: Is it okay to do this? It's not plagiarism, but it may violate
 %     copyright. Should ask Steve or someone else who's likely to know. Maybe ANU
-%     has a specific policy here.
+%     has a specific policy here. If not, I'll just leave the image out, since
+%     it's not critical to the report.
 %     \begin{figure}
 %         \centering
 %         \includegraphics[width=0.45\textwidth]{images/drawil-et-al.png}
@@ -95,26 +96,27 @@
 %         \label{fig:drawil-et-al}
 %     \end{figure}
 
-    % IDEA: Apparently along-track error is much lower than cross-track error in
-    % built-up areas because of the fact that buildings, which cause multipath
-    % interference, are located on either side of the road. This makes the fact
-    % that my algorithm reduces along-track error quite helpful.
-
-    % TODO: Talk about map matching and map-aided localisation
-
-    With the advent of the OpenStreetMap project\footnotemark---which provides,
-    free of charge, detailed road network maps covering most of the
-    globe---map-aided localisation is becoming a cheap and convenient way of
-    augmenting the accuracy of existing localisation systems.
+    Fortunately, road vehicles in motion are almost always situated on public
+    roads, so it is possible to improve the accuracy of a localisation system by
+    taking into account the information about the public road network which is
+    present in a digital street map. With the advent of the OpenStreetMap
+    project\footnotemark---which provides, free of charge, detailed road network
+    maps covering most of the globe---use of map information in this way is
+    quickly becoming a cheap and convenient method of augmenting the accuracy of
+    existing localisation systems.
 
     \footnotetext{\url{http://www.openstreetmap.org/}}
 
-    \section{Related work}
+    The most common method of incorporating this information is through ``map
+    matching'', where localisation is performed under the simplifying assumption
+    that the true location will \emph{always} coincide with a roadway, footpath
+    or other mapped feature. In this paper, we will not make such a highly
+    restrictive assumption. Instead, we will merely assume that the vehicle is
+    \emph{most likely} near a roadway, and attempt to use this assumption to
+    improve localisation accuracy as greatly as we can without losing the
+    ability to localise vehicles which stray from the road network.
 
-    The most common---and most extensively studied---type of map-augmented
-    localisation is map matching, where localisation is performed under the
-    simplifying assumption that the true location will always coincide with a
-    roadway, footpath or other mapped feature.
+    \section{Related work}
 
     The approaches which presently dominate the map matching literature
     typically use sets of hand-crafted rules to determine which road segment in
@@ -176,6 +178,11 @@
     (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
     tunnel. The results of this test are presented in Figure % TODO
+
+    % IDEA: Apparently along-track error is much lower than cross-track error in
+    % built-up areas because of the fact that buildings, which cause multipath
+    % interference, are located on either side of the road. This makes the fact
+    % that my algorithm reduces along-track error quite helpful.
 
     \section{Conclusion}
 
