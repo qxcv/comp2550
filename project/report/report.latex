@@ -166,14 +166,42 @@
     \section{The localisation algorithm}\label{sec:algorithm}
 
     \subsection{Incorporating map data}
+
+    Whilst other authors have attempted to incorporate street map data into the
+    particle filtering process by extending each particle's state to include an
+    associated road segment \citep{selloum2009lane,toledo2009fusing}, we have
+    found that the fastest way of incorporating map data is by way of a
+    pseudo-likelihood during the particle filter's update step. Concretely,
+    for each particle $n$, we calculate the distance $d_n$ to the road segment
+    in the stored digital street map, then update the weight $w^{(n)}$ of the
+    stored particle using:
+
+    % TODO: Update this when I'm finished. I'll probably choose a completely
+    % different pseudolikelihood before I'm done, since this one seems
+    % excessively restrictive (and leads to numerical issues).
+    \[
+        w^{(n)} \leftarrow \frac{w^{(n)}}{\left(1 + d_n^2\right)^{1.1}}
+    \]
+
+    We have found that this pseudo-likelihood does a reasonable job of
+    forcing particles to remain near the road without preventing the particles
+    from ``drifting'' away when GPS fixes are a long way from the map. This
+    ensures that the vehicle is still able to localise itself when it is
+    travelling on unmapped roads.
+
+    % TODO: Can probably motivate this a little more by referring to SIR. Also,
+    % I really need to look into ignoring map updates when the map is a suitable
+    % distance (100m? 500m?) from the nearest particle to the map.
+
     % Efficiently incorporating map data
-    Computing the distance between each particle and its nearest road segment is
-    by far the most expensive step in the particle filtering process, so it is
-    imperative that this computation be fast if real-time performance is
-    desired. We have found that the k-d tree implementation provided by
-    \citet{alliez20153d} yields good performance for this task, taking around
-    50ms to perform the calculations for 2000 particles on a map of 3220
-    segments using a 2.5GHz Intel Core i5 processor.
+    Despite being an efficient option amongst different methods of incorporating
+    map data, computing the distance between each particle and its nearest road
+    segment is still by far the most expensive step in the particle filtering
+    process, so it is imperative that this computation be fast if real-time
+    performance is desired. We have found that the k-d tree implementation
+    provided by \citet{alliez20153d} yields good performance for this task,
+    taking around 50ms to perform the calculations for 2000 particles on a map
+    of 3220 segments using a 2.5GHz Intel Core i5 processor.
 
     \subsection{GPS dropouts}
 
