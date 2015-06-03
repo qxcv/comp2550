@@ -69,13 +69,14 @@ class MapDisplay(object):
     CIRCLES_Z_ORDER = 0
 
     def __init__(self, ax, map, smooth_zoom_rate=None, auto_focus=False,
-                 auto_scale_rate=None):
+                 auto_scale_rate=None, hide_ground_truth=False):
         self.ax = ax
         self.map = map
         ax.set_aspect('equal', 'datalim')
         mpl_draw_map(ax, map)
         self.auto_focus = auto_focus
         self.auto_scale_rate = auto_scale_rate
+        self.hide_ground_truth = hide_ground_truth
 
         # Used for drawing traces of ground truth (first variable) and state
         # estimate (second variable)
@@ -168,6 +169,12 @@ class MapDisplay(object):
             self.draw_filter(f)
 
     def update_ground_truth(self, pos, yaw=None):
+        if self.auto_focus:
+            self.focus_on(*pos)
+
+        if self.hide_ground_truth:
+            return
+
         if self.gt_patch is not None:
             if yaw is None:
                 update_vehicle_square(self.ax, self.gt_patch, pos)
@@ -184,8 +191,6 @@ class MapDisplay(object):
                     self.ax, pos, yaw, (0, 1, 0, 0.8),
                     zorder=self.TRUTH_Z_ORDER
                 )
-        if self.auto_focus:
-            self.focus_on(*pos)
 
     def update_last_fix(self, pos):
         if self.last_fix_data is None:
