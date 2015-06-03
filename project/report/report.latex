@@ -9,7 +9,9 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-\usepackage[margin=1in]{geometry}
+% TODO: Reinstate this once I've got a high enough word count to reach 10 pages
+% with normal margins.
+% \usepackage[margin=1in]{geometry}
 
 % Report plan:
 %
@@ -154,14 +156,38 @@
     guess'' of the vehicle's state at each time step, probabilistic methods
     internally maintain a probability distribution over all possible vehicle
     states. This distribution may be updated sequentially, and used to produce
-    the expectation of the vehicle's position at each time step. % TODO
+    the expectation of the vehicle's position at each time step. This approach
+    makes it straightforward to incorporate almost any kind of data: for
+    instance, \citet{brubaker2013lost} used a probabilistic approach based on
+    Gaussian mixture models to localise a vehicle using only street map
+    information and visual odometry---a feat which would be impossible with
+    traditional heuristic map matching approaches.
 
     % Also need to talk, in particular, about Selloum et al.'s, article, as well
     % as Dellaert's article and the MCL papers.
 
+    Particle filtering---also known as Monte Carlo localisation---is a popular
+    probabilistic localisation method which has been employed for map aided
+    localisation in a number of different ways. \citet{chausse2005vehicle}
+    applied a particle filter to fuse odometry, GPS, vision and the information
+    in a digital map, whilst \citet{selloum2009lane} and
+    \citet{toledo2009fusing} used particle filtering with odometry, GPS and map
+    information alone. In each instance, the authors reported excellent results,
+    with all algorithms providing lane-level positioning accuracy in some cases.
+
+    Unfortunately, the aforementioned approaches to probabilistic map-aided
+    localisation both required sensors and information which are not always
+    available. In all three cases, the algorithms required extremely precise
+    maps offering a level of detail far beyond what could be expected of an
+    ordinary digital street map used for navigation. Furthermore,
+    \citeauthor{selloum2009lane} and \citeauthor{toledo2009fusing} both assumed the
+    availability of a service like the European Geostationary Navigation Overlay
+    Service (EGNOS) to correct GPS errors, whilst
+    \citeauthor{chausse2005vehicle}'s (optional) requirement of vision sensors %TODO
+
     \section{Particle filtering}
 
-    Particle filtering---also known as Monte Carlo localisation---% TODO
+    As mentioned previously, particle filtering
 
     \section{The localisation algorithm}\label{sec:algorithm}
 
