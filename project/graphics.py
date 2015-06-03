@@ -77,6 +77,11 @@ class MapDisplay(object):
         self.auto_focus = auto_focus
         self.auto_scale_rate = auto_scale_rate
 
+        # Used for drawing traces of ground truth (first variable) and state
+        # estimate (second variable)
+        self.gt_trace_last = None
+        self.e_trace_last = None
+
         # Junk will be cleaned up when new points are drawn
         self.gt_patch = None
         self.last_fix_data = None
@@ -189,6 +194,23 @@ class MapDisplay(object):
             )
         else:
             self.last_fix_data.set_data(*pos)
+
+    def ground_truth_trace(self, pos):
+        if self.gt_trace_last is not None:
+            self._draw_line(self.gt_trace_last, pos, '-', (0, 1, 0))
+        self.gt_trace_last = pos
+
+    def state_estimate_trace(self, pos):
+        if self.e_trace_last is not None:
+            self._draw_line(self.e_trace_last, pos, '-', (1, 0.4, 0))
+        self.e_trace_last = pos
+
+    def _draw_line(self, begin, end, style='-', color='g'):
+        b0, b1 = begin
+        e0, e1 = end
+        self.ax.plot(
+            (b0, e0), (b1, e1), ls=style, c=color, lw=1
+        )
 
     def focus_on(self, cx, cy):
         """Center the axes on (cx, cy) whilst retaining scale"""

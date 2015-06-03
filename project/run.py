@@ -158,6 +158,18 @@ parser.add_argument(
     '--noimu', action='store_true', default=False,
     help="Should the IMU be disabled for the map filter?"
 )
+parser.add_argument(
+    '--tracegroundtruth', action='store_true', default=False,
+    help="Produce a trace of ground truth."
+)
+parser.add_argument(
+    '--traceestimate', action='store_true', default=False,
+    help="Produce a state estimate trace."
+)
+parser.add_argument(
+    '--hidegt', action='store_true', default=False,
+    help="Hide ground truth marker."
+)
 
 
 class TheMainLoop(object):
@@ -192,7 +204,9 @@ class TheMainLoop(object):
             plt.ion()
             plt.gcf().canvas.set_window_title('Map viewer')
             plt.show()
-            self.display = MapDisplay(plt.gca(), self.m)
+            self.display = MapDisplay(
+                plt.gca(), self.m, hide_ground_truth=args.hidegt
+            )
 
         if args.movie is not None:
             FFmpegWriter = manimation.writers['ffmpeg']
@@ -207,7 +221,7 @@ class TheMainLoop(object):
             self.writer.setup(plt.gcf(), args.movie, 64)
             self.display = MapDisplay(
                 plt.gca(), self.m, auto_focus=True,
-                auto_scale_rate=0.1
+                auto_scale_rate=0.1, hide_ground_truth=args.hidegt
             )
 
         if args.out is not None:
@@ -225,8 +239,8 @@ class TheMainLoop(object):
             parsed, args.gpsstddev, args.speederror, args.gyrostddev
         )
 
-        assert not args.noimu or args.enablemapfilter, "Map filter must be " \
-            "enabled for --noimu to take effect"
+        assert args.jose or (not args.noimu or args.enablemapfilter), \
+            "Map filter must be enabled for --noimu to take effect"
 
     def cleanup(self):
         if self.args.movie is not None:
@@ -284,6 +298,18 @@ class TheMainLoop(object):
 
             if self.disable_for > 0:
                 self.disable_for -= 1
+
+            if args.gui or self.movie:
+                if args.tracegroundtruth:
+                    self.display.ground_truth_trace(obs.pos)
+                if args.traceestimate:
+                    f = None
+                    if self.map_f is not None:
+                        f = self.map_f
+                    if self.plain_f is not None:
+                        assert f is None, "Can only show one filter trace"
+                        f = self.plain_f
+                    self.display.state_estimate_trace(f.state_estimate()[:-1])
 
             if args.out is not None:
                 self.stats_writer.update(
