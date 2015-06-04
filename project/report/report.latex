@@ -292,30 +292,31 @@
     % https://tex.stackexchange.com/questions/122786/align-16-small-images-in-a-4-x-4-grid
     \centering
     \setlength{\tabcolsep}{0pt}
+    % TODO: Good idea to timestamp these :-)
     \begin{tabular}{cccc}
-    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-9.2.png}
+    \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-9.2.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-12.4.png}
+    \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-12.4.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-14.4.png}
+    \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-14.4.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-16.8.png}
+    \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-16.8.png}
     \\
-    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-9.2.png}
+    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-9.2.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-12.4.png}
+    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-12.4.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-14.4.png}
+    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-14.4.png}
     &
-    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-16.8.png}
+    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-16.8.png}
     \end{tabular}
     \caption{Qualitative comparison of the map-aided particle filter (top) with
     an equivalent particle filter not making use of map information (bottom).
     Time flows from left to right. The most recent GPS fix in each frame is
     shown as a red cross, whilst the particle filter's state estimate is shown
-    as a blue triangle and its particles are shown as red circles, with radius
-    directly proportional to the square of particle weight. The network of blue
-    lines represent line centrelines.}
+    as a blue triangle and its particles are shown as red circles, with the area
+    of each circle proportional to the corresponding particle's weight. The
+    network of blue lines represent line centrelines.}
     \label{fig:qual}
     \end{figure*}
 
