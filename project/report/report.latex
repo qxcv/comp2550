@@ -264,11 +264,12 @@
     % final comparison.
     \begin{enumerate}
         \item Downsampling of GPS-like positioning information from 10Hz to 1Hz.
-        \item Addition of isotropic Gaussian-distributed white noise with
-        variance $64$$\mathrm m^2$ to the positioning information.
+        \item Addition of isotropic Gaussian-distributed white noise with zero
+        mean and variance $64$$\mathrm m^2$ to the positioning information.
         \item Rescaling of reported speed by a small but random factor of at
         most 1\% in order to emulate a subtly miscalibrated odometer.
-        % TODO: Other noise
+        \item Addition of Gaussian noise with zero mean and standard deviation
+        $4 \times 10^{-4}$ deg/$\mathrm s^2$.
     \end{enumerate}
 
     These parameters do not closely reflect the characteristics of real sensor
@@ -308,9 +309,13 @@
     &
     \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-16.8.png}
     \end{tabular}
-    % TODO: Expand this explanation.
     \caption{Qualitative comparison of the map-aided particle filter (top) with
-    an equivalent particle filter not making use of map information (bottom).}
+    an equivalent particle filter not making use of map information (bottom).
+    Time flows from left to right. The most recent GPS fix in each frame is
+    shown as a red cross, whilst the particle filter's state estimate is shown
+    as a blue triangle and its particles are shown as red circles, with radius
+    directly proportional to the square of particle weight. The network of blue
+    lines represent line centrelines.}
     \label{fig:qual}
     \end{figure*}
 
