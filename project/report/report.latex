@@ -163,9 +163,6 @@
     information and visual odometry---a feat which would be impossible with
     traditional heuristic map matching approaches.
 
-    % Also need to talk, in particular, about Selloum et al.'s, article, as well
-    % as Dellaert's article and the MCL papers.
-
     Particle filtering---also known as Monte Carlo localisation---is a popular
     probabilistic localisation method which has been employed for map aided
     localisation in a number of different ways. \citet{chausse2005vehicle}
@@ -180,10 +177,14 @@
     available. In all three cases, the algorithms required extremely precise
     maps offering a level of detail far beyond what could be expected of an
     ordinary digital street map used for navigation. Furthermore,
-    \citeauthor{selloum2009lane} and \citeauthor{toledo2009fusing} both assumed the
-    availability of a service like the European Geostationary Navigation Overlay
-    Service (EGNOS) to correct GPS errors, whilst
-    \citeauthor{chausse2005vehicle}'s (optional) requirement of vision sensors %TODO
+    \citeauthor{selloum2009lane} and \citeauthor{toledo2009fusing} both assumed
+    the availability of a service like the European Geostationary Navigation
+    Overlay Service (EGNOS) to correct GPS errors, whilst
+    \citeauthor{chausse2005vehicle} required that the vehicle be fitted with a
+    camera in order to achieve lane-level accuracy. These requirements are all
+    difficult to satisfy for low-cost systems and systems which operate in
+    remote regions, so one of our aims in this paper will be to dispense with
+    these onerous requirements.
 
     \section{Particle filtering}
 
