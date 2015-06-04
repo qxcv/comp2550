@@ -1,5 +1,5 @@
 \documentclass[a4paper]{article}
-\usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling}
+\usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile}
 \hypersetup{%
     % See
     % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
@@ -40,6 +40,9 @@
 % maximum of 1+1.5+3+3+0.25 = 9.75 pages. Ugh, I'm going to have to be REALLY
 % verbose and include a LOT of diagrams (that's how other authors pad out their
 % papers, apparently).
+
+\newcommand{\mat}{\mathbf}
+\renewcommand{\b}{\mathbf}
 
 \begin{document}
     \title{Robust Map-Augmented Localisation Using Particle Filters\\
@@ -257,15 +260,59 @@
     result, we had to use a synthetic noise model to benchmark the algorithm,
     which included the following ``roughening'' steps:
 
+    % TODO: Update this section with the parameters I *actually use* for the
+    % final comparison.
     \begin{enumerate}
-        % TODO
-        \item
+        \item Downsampling of GPS-like positioning information from 10Hz to 1Hz.
+        \item Addition of isotropic Gaussian-distributed white noise with
+        variance $64$$\mathrm m^2$ to the positioning information.
+        \item Rescaling of reported speed by a small but random factor of at
+        most 1\% in order to emulate a subtly miscalibrated odometer.
+        % TODO: Other noise
     \end{enumerate}
+
+    These parameters do not closely reflect the characteristics of real sensor
+    noise. In particular, real GPS error tends to be highly time-correlated, but
+    with an unpredictable distribution governed by atmospheric interference,
+    multipath fading, and so on \citep{bajaj2002gps}. Nonetheless, this
+    ``roughening'' process does an excellent job of illustrating the difference
+    in performance between plain particle filtering and map-aided particle
+    filtering in the presence of non-ideal sensory input.
+
+    % TODO: Actually do the comparison and write up a table here
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
     (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
-    tunnel. The results of this test are presented in Figure % TODO
+    tunnel. The results of this test are presented in Figure~\ref{fig:qual}
+
+    \begin{figure*}
+    % See
+    % https://tex.stackexchange.com/questions/122786/align-16-small-images-in-a-4-x-4-grid
+    \centering
+    \setlength{\tabcolsep}{0pt}
+    \begin{tabular}{cccc}
+    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-9.2.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-12.4.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-14.4.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/with-map.avi-16.8.png}
+    \\
+    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-9.2.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-12.4.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-14.4.png}
+    &
+    \includegraphics[width=0.22\textwidth]{spliced/without-map.avi-16.8.png}
+    \end{tabular}
+    % TODO: Expand this explanation.
+    \caption{Qualitative comparison of the map-aided particle filter (top) with
+    an equivalent particle filter not making use of map information (bottom).}
+    \label{fig:qual}
+    \end{figure*}
 
     % IDEA: Apparently along-track error is much lower than cross-track error in
     % built-up areas because of the fact that buildings, which cause multipath
