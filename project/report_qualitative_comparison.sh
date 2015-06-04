@@ -43,7 +43,7 @@ splicevids() {
 
 case $1 in
     write)
-        # writevids
+        writevids
         ;;
     splice)
         shift
@@ -51,6 +51,9 @@ case $1 in
         ;;
     *)
         echo "USAGE: $0 <command> <arguments>"
+        echo "Commands:"
+        echo "   write"
+        echo "   splice <video>"
         exit 1
         ;;
 esac
