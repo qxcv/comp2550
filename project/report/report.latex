@@ -161,7 +161,11 @@
     instance, \citet{brubaker2013lost} used a probabilistic approach based on
     Gaussian mixture models to localise a vehicle using only street map
     information and visual odometry---a feat which would be impossible with
-    traditional heuristic map matching approaches.
+    traditional heuristic map matching approaches. Probabilistic approaches also
+    make it possible to relax the map matching assumption that the vehicle is
+    always on a mapped feature, as it is straightforward to expand  the modelled
+    distribution over possible vehicle states to cover both on-road and off-road
+    areas.
 
     Particle filtering---also known as Monte Carlo localisation---is a popular
     probabilistic localisation method which has been employed for map aided

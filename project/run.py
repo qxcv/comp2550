@@ -299,7 +299,7 @@ class TheMainLoop(object):
             if self.disable_for > 0:
                 self.disable_for -= 1
 
-            if args.gui or self.movie:
+            if args.gui or args.movie:
                 if args.tracegroundtruth:
                     self.display.ground_truth_trace(obs.pos)
                 if args.traceestimate:
