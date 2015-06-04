@@ -193,11 +193,34 @@
     remote regions, so one of our aims in this paper will be to dispense with
     these onerous requirements.
 
-    \section{Particle filtering}
+    \section{Our approach}\label{sec:algorithm}
+    \subsection{Particle filtering}
 
-    As mentioned previously, particle filtering
+    As mentioned previously, particle filtering is a probabilistic localisation
+    method that is well suited to map-aided localisation. Internally, the
+    particle filter represents a distribution over possible vehicle states with
+    a fixed number of ``particles'', each of which represents a single sample
+    from the following distribution \citep{fox1999monte}:
 
-    \section{The localisation algorithm}\label{sec:algorithm}
+    \[
+        p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2}, \ldots, o_0)
+    \]
+
+    Where:
+
+    \begin{description}
+    \item[$s_t$] is the vehicle state at time $t$. This generally consists of a
+    latitude, longitude and heading, but may contain more information in some
+    cases.
+    \item[$o_t$] represents the set of observations made by the vehicle's
+    sensors at time $t$.
+    \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Actions do
+    not necessarily have to correspond to the output of a specific actuator; in
+    our case, we will consider a vehicle's actions to be the distances reported
+    by its wheel speed sensors. Although these are technically sensory
+    observations, it is convenient to treat them separately to the other
+    observations $o_t$ for the purposes of particle filtering.
+    \end{description}
 
     \subsection{Incorporating map data}
 
