@@ -1,5 +1,8 @@
 \documentclass[a4paper]{article}
-\usepackage{hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile}
+\usepackage{
+    hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile,
+    amsmath
+}
 \hypersetup{%
     % See
     % http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
@@ -264,6 +267,57 @@
 
     \subsection{Unavailability of odometry}
 
+    % TODO: Explain Markov chains in particle filter introduction
+    If odometry is unavailable, the transition model proposed previously will
+    cease to work, so we must produce a new transition model which does not
+    depend on odometry.
+
+    One alternative model would be to adopt a stationary transition
+    distribution, like a zero-mean Gaussian. Such a transition model would be
+    efficient and simple, but would violate the assumption that vehicle states
+    form a Markov chain, since clearly a vehicle which moves by a certain amount
+    and in a certain direction at one time step is most likely to move by a
+    similar amount and in a similar direction at the next. Concretely, violating
+    this assumption means that particles either move too little or too much at
+    each time step, depending on the vehicle's velocity.
+
+    In theory, the Markov state transition assumption can only be restored by
+    expanding the internal state representation to contain all relevant physical
+    properties of the vehicle, including position, velocity, acceleration,
+    heading, angular velocity, angular acceleration, and so on. This is, of
+    course, impossible, so we have chosen to expand the state representation to
+    contain only velocity and position. This does not truly satisfy the Markov
+    state transition assumption, since the changes in a vehicle's velocity are
+    heavily correlated over time, but we have nonetheless found that it produces
+    acceptable results.
+
+    Formally, operating without odometry requires that we replace our previous
+    state vector $s = \left(x, y, \theta\right)^T$ with a new state vector $s =
+    \left(x, y, v_x, v_y\right)^T$, where $v_x$ and $v_y$ are easting and
+    northing velocities, respectively. Given state $s_t$, our transition model
+    becomes:
+
+    \[
+        s_{t+1} = \begin{bmatrix}
+        1 & 0 & \Delta t & 0\\
+        0 & 1 & 0 & \Delta t\\
+        0 & 0 & 1 & 0\\
+        0 & 0 & 0 & 1
+        \end{bmatrix} s_t + \begin{bmatrix}
+        0\\
+        0\\
+        \epsilon_x\\
+        \epsilon_y
+        \end{bmatrix}
+    \]
+
+    % TODO: OMG I CAN DO AN AWESOME PLOT OF VELOCITY TRANSITION PROBABILITIES,
+    % THEN FIT A COVARIANCE TO IT!
+    Where $(\epsilon_x, \epsilon_y) \sim \mathcal N(\b 0, \sigma^2 \b I)$ and
+    $\Delta_t$ is the time elapsed between the $s_t$ and $s_{t+1}$. We have
+    found that $\sigma^2 = \Delta t$ works well, although in general it should
+    be possible to fit an appropriate Gaussian from training data.
+
     \section{Results}
 
     In order to evaluate the performance the map-based localisation algorithm
@@ -292,7 +346,7 @@
         \item Rescaling of reported speed by a small but random factor of at
         most 1\% in order to emulate a subtly miscalibrated odometer.
         \item Addition of Gaussian noise with zero mean and standard deviation
-        $4 \times 10^{-4}$ deg/$\mathrm s^2$.
+        $4 \times 10^{-4}$ deg/$\mathrm s^2$ to the angular acceleration data.
     \end{enumerate}
 
     These parameters do not closely reflect the characteristics of real sensor
