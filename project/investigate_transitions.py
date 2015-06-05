@@ -5,6 +5,7 @@ for the available map trajectories.
 
 Usage: <program name> <trajectory> [<trajectory> [...]]"""
 
+from bz2 import BZ2File
 from collections import defaultdict
 from sys import argv
 
@@ -20,11 +21,19 @@ if __name__ == '__main__':
     pairs = defaultdict(lambda: [])
 
     for filename in argv[1:]:
-        with open(filename) as fp:
-            traj = list(parse_map_trajectory(fp))
-            for past, present in zip(traj, traj[1:]):
-                for key in past.data.iterkeys():
-                    pairs[key].append((past[key], present[key]))
+        if filename.endswith('.bz2'):
+            trajectory_fp = BZ2File(filename)
+        else:
+            trajectory_fp = open(filename, 'rb')
+
+        try:
+            traj = list(parse_map_trajectory(trajectory_fp))
+        finally:
+            trajectory_fp.close()
+
+        for past, present in zip(traj, traj[1:]):
+            for key in past.data.iterkeys():
+                pairs[key].append((past[key], present[key]))
 
     vf_pairs = np.array(pairs['vf'])
     vf_now = vf_pairs[:, 0]
