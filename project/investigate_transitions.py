@@ -64,6 +64,14 @@ if __name__ == '__main__':
     full_data = np.zeros((vn_deltas.size, 2))
     full_data[:, 0] = ve_deltas
     full_data[:, 1] = vn_deltas
+    # Divide by magnitude of original data (gets percentage increase in a
+    # particular direction)
+    # det = 1.0 / np.linalg.norm(
+    #     np.vstack(
+    #         (ve_pairs[:, 0], vn_pairs[:, 1])
+    #     ), axis=0
+    # ).reshape((-1, 1))
+    # full_data = det * full_data
 
     print("Covariance of data:")
     print(np.cov(full_data.T))
