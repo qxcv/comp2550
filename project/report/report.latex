@@ -12,37 +12,28 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-% TODO: Reinstate this once I've got a high enough word count to reach 10 pages
-% with normal margins.
+% TODO: Reinstate this once I know how much space I need
 % \usepackage[margin=1in]{geometry}
 
 % Report plan:
 %
 % 1) Write a brief introduction outlining what I'm trying to do and why it's
-% useful. Can just reword this from project proposal and slides. Maybe 0.5-1
-% pages.
-% 2) Talk about previous work. This will hopefully take up 1-1.5 pages.
-% 3) Discuss the particle filter. I can make this as long as I want, but I
-% would like it if I could spend about 1.5 pages talking about the PF.
+% useful. Can just reword this from project proposal and slides.
+% 2) Talk about previous work.
+% 3) Discuss the particle filter.
 % 4) Now I can introduce what I actually did. Probably start with the basic
 % (map-free) structure, then move on to producing maps from OSM sources, then
 % move on to incorporating this map data, then move onto the hacks I needed to
-% complete to get the localiser to actually localise properly. This should take
-% up the bulk of the report (2-3 pages)
+% complete to get the localiser to actually localise properly.
 % 5) Experiments. This will include a table for each of the KITTI datasets
 % showing mean and standard deviation of HPE with and without the map enabled
 % for particle filtering, and at various levels of noise. Should also show one
 % or more qualitative experiments showing performance with *real* GPS data
 % (ideally without IMU). Should also talk about the defects of the algorithm
-% and how these could be fixed (e.g. with additional sensor data). This will
-% hopefully take up another 2-3 pages.
-% 6) Conclusion. This will be maybe 0.25 pages.
-% 7) References. Don't think these count towards the total page sum.
-%
-% So, adding those up, I get a minimum of 0.5+1+2+2+0.25 = 5.75 pages and a
-% maximum of 1+1.5+3+3+0.25 = 9.75 pages. Ugh, I'm going to have to be REALLY
-% verbose and include a LOT of diagrams (that's how other authors pad out their
-% papers, apparently).
+% and how these could be fixed (e.g. with additional sensor data), as that was
+% something Jose seemed quite intent on.
+% 6) Conclusion
+% 7) References
 
 \newcommand{\mat}{\mathbf}
 \renewcommand{\b}{\mathbf}
@@ -212,18 +203,44 @@
     Where:
 
     \begin{description}
-    \item[$s_t$] is the vehicle state at time $t$. This generally consists of a
-    latitude, longitude and heading, but may contain more information in some
-    cases.
-    \item[$o_t$] represents the set of observations made by the vehicle's
-    sensors at time $t$.
-    \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Actions do
-    not necessarily have to correspond to the output of a specific actuator; in
-    our case, we will consider a vehicle's actions to be the distances reported
-    by its wheel speed sensors. Although these are technically sensory
-    observations, it is convenient to treat them separately to the other
-    observations $o_t$ for the purposes of particle filtering.
+        \item[$s_t$] is the vehicle state at time $t$. This generally consists
+        of a latitude, longitude and heading, but may contain more information
+        in some cases.
+        \item[$o_t$] represents the set of observations made by the vehicle's
+        sensors at time $t$.
+        \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Actions
+        do not necessarily have to correspond to the output of a specific
+        actuator; in our case, we will consider a vehicle's actions to be the
+        distances reported by its wheel speed sensors. Although these are
+        technically sensory observations, it is convenient to treat them
+        separately to the other observations $o_t$ for the purposes of particle
+        filtering.
     \end{description}
+
+    At time $t = 0$, the particles $\left\{s_0^{(n)}\right\}_{n=1}^N$ are
+    distributed according to some chosen prior distribution over vehicle states.
+    In our case, we the positions of the initial particle set are samples from a
+    Gaussian centered on the first available GPS fix, with particle yaws
+    distributed uniformly.
+
+    At each subsequent time step, the vehicle take an action $a_t$ to yield
+    state $s_{t+1}$. After this, it may make a subsequent sensory observation
+    $o_{t+1}$, which in our case will be a GPS fix. Using this new information,
+    we may produce a new particle set $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$
+    distributed according to $p(s_{t+1} \mid o_{t+1}, a_t, \ldots, o_0)$ from
+    our previous particle set using the following process:
+
+    % TODO: Forgot to explain weights and recursive weight updating!
+    \begin{enumerate}
+        \item \textbf{Predict:} Each particle $s_{t+1}^{(n)}$ is sampled from
+        the transition distribution $p(s_{t+1} \mid s_t^{(n)}, a_t)$
+        \item \textbf{Update:} Every $s_{t+1}^{(n)}$ is then assigned a
+        weight $w_{t+1}^{(n)}$ reflecting the likelihood of the 
+        \[
+            w_{t+1}^{(n)} = \tilde p(o_{t+1} \mid s_{t+1}^{(n)})
+        \]
+        Where $\tilde p(o_{t+1} \mid s_{t+1}^{(n)})$
+    \end{enumerate}
 
     \subsection{Incorporating map data}
 
@@ -269,8 +286,8 @@
 
     % TODO: Explain Markov chains in particle filter introduction
     If odometry is unavailable, the transition model proposed previously will
-    cease to work, so we must produce a new transition model which does not
-    depend on odometry.
+    cease to work, so we must produce a new transition model and associated
+    state representation which does not depend on odometry.
 
     One alternative model would be to adopt a stationary transition
     distribution, like a zero-mean Gaussian. Such a transition model would be
