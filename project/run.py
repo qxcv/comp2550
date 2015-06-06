@@ -76,6 +76,8 @@ class StatsWriter(object):
 
 def update_filter(f, obs, dt, give_fix=False, m=None):
     if give_fix:
+        # TODO: Adapt distribution to use true covariance of position noise
+        # (when available).
         f.gps_update(obs.pos, 20)
     f.auto_resample()
     if m is not None:

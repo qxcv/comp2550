@@ -208,20 +208,31 @@
         in some cases.
         \item[$o_t$] represents the set of observations made by the vehicle's
         sensors at time $t$.
-        \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Actions
-        do not necessarily have to correspond to the output of a specific
-        actuator; in our case, we will consider a vehicle's actions to be the
-        distances reported by its wheel speed sensors. Although these are
-        technically sensory observations, it is convenient to treat them
-        separately to the other observations $o_t$ for the purposes of particle
-        filtering.
+        \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Whilst
+        these actions can correspond to throttle or steering wheel settings, it
+        is also possible to consider actions to be more high level measurements
+        like the distance travelled by the wheels of a vehicle in a single time
+        step. Although these are technically sensory observations, we will soon
+        see that it is convenient to treat them separately to the other
+        observations $o_t$.
     \end{description}
 
-    At time $t = 0$, the particles $\left\{s_0^{(n)}\right\}_{n=1}^N$ are
-    distributed according to some chosen prior distribution over vehicle states.
-    In our case, we the positions of the initial particle set are samples from a
-    Gaussian centered on the first available GPS fix, with particle yaws
-    distributed uniformly.
+    In our implementation, we have chosen the state $s_t = (x_t, y_t,
+    \theta_t)^T$ to contain an easting $x_t$, a northing $y_t$, and a yaw
+    $\theta_t$. The observations $o_t = ({f_x}_t, {f_y}_t)^T$ consist of an
+    easting ${f_x}_t$ and northing ${f_y}_t$ for the most recent GPS fix, whilst
+    the actions $a_t = (v_t, \delta \theta_t)^T$ contain a forward speed $v_t$
+    and a change in heading $\delta \theta_t$, as might be reported by a
+    speedometer and gyroscope, respectively.
+
+    Over time, a particle filter updates its internal particle set using
+    incoming observations and actions so that the particles remain distributed
+    according to $p(s_t \mid o_t, a_{t-1}, \ldots, o_0)$. This process begins at
+    time $t = 0$ by distributing the particles
+    $\left\{s_0^{(n)}\right\}_{n=1}^N$ according to some chosen prior
+    distribution over vehicle states. In our case, the positions of the initial
+    particle set are samples from a Gaussian centered on the first available GPS
+    fix, with particle yaws distributed uniformly.
 
     At each subsequent time step, the vehicle take an action $a_t$ to yield
     state $s_{t+1}$. After this, it may make a subsequent sensory observation
@@ -232,17 +243,74 @@
 
     % TODO: Forgot to explain weights and recursive weight updating!
     \begin{enumerate}
-        \item \textbf{Predict:} Each particle $s_{t+1}^{(n)}$ is sampled from
-        the transition distribution $p(s_{t+1} \mid s_t^{(n)}, a_t)$
-        \item \textbf{Update:} Every $s_{t+1}^{(n)}$ is then assigned a
-        weight $w_{t+1}^{(n)}$ reflecting the likelihood of the 
+        \item \textbf{Predict:} A new set of particles
+        $\left\{{s_{t+1}^{(n)}}'\right\}_{n=1}^N$ is sampled from the transition
+        distribution, $p(s_{t+1} \mid s_t, a_t)$, using the last observed action
+        $a_t$ and the set of particles from the previous time step:
         \[
-            w_{t+1}^{(n)} = \tilde p(o_{t+1} \mid s_{t+1}^{(n)})
+            {s_{t+1}^{(n)}}' \sim p(s_{t+1} \mid s_t^{(n)}, a_t)
         \]
-        Where $\tilde p(o_{t+1} \mid s_{t+1}^{(n)})$
+        \item \textbf{Update:} Every ${s_{t+1}^{(n)}}'$ is then assigned a
+        weight $w_{t+1}^{(n)}$ reflecting the likelihood of the most recent
+        observation $o_{t+1}$ in $s_{t+1}^{(n)}$:
+        \[
+            w_{t+1}^{(n)} = \tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')
+        \]
+        Where $\tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')$ % TODO
+        \item \textbf{Resample:} Finally, a new set of particles
+        $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$ is produced by drawing $N$
+        particles, with replacement, from
+        $\left\{{s_{t+1}^{(n)}}'\right\}_{n=1}^N$ using the weights
+        $\left\{w_{t+1}^{(n)}\right\}_{n=1}^N$
     \end{enumerate}
 
+    % TODO: Explain how SIR ensures that the new particles are distributed the
+    % way we want them to be.
+
+    % TODO: Talk about transition distribution we use
+
+    % TODO: GPS update weight
+    If a GPS fix at easting and northing $({f_x}_t, {f_y}_t)^T$ was observed
+    between time steps $t$ and $t + 1$, we set the weight $w_{t+1}^{(n)}$
+    associated with the particle $s_{t+1}^{(n)} = (x_t, y_t, \theta_t)^T$ to:
+
+    \begin{equation}\label{eq:gpsweight}
+        w_{t+1}^{(n)} = \exp\left(
+            -\frac{1}{2} \left(
+                \begin{bmatrix}x_t\\y_t\end{bmatrix}
+                -
+                \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
+            \right)^T \Sigma^{-1} \left(
+                \begin{bmatrix}x_t\\y_t\end{bmatrix}
+                -
+                \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
+            \right)
+        \right)
+    \end{equation}
+
+    This corresponds to an unnormalised Gaussian distribution with mean
+    $({f_x}_t, {f_y}_t)^T$ and precision $\Sigma^{-1}$. We have found that a
+    precision of the form $\sigma^{-2} I$, where $\sigma^{-2}$ is derived
+    empirically, yields good results.
+
+    In reality, GPS likelihood is not uniformly distributed, as GPS errors
+    instead follow a complicated distribution governed by atmospheric
+    interference, multipath fading, and other factors \citep{bajaj2002gps}.
+    However, other authors have found similar Gaussian-based modelling
+    strategies to be effective
+    \citep{el2005road,selloum2009lane,toledo2009fusing}, so we have adopted one
+    here.
+
+    If GPS data is temporarily unavailable, we simply initialise weights
+    uniformly, rather than applying Equation~\ref{eq:gpsweight}. Intuitively,
+    this will cause particles to spread outwards according to the transition
+    distribution until GPS fixes become available again to decrease the weight
+    of particles far away from the vehicle's true position. This behaviour is
+    examined as part of the qualitative comparison performed in
+    Section~\ref{sec:results}.
+
     \subsection{Incorporating map data}
+    \label{sec:mapdata}
 
     Whilst other authors have attempted to incorporate street map data into the
     particle filtering process by extending each particle's state to include an
@@ -256,9 +324,9 @@
     % TODO: Update this when I'm finished. I'll probably choose a completely
     % different pseudolikelihood before I'm done, since this one seems
     % excessively restrictive (and leads to numerical issues).
-    \[
+    \begin{equation}\label{eq:mapweight}
         w^{(n)} \leftarrow \frac{w^{(n)}}{\left(1 + d_n^2\right)^{1.1}}
-    \]
+    \end{equation}
 
     We have found that this pseudo-likelihood does a reasonable job of
     forcing particles to remain near the road without preventing the particles
@@ -279,8 +347,6 @@
     provided by \citet{alliez20153d} yields good performance for this task,
     taking around 50ms to perform the calculations for 2000 particles on a map
     of 3220 segments using a 2.5GHz Intel Core i5 processor.
-
-    \subsection{GPS dropouts}
 
     \subsection{Unavailability of odometry}
 
@@ -335,7 +401,7 @@
     found that $\sigma^2 = \Delta t$ works well, although in general it should
     be possible to fit an appropriate Gaussian from training data.
 
-    \section{Results}
+    \section{Results}\label{sec:results}
 
     In order to evaluate the performance the map-based localisation algorithm
     proposed in Section~\ref{sec:algorithm}, we utilised both quantitative and
@@ -367,12 +433,11 @@
     \end{enumerate}
 
     These parameters do not closely reflect the characteristics of real sensor
-    noise. In particular, real GPS error tends to be highly time-correlated, but
-    with an unpredictable distribution governed by atmospheric interference,
-    multipath fading, and so on \citep{bajaj2002gps}. Nonetheless, this
-    ``roughening'' process does an excellent job of illustrating the difference
-    in performance between plain particle filtering and map-aided particle
-    filtering in the presence of non-ideal sensory input.
+    noise. In particular, as mentioned previously, real GPS error tends to be
+    highly time-correlated, but with an unpredictable distribution. Nonetheless,
+    this ``roughening'' process does an excellent job of illustrating the
+    difference in performance between plain particle filtering and map-aided
+    particle filtering in the presence of non-ideal sensory input.
 
     % TODO: Actually do the comparison and write up a table here
 
@@ -410,7 +475,7 @@
     shown as a red cross, whilst the particle filter's state estimate is shown
     as a blue triangle and its particles are shown as red circles, with the area
     of each circle proportional to the corresponding particle's weight. The
-    network of blue lines represent line centrelines.}
+    network of blue lines represent the centrelines of road lanes.}
     \label{fig:qual}
     \end{figure*}
 
