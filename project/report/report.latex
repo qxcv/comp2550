@@ -1,7 +1,7 @@
 \documentclass[a4paper]{article}
 \usepackage{
     hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile,
-    amsmath
+    amsmath,amssymb
 }
 \hypersetup{%
     % See
@@ -217,14 +217,6 @@
         observations $o_t$.
     \end{description}
 
-    In our implementation, we have chosen the state $s_t = (x_t, y_t,
-    \theta_t)^T$ to contain an easting $x_t$, a northing $y_t$, and a yaw
-    $\theta_t$. The observations $o_t = ({f_x}_t, {f_y}_t)^T$ consist of an
-    easting ${f_x}_t$ and northing ${f_y}_t$ for the most recent GPS fix, whilst
-    the actions $a_t = (v_t, \delta \theta_t)^T$ contain a forward speed $v_t$
-    and a change in heading $\delta \theta_t$, as might be reported by a
-    speedometer and gyroscope, respectively.
-
     Over time, a particle filter updates its internal particle set using
     incoming observations and actions so that the particles remain distributed
     according to $p(s_t \mid o_t, a_{t-1}, \ldots, o_0)$. This process begins at
@@ -241,7 +233,6 @@
     distributed according to $p(s_{t+1} \mid o_{t+1}, a_t, \ldots, o_0)$ from
     our previous particle set using the following process:
 
-    % TODO: Forgot to explain weights and recursive weight updating!
     \begin{enumerate}
         \item \textbf{Predict:} A new set of particles
         $\left\{{s_{t+1}^{(n)}}'\right\}_{n=1}^N$ is sampled from the transition
@@ -253,21 +244,84 @@
         \item \textbf{Update:} Every ${s_{t+1}^{(n)}}'$ is then assigned a
         weight $w_{t+1}^{(n)}$ reflecting the likelihood of the most recent
         observation $o_{t+1}$ in $s_{t+1}^{(n)}$:
-        \[
+        \begin{equation}\label{eq:update}
             w_{t+1}^{(n)} = \tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')
-        \]
-        Where $\tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')$ % TODO
+        \end{equation}
+        Where $\tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')$ is the likelihood of the
+        observation $o_{t+1}$ being made in state $s_{t+1}^{(n)}$.
         \item \textbf{Resample:} Finally, a new set of particles
         $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$ is produced by drawing $N$
         particles, with replacement, from
         $\left\{{s_{t+1}^{(n)}}'\right\}_{n=1}^N$ using the weights
-        $\left\{w_{t+1}^{(n)}\right\}_{n=1}^N$
+        $\left\{w_{t+1}^{(n)}\right\}_{n=1}^N$. In some cases, this resampling
+        step is omitted, and the weight set is instead carried over to the next
+        iteration, in which case the next set of particles will be calculates
+        using
+        \[
+            w_{t+1}^{(n)} = w_t^{(n)} \tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')
+        \]
+        in preference to Equation~\ref{eq:update}. In some cases, the resampling
+        step is only performed once the number of effective particles,
+        $N_\mathrm{eff} = \left(\sum_{n=1}^N {w_t^{(n)}}^2\right)^{-1}$ falls
+        below some threshold \citep{pf2002}.
     \end{enumerate}
 
-    % TODO: Explain how SIR ensures that the new particles are distributed the
-    % way we want them to be.
+    Finally, the expected vehicle position at time $t+1$ can be expressed as:
 
-    % TODO: Talk about transition distribution we use
+    \[
+        \mathbb E[s_{t+1}] \approx \begin{cases}
+            \frac{1}{N} \sum_{n=1}^N s_{t+1}^{(n)} & \text{if resampling was
+            performed}\\
+            \sum_{n=1}^N w_{t+1}^{(n)} s_{t+1}^{(n)} & \text{otherwise}
+        \end{cases}
+    \]
+
+    In statistics, this process is known as Sequential Importance Resampling
+    (SIR), and is explained at length by \citet{smith1992bayesian}. One
+    important requirement of SIR is that states obey the Markov property; that
+    is, the state $s_{t+1}$ is dependent only on the state $s_t$, the action
+    $a_t$ and the observation $o_{t+1}$ \citep{dellaert1999monte}. In
+    Section~\ref{sec:odomunavail}, we will investigate a case in which this
+    property must be taken into consideration.
+
+    \subsection{Basic particle filter configuration}
+
+    In our implementation, we have chosen the state $s_t = (x_t, y_t,
+    \theta_t)^T$ to contain an easting $x_t$, a northing $y_t$, and a yaw
+    $\theta_t$. The observations $o_t = ({f_x}_t, {f_y}_t)^T$ consist of an
+    easting ${f_x}_t$ and northing ${f_y}_t$ for the most recent GPS fix, whilst
+    the actions $a_t = (v_t, \omega_t)^T$ contain a forward speed $v_t$ and a
+    change in heading $\omega_t$, as might be reported by a speedometer and
+    gyroscope, respectively.
+
+
+    The transition distribution $p(s_{t+1} \mid s_t, a_t)$ chosen for our
+    application updates particles utilising the vehicle's forward speed $v_t$
+    and angular velocity $\omega_t$ at time $t$. Concretely, each particle
+    particle $s_t^{(n)} = (x_t^{(n)}, y_t^{(n)}, \theta_t^{(n)})^T$ is updated
+    using the following equations:
+
+    % TODO: These aren't physically accurate. Should either cite someone who
+    % does the same (wrong, but easy) thing or fix this problem by averaging
+    % forward speeds at different time steps
+    \begin{align*}
+        \theta_{t+1} &= \theta_t + \omega_t' \Delta t\\
+        x_{t+1} &= x_t + v_t' \cos(\theta_t) \Delta t\\
+        y_{t+1} &= y_t + v_t' \sin(\theta_t) \Delta t
+    \end{align*}
+
+    Where $\omega_t' \sim \mathcal N(\omega_t, \sigma_\omega^2)$ and $v_t' \sim
+    \mathcal N(v_t, \beta v_t^2)$ are random variables drawn from distributions
+    representing uncertainty about the true speed and angular velocity of the
+    vehicle \citep{thrun2001robust}. We found that the parameters
+    $\sigma_\omega^2 = 0.15$ and $\beta = 0.36$ worked well for this purpose.
+
+    When odometry is unavailable, it is not be possible to accurately derive the
+    forward speed $v_t$ and angular velocity $\omega_t$ necessary to update
+    particles using the aforementioned transition distribution. In
+    Section~\ref{sec:odomunavail}, we will discuss the changes which must be
+    made to the state representation and transition distribution in order to
+    support localisation in this more challenging case.
 
     % TODO: GPS update weight
     If a GPS fix at easting and northing $({f_x}_t, {f_y}_t)^T$ was observed
@@ -316,23 +370,25 @@
     particle filtering process by extending each particle's state to include an
     associated road segment \citep{selloum2009lane,toledo2009fusing}, we have
     found that the fastest way of incorporating map data is by way of a
-    pseudo-likelihood during the particle filter's update step. Concretely,
-    for each particle $n$, we calculate the distance $d_n$ to the road segment
-    in the stored digital street map, then update the weight $w^{(n)}$ of the
-    stored particle using:
+    pseudo-likelihood during the particle filter's update step. Concretely, for
+    each particle $s_t^{(n)}$, we calculate the distance $d_t^{(n)}$ to the road
+    segment in the stored digital street map, then update the weight $w_t^{(n)}$
+    of the stored particle using:
 
     % TODO: Update this when I'm finished. I'll probably choose a completely
     % different pseudolikelihood before I'm done, since this one seems
     % excessively restrictive (and leads to numerical issues).
     \begin{equation}\label{eq:mapweight}
-        w^{(n)} \leftarrow \frac{w^{(n)}}{\left(1 + d_n^2\right)^{1.1}}
+        w_t^{(n)} \leftarrow \frac{w_t^{(n)}}{\left(1 + {d_t^{(n)}}^2\right)^{1.1}}
     \end{equation}
 
-    We have found that this pseudo-likelihood does a reasonable job of
-    forcing particles to remain near the road without preventing the particles
-    from ``drifting'' away when GPS fixes are a long way from the map. This
-    ensures that the vehicle is still able to localise itself when it is
-    travelling on unmapped roads.
+    Whilst this pseudo-likelihood is not reflective of the true likelihood
+    $p(d_t^{(n)} \mid s_t^{(n)})$, we have nonetheless found that it does a
+    reasonable job of forcing particles to remain near the road without
+    preventing the particles from ``drifting'' away from the map when the
+    vehicle's true position is far from a mapped feature. This ensures that the
+    vehicle is still able to localise itself when it is travelling on unmapped
+    roads.
 
     % TODO: Can probably motivate this a little more by referring to SIR. Also,
     % I really need to look into ignoring map updates when the map is a suitable
@@ -349,6 +405,7 @@
     of 3220 segments using a 2.5GHz Intel Core i5 processor.
 
     \subsection{Unavailability of odometry}
+    \label{sec:odomunavail}
 
     % TODO: Explain Markov chains in particle filter introduction
     If odometry is unavailable, the transition model proposed previously will
@@ -412,6 +469,8 @@
     using more realistic consumer-grade localisation data, which unfortunately
     did not include a ground truth for use in numerical comparisons.
 
+    \subsection{Quantitative tests}
+
     The quantitative tests utilised the data set presented by
     \citet{brubaker2013lost}, which includes a number of GPS traces along with
     OpenStreetMap data for the regions immediately surrounding the traces. The
@@ -440,6 +499,8 @@
     particle filtering in the presence of non-ideal sensory input.
 
     % TODO: Actually do the comparison and write up a table here
+
+    \subsection{Qualitative tests}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
     (personal communication, May 12, 2015), which was produced from several

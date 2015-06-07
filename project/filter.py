@@ -144,9 +144,6 @@ class ParticleFilter(object):
         noisy_yaws = np.random.normal(
             yaw_diff, yaw_sigma, (self.num_points,)
         )
-        # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
-        # when we resample
-        self.yaws += dt * noisy_yaws
         # We're using a Gaussian because it's easy to sample from and gives
         # values in (-inf, inf)
         odom_noisy = np.random.normal(
@@ -155,6 +152,9 @@ class ParticleFilter(object):
         noisy_odom = dt * odom_noisy
         self.coords[:, 0] += noisy_odom * np.cos(self.yaws)
         self.coords[:, 1] += noisy_odom * np.sin(self.yaws)
+        # Don't worry about forcing yaws into [0, 2 * pi), since we'll do that
+        # when we resample
+        self.yaws += dt * noisy_yaws
 
     def predict_no_imu(self, dt):
         """Run predict step of PF when no IMU is available. Uses a fixed,
