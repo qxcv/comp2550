@@ -501,6 +501,12 @@
     particle filtering in the presence of non-ideal sensory input.
 
     % TODO: Actually do the comparison and write up a table here
+    \begin{figure}
+        \centering
+        \input{images/boxplot.pgf}
+        \caption{TODO}
+        \label{fig:boxplot}
+    \end{figure}
 
     \subsection{Qualitative tests}
 
