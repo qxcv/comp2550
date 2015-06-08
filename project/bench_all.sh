@@ -90,7 +90,7 @@ plt.legend(
     (rects[0], rects[1]), ('With map', 'Without map'), loc='best',
     fontsize='small'
 )
-plt.xlabel('Data set')
+plt.xlabel('Trace number')
 plt.ylabel('HPE (m)')
 plt.title('Particle filter horizontal positioning error')
 plt.ylim(ymax=40, ymin=0)

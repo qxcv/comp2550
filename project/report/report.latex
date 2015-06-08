@@ -1,5 +1,5 @@
 \documentclass[a4paper]{article}
-\usepackage{
+\usepackage{%
     hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile,
     amsmath,amssymb
 }
@@ -486,7 +486,7 @@
     \begin{enumerate}
         \item Downsampling of GPS-like positioning information from 10Hz to 1Hz.
         \item Addition of isotropic Gaussian-distributed white noise with zero
-        mean and variance $64$$\mathrm m^2$ to the positioning information.
+        mean and variance $64\mathrm m^2$ to the positioning information.
         \item Rescaling of reported speed by a small but random factor of at
         most 1\% in order to emulate a subtly miscalibrated odometer.
         \item Addition of Gaussian noise with zero mean and standard deviation
@@ -504,9 +504,18 @@
     \begin{figure}
         \centering
         \input{images/boxplot.pgf}
-        \caption{TODO}
+        \caption{Distribution of Horizontal Positioning Error (HPE) when using
+        particle filtering with and without map information. HPE was measured
+        over time 10Hz on each of the 11 vehicle localisation traces provided by
+        \citet{brubaker2013lost}.}
         \label{fig:boxplot}
     \end{figure}
+
+     % TODO: What happens when we lose map data?
+     % TODO: Fix up positioning system performance! I think my current map prior
+     % is far too tight, so I should loosen it up a bit. Further, I should
+     % implement the ``particle scattering'' technique espoused by Fox,
+     % Dellaert, Burgard & Thrun.
 
     \subsection{Qualitative tests}
 
