@@ -323,7 +323,6 @@
     made to the state representation and transition distribution in order to
     support localisation in this more challenging case.
 
-    % TODO: GPS update weight
     If a GPS fix at easting and northing $({f_x}_t, {f_y}_t)^T$ was observed
     between time steps $t$ and $t + 1$, we set the weight $w_{t+1}^{(n)}$
     associated with the particle $s_{t+1}^{(n)} = (x_t, y_t, \theta_t)^T$ to:
@@ -407,7 +406,6 @@
     \subsection{Unavailability of odometry}
     \label{sec:odomunavail}
 
-    % TODO: Explain Markov chains in particle filter introduction
     If odometry is unavailable, the transition model proposed previously will
     cease to work, so we must produce a new transition model and associated
     state representation which does not depend on odometry.
@@ -468,6 +466,10 @@
     other hand, the qualitative tests attempted to examine algorithm performance
     using more realistic consumer-grade localisation data, which unfortunately
     did not include a ground truth for use in numerical comparisons.
+
+    The code and data used to produce all figures and statistics in this report
+    is available
+    online.\footnote{\url{https://github.com/qxcv/comp2550/tree/master/project}}
 
     \subsection{Quantitative tests}
 
@@ -546,6 +548,8 @@
     % that my algorithm reduces along-track error quite helpful.
 
     \section{Conclusion}
+
+    % TODO
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
