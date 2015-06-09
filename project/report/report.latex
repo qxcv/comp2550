@@ -531,6 +531,7 @@
     \setlength{\tabcolsep}{0pt}
     % TODO: Good idea to timestamp these :-)
     \begin{tabular}{cccc}
+    \multicolumn{4}{c}{With map information:}\\
     \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-9.2.png}
     &
     \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-12.4.png}
@@ -539,13 +540,16 @@
     &
     \includegraphics[width=0.25\textwidth]{spliced/with-map.avi-16.8.png}
     \\
+    \multicolumn{4}{c}{Without map information:}\\
     \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-9.2.png}
     &
     \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-12.4.png}
     &
     \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-14.4.png}
     &
-    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-16.8.png}
+    \includegraphics[width=0.25\textwidth]{spliced/without-map.avi-16.8.png}\\
+    {\small After initialisation} & {\small Entering tunnel} &
+    \multicolumn{2}{c}{\small In tunnel; GPS unavailable}
     \end{tabular}
     \caption{Qualitative comparison of the map-aided particle filter (top) with
     an equivalent particle filter not making use of map information (bottom).
@@ -561,6 +565,15 @@
     % built-up areas because of the fact that buildings, which cause multipath
     % interference, are located on either side of the road. This makes the fact
     % that my algorithm reduces along-track error quite helpful.
+
+    \subsection{Shortcomings and future work}
+
+    % TODO: I want to talk about:
+    % 1) Lack of lane-level positioning. You really need vision for this.
+    % 2) Headings are really hard to get right. If the filter gets an incorrect
+    %    heading estimate, it will continue to mess up heading FOREVER. Using
+    %    GPS heading estimates seems like a good way to fix this for fast moving
+    %    vehicles. Use map #6 as an example :-)
 
     \section{Conclusion}
 

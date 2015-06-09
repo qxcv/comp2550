@@ -65,7 +65,7 @@ matplotlib.rcParams.update({
 })
 
 # Now make a box chart showing horizontal positioning error
-bp = plt.boxplot(all_hpes)
+bp = plt.boxplot(all_hpes, sym='')
 plt.setp(bp['boxes'], color='black')
 plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='black')
@@ -93,7 +93,7 @@ plt.legend(
 plt.xlabel('Trace number')
 plt.ylabel('HPE (m)')
 plt.title('Particle filter horizontal positioning error')
-plt.ylim(ymax=40, ymin=0)
+plt.ylim(ymin=0)
 
 # Remove redundant whitespace and fit plot to a single page
 # TODO: Make the plot wider
@@ -117,11 +117,15 @@ case $1 in
             map=data/kitti/${id}.osm.bz2
             echo "Spawning processes for trajectory $id"
             child_block
+            set -x
             $RUN --enablemapfilter --out "$DEST_DIR/${id}-map.csv" \
                 "$trajectory" "$map" &
+            set +x
             child_block
+            set -x
             $RUN --enableplainfilter --out "$DEST_DIR/${id}-plain.csv" \
                 "$trajectory" "$map" &
+            set +x
             echo "Spawning for $id done"
             sleep 2
         done
