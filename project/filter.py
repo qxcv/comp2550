@@ -107,7 +107,7 @@ class ParticleFilter(object):
         """Measure a GPS-like sensor reading with Cartesian coordinates given
         by ``mean`` and uncertainty represented by an isotropic Gaussian with
         standard deviation ``stddev``"""
-        precision = (np.eye(2) / stddev) ** 2
+        precision = (np.eye(2) / (stddev ** 2))
         diffs = self.coords - mean
         by_precision = np.dot(precision, diffs.T).T
         # We don't need to normalise, so these aren't exactly Gaussians

@@ -26,24 +26,20 @@ def noisify(obs_gen, gps_stddev, speed_noise, gyro_stddev):
     assert gyro_stddev >= 0
     assert gps_stddev >= 0
 
-    # Emulates a miscalibrated speedometer. At most +-2.5km/h of error at
-    # 100km/h
+    # Emulates a miscalibrated speedometer
     speedo_multiplier = 1 + np.random.uniform(-speed_noise, speed_noise)
 
     for obs in obs_gen:
         new_obs = deepcopy(obs)
 
-        # Add GPS noise. This is not a very good emulation, because it grows
-        # without bound, but it will have to do for now (why implement
-        # something more complicated when you have NFI what GPS noise actually
-        # looks like?).
+        # Add some white normal noise to simulate an inaccurate positioning
+        # sensor. This is *not* a GPS-like noise model, but should do for now.
         new_obs.pos = np.random.multivariate_normal(
             obs.pos, gps_stddev**2 * np.eye(2)
         )
 
-        # Add gyro noise. I got this formula out of thin air BECAUSE NOBODY
-        # CARES ABOUT PRECISE NOISE MODELS. Anyway, this will keep 95% of
-        # measurements within 5% of their true values.
+        # Add gyro noise. This will keep 95% of measurements within 5% of their
+        # true values.
         if 'wu' in new_obs:
             new_obs['wu'] += np.random.normal(0, gyro_stddev)
 
