@@ -361,7 +361,16 @@
     examined as part of the qualitative comparison performed in
     Section~\ref{sec:results}.
 
-    % TODO
+    Every time a GPS fix becomes available, we also choose to scatter a small
+    proportion (approximately 0.5\%) of particles in a normal distribution about
+    the GPS fix. This ensures that the vehicle is able to re-localise itself
+    correctly in the event that the particle filter's internal state estimate
+    diverges too far from the vehicle's true position. Although there is no
+    direct analogue to this strategy in the traditional SIR framework,
+    \citet{fox1999monte} argue that it is theoretically sound in cases where the
+    scattered particles are subsequently weighted correctly according to $p(o_t
+    \mid s_t)$ and are sampled from a distribution which is nonzero over all
+    locations where $p(s_t \mid o_t, a_{t-1}, \ldots, o_0)$ is nonzero.
 
     \subsection{Incorporating map data}
     \label{sec:mapdata}
