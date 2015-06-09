@@ -515,8 +515,9 @@
         \centering
         \input{images/boxplot.pgf}
         \caption{Distribution of Horizontal Positioning Error (HPE) when using
-        particle filtering with and without map information. HPE was measured
-        over time 10Hz on each of the 11 vehicle localisation traces provided by
+        particle filtering with and without map information. Numbers at the top
+        of each column indicate mean HPE. HPE was measured over time 10Hz on
+        each of the 11 vehicle localisation traces provided by
         \citet{brubaker2013lost}.}
         \label{fig:boxplot}
     \end{figure}

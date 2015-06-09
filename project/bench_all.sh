@@ -66,11 +66,20 @@ matplotlib.rcParams.update({
 
 # Now make a box chart showing horizontal positioning error
 bp = plt.boxplot(all_hpes, sym='')
+
+# Make everything BLACK
 plt.setp(bp['boxes'], color='black')
 plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='black')
+
+# Set y limit correctly so that we can use it later
+plt.ylim(ymin=0, ymax=50)
+y_min, y_max = plt.ylim()
+top_offset = y_max - 0.04 * (y_max - y_min)
+
 rects = []
 for idx, box in enumerate(bp['boxes']):
+    # Fill the box with the correct colour
     box.set_fillstyle('none')
     xdata = box.get_xdata()
     xstart = min(xdata)
@@ -85,15 +94,22 @@ for idx, box in enumerate(bp['boxes']):
     plt.gca().add_patch(r)
     rects.append(r)
 
+    # Add in a mean indicator
+    hpe = all_hpes[idx]
+    mean = '{:.2f}'.format(np.mean(hpe))
+    plt.text(
+        xstart + width / 2.0, top_offset, str(mean), ha='center', va='top',
+        fontsize='x-small', rotation=90
+    )
+
 plt.xticks(np.arange(len(all_hpes))+1, map_names)
 plt.legend(
-    (rects[0], rects[1]), ('With map', 'Without map'), loc='best',
-    fontsize='small'
+    (rects[0], rects[1]), ('With map', 'Without map'), loc='upper right',
+    bbox_to_anchor=(0.975, 0.85), fontsize='small'
 )
 plt.xlabel('Trace number')
 plt.ylabel('HPE (m)')
 plt.title('Particle filter horizontal positioning error')
-plt.ylim(ymin=0)
 
 # Remove redundant whitespace and fit plot to a single page
 # TODO: Make the plot wider
