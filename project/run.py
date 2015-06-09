@@ -76,7 +76,8 @@ class StatsWriter(object):
 
 def update_filter(f, obs, dt, give_fix=False, m=None):
     if give_fix:
-        f.gps_update(obs.pos, args.gpsstddev)
+        std = args.gpsstddev
+        f.gps_update(obs.pos, 8 if std == 0 else std)
     f.auto_resample()
     if m is not None:
         f.map_update(m)

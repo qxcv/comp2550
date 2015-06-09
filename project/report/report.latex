@@ -294,7 +294,6 @@
     change in heading $\omega_t$, as might be reported by a speedometer and
     gyroscope, respectively.
 
-
     The transition distribution $p(s_{t+1} \mid s_t, a_t)$ chosen for our
     application updates particles utilising the vehicle's forward speed $v_t$
     and angular velocity $\omega_t$ at time $t$. Concretely, each particle
@@ -361,6 +360,8 @@
     of particles far away from the vehicle's true position. This behaviour is
     examined as part of the qualitative comparison performed in
     Section~\ref{sec:results}.
+
+    % TODO
 
     \subsection{Incorporating map data}
     \label{sec:mapdata}
