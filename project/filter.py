@@ -107,6 +107,16 @@ class ParticleFilter(object):
         """Measure a GPS-like sensor reading with Cartesian coordinates given
         by ``mean`` and uncertainty represented by an isotropic Gaussian with
         standard deviation ``stddev``"""
+        # Scatter a handful of particles around the fix
+        num_to_scatter = max(1, int(0.005 * self.num_points))
+        indices = np.random.permutation(self.num_points)[:num_to_scatter]
+        self.weights[indices] = 1.0 / num_to_scatter
+        self.coords[indices] = np.random.multivariate_normal(
+            mean, stddev ** 2 * np.eye(2), num_to_scatter
+        )
+        self.yaws[indices] = np.random.uniform(0, 2 * np.pi, num_to_scatter)
+
+        # Next, update the weights of all particles
         precision = (np.eye(2) / (stddev ** 2))
         diffs = self.coords - mean
         by_precision = np.dot(precision, diffs.T).T
