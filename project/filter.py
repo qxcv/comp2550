@@ -110,7 +110,6 @@ class ParticleFilter(object):
         # Scatter a handful of particles around the fix
         num_to_scatter = max(1, int(0.005 * self.num_points))
         indices = np.random.permutation(self.num_points)[:num_to_scatter]
-        self.weights[indices] = 1.0 / num_to_scatter
         self.coords[indices] = np.random.multivariate_normal(
             mean, stddev ** 2 * np.eye(2), num_to_scatter
         )
