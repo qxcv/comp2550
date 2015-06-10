@@ -12,8 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-% TODO: Reinstate this once I know how much space I need
-% \usepackage[margin=1in]{geometry}
+\usepackage[margin=1.5in]{geometry}
 
 % Report plan:
 %
@@ -510,7 +509,6 @@
     difference in performance between plain particle filtering and map-aided
     particle filtering in the presence of non-ideal sensory input.
 
-    % TODO: Actually do the comparison and write up a table here
     \begin{figure}
         \centering
         \input{images/boxplot.pgf}
@@ -522,11 +520,36 @@
         \label{fig:boxplot}
     \end{figure}
 
-     % TODO: What happens when we lose map data?
-     % TODO: Fix up positioning system performance! I think my current map prior
-     % is far too tight, so I should loosen it up a bit. Further, I should
-     % implement the ``particle scattering'' technique espoused by Fox,
-     % Dellaert, Burgard & Thrun.
+    The results of this comparison are shown in Figure~\ref{fig:boxplot}.
+    Clearly, map-aided particle filtering offers a significant advantage over
+    plain particle filtering, with mean horizontal positioning error of the
+    map-aided method usually around half that of the method with no map
+    information.
+
+    Typically, the effect of the map data is to constrain the lateral movement
+    of particles. Figure~\ref{fig:latmove} illustrates this phenomenon. Whilst
+    the map prior does nothing to constrain the spread of the particles in the
+    direction of the road, it does constrain the spread of the particles
+    perpendicular to it. It is anticipated that this property would be
+    especially useful in urban canyon environments, where GPS satellites on
+    either side of a vehicle are typically blocked out by buildings. This has
+    the effect of increasing positioning error perpendicular to the road without
+    affecting positioning error in the direction of the road, so a weighting
+    step which constrains particles to positions near the road should yield a
+    significant increase in particle filter performance
+    \citet{modsching2006field}.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\textwidth]{images/map-spread.png}
+        \includegraphics[width=0.4\textwidth]{images/no-map-spread.png}
+        \caption{Images showing the particle spread induced by a map-aided
+        particle filter (left) versus that induced by a non-map-aided particle
+        filter (right).}
+        \label{fig:latmove}
+    \end{figure}
+    % TODO: What happens when we lose map data? Need a trace where the PF goes
+    % off road.
 
     \subsection{Qualitative tests}
 

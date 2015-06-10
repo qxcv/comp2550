@@ -73,7 +73,7 @@ plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='black')
 
 # Set y limit correctly so that we can use it later
-plt.ylim(ymin=0, ymax=50)
+plt.ylim(ymin=0, ymax=25)
 y_min, y_max = plt.ylim()
 top_offset = y_max - 0.04 * (y_max - y_min)
 
