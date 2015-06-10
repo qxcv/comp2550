@@ -24,7 +24,7 @@ scrape() {
     args=""
     for id in {00..10}; do
         prefix="$DEST_DIR/${id}"
-        args="$args?:delim:?$prefix-map.csv?:delim:?$prefix-plain.csv?:delim:?$prefix-raw.csv"
+        args="$args?:delim:?$prefix-map.csv?:delim:?$prefix-plain.csv"
     done
 
     script="`mktemp`"
@@ -43,18 +43,15 @@ from matplotlib.patches import Rectangle
 paths = argv[1].split('?:delim:?')[1:]
 map_names = [basename(p).split('-')[0] for p in paths]
 loaded = list(map(pd.read_csv, paths))
-with_map = loaded[::3]
-without_map = loaded[1::3]
-raw = loaded[2::3]
+with_map = loaded[::2]
+without_map = loaded[1::2]
 map_hpe = [table['map_hpe'].as_matrix() for table in with_map]
 plain_hpe = [table['plain_hpe'].as_matrix() for table in without_map]
-raw_hpe = [table['gps_hpe'].as_matrix() for table in raw]
-all_hpes = list(chain.from_iterable(zip(map_hpe, plain_hpe, raw_hpe)))
+all_hpes = list(chain.from_iterable(zip(map_hpe, plain_hpe)))
 
 colours = (
-    (0.184, 0.255, 0.447),
-    (0.651, 0.663, 0.22),
-    (0.667, 0.247, 0.224)
+    (0.161, 0.31, 0.427),
+    (0.667, 0.475, 0.224)
 )
 
 # Make Matplotlib use Computer Modern for our PGF diagrams
@@ -105,10 +102,10 @@ for idx, box in enumerate(bp['boxes']):
         fontsize='x-small', rotation=90
     )
 
-plt.xticks(np.arange(2, len(all_hpes) + 2, 3), map_names[1::3])
+plt.xticks(np.arange(len(all_hpes))+1, map_names)
 plt.legend(
-    (rects[0], rects[1], rects[2]), ('With map', 'Without map', 'No PF'),
-    loc='upper right', bbox_to_anchor=(0.975, 0.85), fontsize='small'
+    (rects[0], rects[1]), ('With map', 'Without map'), loc='upper right',
+    bbox_to_anchor=(0.975, 0.85), fontsize='small'
 )
 plt.xlabel('Trace number')
 plt.ylabel('HPE (m)')
@@ -144,11 +141,6 @@ case $1 in
             set -x
             $RUN --enableplainfilter --out "$DEST_DIR/${id}-plain.csv" \
                 "$trajectory" "$map" &
-            set +x
-            child_block
-            set -x
-            $RUN --enablerawgps --out "$DEST_DIR/${id}-raw.csv" \
-                "$trajectory" "$map" --gpsstddev 0 &
             set +x
             echo "Spawning for $id done"
             sleep 2
