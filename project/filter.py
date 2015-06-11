@@ -131,6 +131,11 @@ class ParticleFilter(object):
         dists = np.zeros((self.num_points,))
         for idx, point in enumerate(self.coords):
             dists[idx] = m.nearest_lane_dist(point)
+        if np.percentile(dists, 5) > 15:
+            # Don't bother incorporating weights if the 95%+ of particles are
+            # more than 15m from a road. In that case, we can safely assume
+            # that we're off the road.
+            return
         factors = 1.0 / ((1 + dists ** 2) ** 1.1)
         self.weights *= factors
 
