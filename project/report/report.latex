@@ -12,7 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-% \usepackage[margin=1.5in]{geometry}
+% \usepackage[margin=1in]{geometry}
 
 % Remember: should talk about the defects of the algorithm and how these could
 % be fixed (e.g. with additional sensor data), as that was something Jose seemed
@@ -547,19 +547,6 @@
         \label{fig:wrong-road}
     \end{figure}
 
-    Unfortunately, this same tendency to draw particles in towards the road can,
-    in some cases, decrease localisation performance. An example of this is
-    given in Figure~\ref{fig:wrong-road}: the particle filter has localised
-    itself on the left two lanes of the four lane road, but the vehicle is
-    actually travelling in one of the right lanes. Fixing this defect is
-    challenging, since % TODO: Talk about vision systems
-
-    Figure~\ref{fig:wrong-road} also points to another issue with the algorithm:
-    bimodal particle distributions. % TODO
-
-    % TODO: What happens when we lose map data? Need a trace where the PF goes
-    % off road.
-
     \subsection{Qualitative tests}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
@@ -613,7 +600,63 @@
 
     \subsection{Off-map localisation}
 
-    % TODO
+    % TODO: Do some benchmarks and write up this section. Also briefly mention
+    % SLAM.
+
+    \subsection{Shortcomings and possible improvements}
+
+    Unfortunately, the algorithms tendency to draw particles in towards the road
+    can, in some cases, decrease localisation performance. An example of this is
+    given in Figure~\ref{fig:wrong-road}: the particle filter has localised
+    itself on the left two lanes of the four lane road, but the vehicle is
+    actually travelling in one of the right lanes. Fixing this defect is
+    challenging, since GPS fixes and motion information alone does little to
+    reliably disambiguate between lanes which could be separated by as little as
+    three metres, especially when the mapped lane locations may be
+    inaccurate---as is almost certainly the case with some OpenStreetMap data.
+    Other authors have avoided this problem by using more accurate maps and
+    augmented GPS \citep{selloum2009lane,toledo2009fusing}. Another common
+    approach is to use first use a coarse localisation approach to determine
+    approximate which road the vehicle is on, then employ computer vision
+    algorithms to detect lane markings and/or curb locations
+    \citep{chausse2005vehicle,montemerlo2008junior} in order to localise the
+    vehicle \emph{within} the road. If sub-lane accuracy were required, then the
+    current algorithm would have to be extended using one of these approaches.
+
+    Figure~\ref{fig:wrong-road} also points to another issue with the algorithm:
+    bimodal particle distributions. Particle filtering typically attempts to
+    find the expectation of the posterior distribution over vehicle states, but
+    this information is not useful in cases where the distribution is
+    multimodal, like when the distribution is split across two lanes of a road.
+    In this case, \emph{any} single state estimate is inappropriate,
+    \citep{dellaert1999monte}, but if a ``sensible'' state estimate is always
+    needed then it may help to apply clustering to the samples particles,
+    followed by taking the expectation of those particles.
+
+    At present, heading estimates are also difficult for the algorithm. Each
+    particle includes a heading estimate for use in the prediction step of the
+    particle filter, but no external heading observation is used to prevent the
+    drift of these heading estimates. At high speeds, incorporating the heading
+    estimated by the GPS unit into the particle filter update step may help,
+    although this estimate does become highly volatile at low speeds
+    \citep{ochieng2003map}. Further, weighting particles by the mismatch between
+    their heading and that of the direction of traffic flow on the nearest road
+    segments might prevent scenarios like that depicted in
+    Figure~\ref{fig:wrong-road}, in which the majority of particles are
+    travelling north, but are localised on lanes on which traffic can only go
+    south! Unfortunately, incorporating this information would require
+    additional manipulation of the digital map, which could prove too expensive
+    for real-time application.
+
+    Finally, the algorithm presented in this paper does not account for vehicle
+    pitch, roll or altitude, nor for the elevation of the underlying road
+    network. This information is seldom used in map matching algorithms,
+    although there is at least one instance of vehicle elevation being used to
+    improve GPS coverage by decreasing the number of satellites required for a
+    GPS fix \citep{quddus2007current}. The algorithm presented in this paper
+    could be extended to account for pitch, roll and altitude by modifying the
+    state representation to include these quantities, as well as making use of
+    attitude and altitude sensors during the particle filter update step.
 
     \section{Conclusion}
 
