@@ -7,7 +7,3 @@
 2. Look into "leapfrog" edges between roads. A nicely curved edge to reflect the
    path of the vehicle at an intersection could make the filter more responsive
    during sharp turns.
-3. Look into increasing variance of Gaussian for GPS measurement likelihoods. At
-   the moment, the particles are getting annihilated during GPS updates. I might
-   also want to look into using less noise, since the plain map filter is seriously
-   suffering for the amount of noise in its transition equations.
