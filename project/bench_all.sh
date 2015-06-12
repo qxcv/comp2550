@@ -12,7 +12,7 @@ mkdir -p "$DEST_DIR"
 child_block() {
     # Will block until the process has less than the number of CPUs + 1 child
     # processes
-    max="`expr $(nproc) + 1`"
+    max="`expr $(nproc) - 2`"
     while [ "$(ps --ppid=$$ --no-header | wc -l)" -gt "$max" ]; do
         sleep 1
     done

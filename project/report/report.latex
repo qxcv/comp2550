@@ -547,6 +547,22 @@
         \label{fig:wrong-road}
     \end{figure}
 
+    % TODO: Probably write a Python script to fill this in.
+    \begin{table}
+        \begin{tabular}{l|}
+            % \input{times.tex}
+        \end{tabular}
+        \label{tab:times}
+        \caption{
+            Runtimes for the filter over the different traces in the
+            \citeauthor{brubaker2013lost} data set using different numbers of
+            particles. ``Samples`` refers to the number of position
+            estimates---and number of map updates, in the case of the map-aided
+            particle filter---which had to be performed. The original data set
+            included samples recorded at 10Hz.
+        }
+    \end{table}
+
     \subsection{Qualitative tests}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
@@ -590,13 +606,6 @@
     network of blue lines represent the centrelines of road lanes.}
     \label{fig:qual}
     \end{figure*}
-
-    % TODO: I want to talk about:
-    % 1) Lack of lane-level positioning. You really need vision for this.
-    % 2) Headings are really hard to get right. If the filter gets an incorrect
-    %    heading estimate, it will continue to mess up heading FOREVER. Using
-    %    GPS heading estimates seems like a good way to fix this for fast moving
-    %    vehicles. Use map #6 as an example :-)
 
     \subsection{Off-map localisation}
 
