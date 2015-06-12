@@ -108,7 +108,7 @@ class ParticleFilter(object):
         by ``mean`` and uncertainty represented by an isotropic Gaussian with
         standard deviation ``stddev``"""
         # Scatter a handful of particles around the fix
-        num_to_scatter = max(1, int(0.005 * self.num_points))
+        num_to_scatter = max(1, int(0.01 * self.num_points))
         indices = np.random.permutation(self.num_points)[:num_to_scatter]
         self.coords[indices] = np.random.multivariate_normal(
             mean, stddev ** 2 * np.eye(2), num_to_scatter

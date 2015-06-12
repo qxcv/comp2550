@@ -6,6 +6,10 @@ from itertools import cycle, islice
 
 """Scrape output of bench_times.sh to produce a nice LaTeX table"""
 
+
+def sorted_values(dict):
+    yield from (v for k, v in sorted(dict.items()))
+
 if __name__ == '__main__':
     current_traj = None
     current_particles = None
@@ -53,44 +57,38 @@ if __name__ == '__main__':
     traj_names = sorted(trajectories)
     pcs = sorted(particle_counts)
 
-    # Trace number
-    format_str = r"\multicolumn{{{}}}{{c}}{{{}}}"
-    print(
-        "Trace no. &", " & ".join(
-            format_str.format(len(pcs), n) for n in traj_names
-        ), r"\\"
-    )
-
-    # No. of samples
-    print(
-        "Samples &", " & ".join(
-            format_str.format(len(pcs), fixes[t]) for t in traj_names
-        ), r"\\"
-    )
-
-    # hline
-    print(r'\hline', r"\\")
+    total_fixes = sum(fixes.values())
+    print("% Total fixes: ", total_fixes)
+    print("% Total time at 10Hz: ", total_fixes * 10)
 
     # Number of particles
-    sc_iter = map(str, islice(cycle(pcs), len(traj_names) * len(pcs)))
+    sc_iter = map(str, pcs)
     print("Particles &", " & ".join(sc_iter), r"\\")
+    print(r'\hline')
 
     # Times
-    map_aided_times = []
-    non_map_aided_times = []
+    map_aided_dict = {pc: 0 for pc in pcs}
+    non_map_aided_dict = {pc: 0 for pc in pcs}
     for trajectory in traj_names:
         for pcount in pcs:
-            map_aided_times.append(times[(trajectory, pcount, True)])
-            non_map_aided_times.append(times[(trajectory, pcount, False)])
+            map_aided_dict[pcount] += times[(trajectory, pcount, True)]
+            non_map_aided_dict[pcount] += times[(trajectory, pcount, False)]
 
     format_str = "{:.2f}"
+    map_aided_times = map(
+        format_str.format, sorted_values(map_aided_dict)
+    )
+    non_map_aided_times = map(
+        format_str.format, sorted_values(non_map_aided_dict)
+    )
+
     print(
         "Map-aided time (s) &",
-        " & ".join(format_str.format(t) for t in map_aided_times),
+        " & ".join(map_aided_times),
         r"\\"
     )
     print(
         "Non-map-aided time (s) &",
-        " & ".join(format_str.format(t) for t in non_map_aided_times),
+        " & ".join(non_map_aided_times),
         r"\\"
     )

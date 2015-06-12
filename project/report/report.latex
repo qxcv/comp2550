@@ -547,19 +547,29 @@
         \label{fig:wrong-road}
     \end{figure}
 
-    % TODO: Probably write a Python script to fill this in.
+    As Table~\ref{tab:times} attests, our implementation is able to run
+    comfortably in real time on a desktop processor. Whilst use of map
+    information incurs a significant performance penalty, it is still possible
+    to produce predictions using thousands of particles at 10Hz. The current
+    implementation, written in Python, is a proof-of-concept with few
+    optimisations, so it is anticipated that even greater performance could be
+    achieved by moving to a lower level language. Many steps of the sub-tasks
+    performed by the algorithm---updating particle weights, predicting particle
+    positions, etc.---are trivial to parallelise, so moving to a multi-threaded
+    architecture could also boost performance.
+
     \begin{table}
-        \begin{tabular}{l|}
-            % \input{times.tex}
+        \centering
+        \begin{tabular}{c|cccc}
+            \input{times.tex}
         \end{tabular}
         \label{tab:times}
         \caption{
-            Runtimes for the filter over the different traces in the
+            Sum of processing times for the filter over all traces in the
             \citeauthor{brubaker2013lost} data set using different numbers of
-            particles. ``Samples`` refers to the number of position
-            estimates---and number of map updates, in the case of the map-aided
-            particle filter---which had to be performed. The original data set
-            included samples recorded at 10Hz.
+            particles. In each case, the filter produced position estimates at
+            10Hz for a total of 2320.1s (39 minutes) of traces. Statistics
+            produced using a single core of a 2.8GHz AMD Phenom II processor.
         }
     \end{table}
 
