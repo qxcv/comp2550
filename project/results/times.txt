@@ -1,0 +1,341 @@
+# Attempting times for trajectory 00
+## With 500 particles
+### Spawning map filter
+Runtime:  82.1673698425
+Fixes:  4541
+### Spawning plain filter
+Runtime:  3.24083709717
+Fixes:  4541
+## With 1000 particles
+### Spawning map filter
+Runtime:  141.874082088
+Fixes:  4541
+### Spawning plain filter
+Runtime:  3.4381570816
+Fixes:  4541
+## With 1500 particles
+### Spawning map filter
+Runtime:  228.154419899
+Fixes:  4541
+### Spawning plain filter
+Runtime:  4.79612994194
+Fixes:  4541
+## With 2000 particles
+### Spawning map filter
+Runtime:  317.121185064
+Fixes:  4541
+### Spawning plain filter
+Runtime:  5.58432197571
+Fixes:  4541
+
+
+# Attempting times for trajectory 01
+## With 500 particles
+### Spawning map filter
+Runtime:  20.4693131447
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.801887989044
+Fixes:  1101
+## With 1000 particles
+### Spawning map filter
+Runtime:  43.5273051262
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.993277072906
+Fixes:  1101
+## With 1500 particles
+### Spawning map filter
+Runtime:  59.3472421169
+Fixes:  1101
+### Spawning plain filter
+Runtime:  1.04631614685
+Fixes:  1101
+## With 2000 particles
+### Spawning map filter
+Runtime:  78.8216469288
+Fixes:  1101
+### Spawning plain filter
+Runtime:  1.4520509243
+Fixes:  1101
+
+
+# Attempting times for trajectory 02
+## With 500 particles
+### Spawning map filter
+Runtime:  79.2953391075
+Fixes:  4661
+### Spawning plain filter
+Runtime:  3.38508915901
+Fixes:  4661
+## With 1000 particles
+### Spawning map filter
+Runtime:  162.108921051
+Fixes:  4661
+### Spawning plain filter
+Runtime:  4.12542295456
+Fixes:  4661
+## With 1500 particles
+### Spawning map filter
+Runtime:  232.500035048
+Fixes:  4661
+### Spawning plain filter
+Runtime:  4.89131999016
+Fixes:  4661
+## With 2000 particles
+### Spawning map filter
+Runtime:  308.518009901
+Fixes:  4661
+### Spawning plain filter
+Runtime:  5.62237787247
+Fixes:  4661
+
+
+# Attempting times for trajectory 03
+## With 500 particles
+### Spawning map filter
+Runtime:  13.0891458988
+Fixes:  801
+### Spawning plain filter
+Runtime:  0.568190097809
+Fixes:  801
+## With 1000 particles
+### Spawning map filter
+Runtime:  25.8075931072
+Fixes:  801
+### Spawning plain filter
+Runtime:  0.703369855881
+Fixes:  801
+## With 1500 particles
+### Spawning map filter
+Runtime:  38.4073770046
+Fixes:  801
+### Spawning plain filter
+Runtime:  0.831601858139
+Fixes:  801
+## With 2000 particles
+### Spawning map filter
+Runtime:  51.0502610207
+Fixes:  801
+### Spawning plain filter
+Runtime:  0.975342035294
+Fixes:  801
+
+
+# Attempting times for trajectory 04
+## With 500 particles
+### Spawning map filter
+Runtime:  4.49767708778
+Fixes:  271
+### Spawning plain filter
+Runtime:  0.189507961273
+Fixes:  271
+## With 1000 particles
+### Spawning map filter
+Runtime:  8.66281795502
+Fixes:  271
+### Spawning plain filter
+Runtime:  0.238988161087
+Fixes:  271
+## With 1500 particles
+### Spawning map filter
+Runtime:  12.7533829212
+Fixes:  271
+### Spawning plain filter
+Runtime:  0.276243925095
+Fixes:  271
+## With 2000 particles
+### Spawning map filter
+Runtime:  16.7632861137
+Fixes:  271
+### Spawning plain filter
+Runtime:  0.320195913315
+Fixes:  271
+
+
+# Attempting times for trajectory 05
+## With 500 particles
+### Spawning map filter
+Runtime:  44.4477260113
+Fixes:  2761
+### Spawning plain filter
+Runtime:  1.73760294914
+Fixes:  2761
+## With 1000 particles
+### Spawning map filter
+Runtime:  78.8380069733
+Fixes:  2761
+### Spawning plain filter
+Runtime:  2.12102198601
+Fixes:  2761
+## With 1500 particles
+### Spawning map filter
+Runtime:  117.079357862
+Fixes:  2761
+### Spawning plain filter
+Runtime:  2.4816699028
+Fixes:  2761
+## With 2000 particles
+### Spawning map filter
+Runtime:  154.386631966
+Fixes:  2761
+### Spawning plain filter
+Runtime:  2.8725259304
+Fixes:  2761
+
+
+# Attempting times for trajectory 06
+## With 500 particles
+### Spawning map filter
+Runtime:  15.9653460979
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.677613973618
+Fixes:  1101
+## With 1000 particles
+### Spawning map filter
+Runtime:  31.2149779797
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.830347776413
+Fixes:  1101
+## With 1500 particles
+### Spawning map filter
+Runtime:  46.5096199512
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.993185043335
+Fixes:  1101
+## With 2000 particles
+### Spawning map filter
+Runtime:  60.6189279556
+Fixes:  1101
+### Spawning plain filter
+Runtime:  1.14813494682
+Fixes:  1101
+
+
+# Attempting times for trajectory 07
+## With 500 particles
+### Spawning map filter
+Runtime:  17.1967198849
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.675617933273
+Fixes:  1101
+## With 1000 particles
+### Spawning map filter
+Runtime:  33.4034647942
+Fixes:  1101
+### Spawning plain filter
+Runtime:  0.838522911072
+Fixes:  1101
+## With 1500 particles
+### Spawning map filter
+Runtime:  49.7865660191
+Fixes:  1101
+### Spawning plain filter
+Runtime:  1.00448799133
+Fixes:  1101
+## With 2000 particles
+### Spawning map filter
+Runtime:  66.9567711353
+Fixes:  1101
+### Spawning plain filter
+Runtime:  1.15485501289
+Fixes:  1101
+
+
+# Attempting times for trajectory 08
+## With 500 particles
+### Spawning map filter
+Runtime:  63.4607858658
+Fixes:  4071
+### Spawning plain filter
+Runtime:  2.48202705383
+Fixes:  4071
+## With 1000 particles
+### Spawning map filter
+Runtime:  133.894337893
+Fixes:  4071
+### Spawning plain filter
+Runtime:  3.59105992317
+Fixes:  4071
+## With 1500 particles
+### Spawning map filter
+Runtime:  215.887315989
+Fixes:  4071
+### Spawning plain filter
+Runtime:  4.31529116631
+Fixes:  4071
+## With 2000 particles
+### Spawning map filter
+Runtime:  261.933475018
+Fixes:  4071
+### Spawning plain filter
+Runtime:  4.23977303505
+Fixes:  4071
+
+
+# Attempting times for trajectory 09
+## With 500 particles
+### Spawning map filter
+Runtime:  22.9675559998
+Fixes:  1591
+### Spawning plain filter
+Runtime:  0.972280979156
+Fixes:  1591
+## With 1000 particles
+### Spawning map filter
+Runtime:  44.2816150188
+Fixes:  1591
+### Spawning plain filter
+Runtime:  1.20462918282
+Fixes:  1591
+## With 1500 particles
+### Spawning map filter
+Runtime:  66.3137028217
+Fixes:  1591
+### Spawning plain filter
+Runtime:  1.44414019585
+Fixes:  1591
+## With 2000 particles
+### Spawning map filter
+Runtime:  88.033755064
+Fixes:  1591
+### Spawning plain filter
+Runtime:  1.69278717041
+Fixes:  1591
+
+
+# Attempting times for trajectory 10
+## With 500 particles
+### Spawning map filter
+Runtime:  17.2307460308
+Fixes:  1201
+### Spawning plain filter
+Runtime:  0.736616134644
+Fixes:  1201
+## With 1000 particles
+### Spawning map filter
+Runtime:  33.0445098877
+Fixes:  1201
+### Spawning plain filter
+Runtime:  0.918854951859
+Fixes:  1201
+## With 1500 particles
+### Spawning map filter
+Runtime:  50.2653400898
+Fixes:  1201
+### Spawning plain filter
+Runtime:  1.08315086365
+Fixes:  1201
+## With 2000 particles
+### Spawning map filter
+Runtime:  65.8781387806
+Fixes:  1201
+### Spawning plain filter
+Runtime:  1.25937390327
+Fixes:  1201
+
+

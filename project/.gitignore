@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 env/
-results/
+results/*.csv
+results/*.pgf
 with*-map.avi
 report/spliced/
