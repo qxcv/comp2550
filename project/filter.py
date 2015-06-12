@@ -149,12 +149,8 @@ class ParticleFilter(object):
         """Update particles if we have IMU data (and thus do not need to keep
         velocity or other higher dimensional data around)"""
         assert self.have_imu
-        if self.have_map:
-            # Need more noise with the map because of the bias that the road
-            # prior adds
-            yaw_sigma = 0.15
-        else:
-            yaw_sigma = 0.05
+        # Constant. Tuning this can produce better performance in some cases.
+        yaw_sigma = 0.15
         noisy_yaws = np.random.normal(
             yaw_diff, yaw_sigma, (self.num_points,)
         )
