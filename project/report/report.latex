@@ -712,7 +712,7 @@
 
     This experiment demonstrates that a map-aided particle filter is a poor
     choice of localisation algorithm for applications in which the vehicle is
-    likely % TODO
+    likely leave the mapped road network frequently. % TODO: SLAM!
 
     \subsection{Shortcomings and possible improvements}
 
