@@ -13,6 +13,7 @@
 }
 \usepackage[round]{natbib}
 \usepackage[margin=25mm]{geometry}
+\usepackage[percent]{overpic}
 
 \newcommand{\mat}{\mathbf}
 \renewcommand{\b}{\mathbf}
@@ -489,7 +490,7 @@
     difference in performance between plain particle filtering and map-aided
     particle filtering in the presence of non-ideal sensory input.
 
-    \begin{figure}
+    \begin{figure*}
         \centering
         \input{images/boxplot.pgf}
         \caption{Distribution of Horizontal Positioning Error (HPE) when using
@@ -498,7 +499,7 @@
         each of the 11 vehicle localisation traces provided by
         \citet{brubaker2013lost}.}
         \label{fig:boxplot}
-    \end{figure}
+    \end{figure*}
 
     The results of this comparison are shown in Figure~\ref{fig:boxplot}.
     Clearly, map-aided particle filtering offers a significant advantage over
@@ -506,7 +507,7 @@
     map-aided method usually around half that of the method with no map
     information.
 
-    \begin{figure}
+    \begin{figure*}
         \centering
         \includegraphics[width=0.4\textwidth]{images/map-spread.png}
         \includegraphics[width=0.4\textwidth]{images/no-map-spread.png}
@@ -519,7 +520,7 @@
         circles, with area directly proportional to weight. The red cross
         indicates the location of the most recent pseudo-GPS measurement.}
         \label{fig:latmove}
-    \end{figure}
+    \end{figure*}
 
     Typically, the effect of the map data is to constrain the lateral movement
     of particles. Figure~\ref{fig:latmove} illustrates this phenomenon. Whilst
@@ -534,14 +535,14 @@
     significant increase in particle filter performance
     \citet{modsching2006field}.
 
-    \begin{figure}
+    \begin{figure*}
         \centering
         \includegraphics[width=0.6\textwidth]{images/wrong-road.png}
         \caption{In this scenario, the map weighting has made particle
         concentrate on two lanes on which the vehicle is not travelling, thus
         \emph{increasing} positioning error.}
         \label{fig:wrong-road}
-    \end{figure}
+    \end{figure*}
 
     As Table~\ref{tab:times} attests, our implementation is able to run
     comfortably in real time on a desktop processor. Whilst use of map
@@ -554,7 +555,7 @@
     positions, etc.---are trivial to parallelise, so moving to a multi-threaded
     architecture could also boost performance.
 
-    \begin{table}
+    \begin{table*}
         \centering
         \begin{tabular}{c|cccc}
             \input{table.tex}
@@ -568,14 +569,14 @@
             Statistics produced using a single core of a 2.8GHz AMD Phenom II
             processor.
         }
-    \end{table}
+    \end{table*}
 
     \subsection{Qualitative tests}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
     (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
-    tunnel. The results of this test are presented in Figure~\ref{fig:qual}
+    tunnel. The results of this test are presented in Figure~\ref{fig:qual}.
 
     \begin{figure*}
     % See
@@ -618,6 +619,68 @@
 
     % TODO: Do some benchmarks and write up this section. Also briefly mention
     % SLAM.
+
+    \begin{figure*}
+    \centering
+    \setlength{\tabcolsep}{0pt}
+    \begin{tabular}{c|c|c|c}
+    \begin{overpic}[width=0.25\textwidth]{off-map/0.png}
+        \put (60, 5) {$t = 0$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/2.5.png}
+        \put (60, 5) {$t = 2.5$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/5.png}
+        \put (60, 5) {$t = 5$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/7.5.png}
+        \put (60, 5) {$t = 7.5$}
+    \end{overpic}
+    \\
+    \hline
+    \begin{overpic}[width=0.25\textwidth]{off-map/10.png}
+        \put (60, 5) {$t = 10$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/12.5.png}
+        \put (60, 5) {$t = 12.5$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/15.png}
+        \put (60, 5) {$t = 15$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/17.5.png}
+        \put (60, 5) {$t = 17.5$}
+    \end{overpic}
+    \\
+    \hline
+    \begin{overpic}[width=0.25\textwidth]{off-map/20.png}
+        \put (60, 5) {$t = 20$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/22.5.png}
+        \put (60, 5) {$t = 22.5$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/25.png}
+        \put (60, 5) {$t = 25$}
+    \end{overpic}
+    &
+    \begin{overpic}[width=0.25\textwidth]{off-map/27.5.png}
+        \put (60, 5) {$t = 27.5$}
+    \end{overpic}
+    \\
+    \end{tabular}
+    \caption{Evolution of the map-aided particle filter state estimate (blue)
+    and particle set (red) as the ground truth vehicle position (green)
+    traverses a section of the map with a missing road. Times given in seconds
+    since first frame.}
+    \label{fig:off-map}
+    \end{figure*}
 
     \subsection{Shortcomings and possible improvements}
 
