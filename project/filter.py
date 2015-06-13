@@ -108,7 +108,7 @@ class ParticleFilter(object):
         by ``mean`` and uncertainty represented by an isotropic Gaussian with
         standard deviation ``stddev``"""
         # Scatter a handful of particles around the fix
-        num_to_scatter = max(1, int(0.005 * self.num_points))
+        num_to_scatter = max(1, int(0.01 * self.num_points))
         indices = np.random.permutation(self.num_points)[:num_to_scatter]
         self.coords[indices] = np.random.multivariate_normal(
             mean, stddev ** 2 * np.eye(2), num_to_scatter
@@ -149,12 +149,8 @@ class ParticleFilter(object):
         """Update particles if we have IMU data (and thus do not need to keep
         velocity or other higher dimensional data around)"""
         assert self.have_imu
-        if self.have_map:
-            # Need more noise with the map because of the bias that the road
-            # prior adds
-            yaw_sigma = 0.15
-        else:
-            yaw_sigma = 0.05
+        # Constant. Tuning this can produce better performance in some cases.
+        yaw_sigma = 0.15
         noisy_yaws = np.random.normal(
             yaw_diff, yaw_sigma, (self.num_points,)
         )

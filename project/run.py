@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from argparse import ArgumentParser, FileType
+from bz2 import BZ2File
 from csv import writer
 from sys import stdin, exit
 from termios import tcflush, TCIFLUSH
-from bz2 import BZ2File
+from time import time as seconds
 
 import numpy as np
 
@@ -248,7 +249,11 @@ class TheMainLoop(object):
             self.writer.finish()
 
     def run(self):
+        fixes = 0
+
         for obs, noisy_obs in self.noisified:
+            fixes += 1
+
             if self.last_time is not None:
                 dt = obs.time - self.last_time
             else:
@@ -317,6 +322,8 @@ class TheMainLoop(object):
                     obs, map_f=self.map_f, plain_f=self.plain_f,
                     last_fix=self.last_fix
                 )
+
+        return fixes
 
     def update_display(self, obs):
         # Make a list of filters for the display to update
@@ -387,5 +394,9 @@ if __name__ == '__main__':
         import matplotlib.pyplot as plt
         import matplotlib.animation as manimation
     loop = TheMainLoop(args)
-    loop.run()
+    start = seconds()
+    fixes = loop.run()
+    elapsed = seconds() - start
+    print "Runtime: ", elapsed
+    print "Fixes: ", fixes
     loop.cleanup()
