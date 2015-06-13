@@ -12,7 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-\usepackage[margin=25mm]{geometry}
+\usepackage[margin=22mm]{geometry}
 \usepackage[percent]{overpic}
 
 \newcommand{\mat}{\mathbf}
@@ -379,6 +379,13 @@
     vehicle is still able to localise itself when it is travelling on unmapped
     roads.
 
+    To ensure that the algorithm can still correctly localise a vehicle in the
+    absence of map information, our implementation does not perform map weight
+    update whenever more than 95\% of the particles are at least 15m from the
+    nearest roadway. This also allows the algorithm to perform localisation when
+    the vehicle briefly travels over an unmapped feature, as demonstrated in
+    Section~\ref{sec:qual}.
+
     % TODO: Can probably motivate this a little more by referring to SIR. Also,
     % I really need to look into ignoring map updates when the map is a suitable
     % distance (100m? 500m?) from the nearest particle to the map.
@@ -572,11 +579,22 @@
     \end{table*}
 
     \subsection{Qualitative tests}
+    \label{sec:qual}
 
     The qualitative assessment used a GPS trace kindly provided by J. Alvarez
     (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
     tunnel. The results of this test are presented in Figure~\ref{fig:qual}.
+    After the final GPS fix, the map-aided particle filter ensures that
+    particles remain distributed along the lane on which the vehicle was
+    travelling. Even after merging with a second lane, the particles have
+    continued to travel forwards along the correct road, as would be expected
+    from a real vehicle. The non-map-aided filter, on the other hand, continues
+    to provide a slightly less accurate state estimate, but it can be observed
+    the variance of the particle set of growing significantly over time. Without
+    a GPS or map weight in the update step, this noise will not be constrained,
+    so the particle filter will become less and less certain until it regains
+    GPS reception.
 
     \begin{figure*}
     % See
@@ -615,10 +633,20 @@
     \label{fig:qual}
     \end{figure*}
 
-    \subsection{Off-map localisation}
-
-    % TODO: Do some benchmarks and write up this section. Also briefly mention
-    % SLAM.
+    The results of a second qualitative comparison---this time with synthetic data from
+    \citeauthor{brubaker2013lost}---are presented in Figure~\ref{fig:off-map}.
+    The aim of this comparison was to demonstrate the behaviour of the filter
+    when the vehicle is no longer on the road network immediately after leaving
+    the road network ($t = 7.5$), we see that the accuracy of the state estimate
+    drops significantly, as the map weight decimates particles which are far
+    from the last road on which the vehicle was travelling. During the next
+    several seconds, a number of GPS fixes are received and some particles are
+    scattered around each fix. By $t = 12.5$, more than 95\% of the particles
+    are at least 15m from the nearest road, so map weights are no longer
+    incorporated in the particle filtering process. This increases accuracy
+    until $t = 17.5$, at which point map weights are incorporated again and the
+    filter begins to re-localise the vehicle as it had done before the vehicle
+    veered off the previous road.
 
     \begin{figure*}
     \centering
@@ -639,7 +667,7 @@
     \begin{overpic}[width=0.25\textwidth]{off-map/7.5.png}
         \put (60, 5) {$t = 7.5$}
     \end{overpic}
-    \\
+    \\[-0.8ex]
     \hline
     \begin{overpic}[width=0.25\textwidth]{off-map/10.png}
         \put (60, 5) {$t = 10$}
@@ -656,7 +684,7 @@
     \begin{overpic}[width=0.25\textwidth]{off-map/17.5.png}
         \put (60, 5) {$t = 17.5$}
     \end{overpic}
-    \\
+    \\[-0.8ex]
     \hline
     \begin{overpic}[width=0.25\textwidth]{off-map/20.png}
         \put (60, 5) {$t = 20$}
@@ -673,7 +701,7 @@
     \begin{overpic}[width=0.25\textwidth]{off-map/27.5.png}
         \put (60, 5) {$t = 27.5$}
     \end{overpic}
-    \\
+    \\[-0.8ex]
     \end{tabular}
     \caption{Evolution of the map-aided particle filter state estimate (blue)
     and particle set (red) as the ground truth vehicle position (green)
@@ -681,6 +709,10 @@
     since first frame.}
     \label{fig:off-map}
     \end{figure*}
+
+    This experiment demonstrates that a map-aided particle filter is a poor
+    choice of localisation algorithm for applications in which the vehicle is
+    likely % TODO
 
     \subsection{Shortcomings and possible improvements}
 
