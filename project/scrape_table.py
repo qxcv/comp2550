@@ -2,13 +2,48 @@
 
 import sys
 
-from itertools import cycle, islice
+import pandas as pd
 
-"""Scrape output of bench_times.sh to produce a nice LaTeX table"""
+import numpy as np
+
+"""Scrape output of bench_times.sh and bench_all.sh to produce a nice LaTeX
+table. Usage:
+
+$ ./bench_all.sh
+$ ./bench_times.sh | tee times.txt
+$ ./scrape_table.py < times.txt > report/table.tex
+
+The script will scrape traces and particle counts from times.txt, then read
+results/{trajectory}-{filter_type}-{particles}.csv to produce a nice table."""
+
+
+def get_hpe(trajectory, uses_map, particles):
+    it = int(trajectory)
+    filename = 'results/{:02}-{}-{}.csv'.format(
+        it, 'map' if uses_map else 'plain', particles
+    )
+    series = pd.read_csv(filename)
+    if uses_map:
+        rv = series['map_hpe']
+    else:
+        rv = series['plain_hpe']
+    return rv.as_matrix()
+
+
+def get_mean_sd(trajectories, uses_map, particles):
+    arrays = []
+
+    for traj in trajectories:
+        hpe = get_hpe(traj, uses_map, particles)
+        arrays.append(hpe)
+
+    cat = np.concatenate([a.flatten() for a in arrays])
+
+    return np.mean(cat), np.std(cat)
 
 
 def sorted_values(dict):
-    yield from (v for k, v in sorted(dict.items()))
+    return (v for k, v in sorted(dict.items()))
 
 if __name__ == '__main__':
     current_traj = None
@@ -83,12 +118,31 @@ if __name__ == '__main__':
     )
 
     print(
-        "Map-aided time (s) &",
+        "Time w/ map (s) &",
         " & ".join(map_aided_times),
         r"\\"
     )
     print(
-        "Non-map-aided time (s) &",
+        "Time w/o map (s) &",
         " & ".join(non_map_aided_times),
+        r"\\"
+    )
+
+    # Mean and standard deviation of HPEs
+    map_aided_mean_sd = []
+    non_map_aided_mean_sd = []
+    for pcount in pcs:
+        map_aided_mean_sd.append(get_mean_sd(traj_names, True, pcount))
+        non_map_aided_mean_sd.append(get_mean_sd(traj_names, False, pcount))
+
+    formatter = lambda p: r"${:.2f} \pm {:.2f}$".format(p[0], p[1])
+    print(
+        r"HPE w/ map ($\mu \pm \sigma$m) &",
+        " & ".join(map(formatter, map_aided_mean_sd)),
+        r"\\"
+    )
+    print(
+        r"HPE w/o map ($\mu \pm \sigma$m) &",
+        " & ".join(map(formatter, non_map_aided_mean_sd)),
         r"\\"
     )

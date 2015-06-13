@@ -2,8 +2,8 @@
 
 # Run over all of the given examples and produce some nice CSVs
 
-COMMON_OPTIONS="--particles 2000"
-RUN="python2 run.py $COMMON_OPTIONS"
+PARTICLE_COUNTS=`echo {500..2000..500}`
+RUN="python2 run.py"
 DEST_DIR=results/
 MANGLE="python2 mangle_data.py"
 
@@ -24,7 +24,7 @@ scrape() {
     args=""
     for id in {00..10}; do
         prefix="$DEST_DIR/${id}"
-        args="$args?:delim:?$prefix-map.csv?:delim:?$prefix-plain.csv"
+        args="$args?:delim:?$prefix-map-2000.csv?:delim:?$prefix-plain-2000.csv"
     done
 
     script="`mktemp`"
@@ -129,21 +129,25 @@ case $1 in
     *)
         echo "Writing CSVs"
         for id in {00..10}; do
-            trajectory=data/kitti/map_trajectories/${id}.txt.bz2
-            map=data/kitti/${id}.osm.bz2
-            echo "Spawning processes for trajectory $id"
-            child_block
-            set -x
-            $RUN --enablemapfilter --out "$DEST_DIR/${id}-map.csv" \
-                "$trajectory" "$map" &
-            set +x
-            child_block
-            set -x
-            $RUN --enableplainfilter --out "$DEST_DIR/${id}-plain.csv" \
-                "$trajectory" "$map" &
-            set +x
-            echo "Spawning for $id done"
-            sleep 2
+            for particles in $PARTICLE_COUNTS; do
+                trajectory=data/kitti/map_trajectories/${id}.txt.bz2
+                map=data/kitti/${id}.osm.bz2
+                echo "Spawning processes for $id with $particles particles"
+                child_block
+                set -x
+                $RUN --enablemapfilter "$trajectory" "$map" \
+                    --out "$DEST_DIR/${id}-map-${particles}.csv" \
+                    --particles $particles &
+                set +x
+                child_block
+                set -x
+                $RUN --enableplainfilter "$trajectory" "$map" \
+                    --out "$DEST_DIR/${id}-plain-${particles}.csv" \
+                    --particles $particles &
+                set +x
+                echo "Spawning for $id done"
+                sleep 2
+            done
         done
 
         wait

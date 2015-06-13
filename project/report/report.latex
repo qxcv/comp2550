@@ -12,11 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-% \usepackage[margin=1in]{geometry}
-
-% Remember: should talk about the defects of the algorithm and how these could
-% be fixed (e.g. with additional sensor data), as that was something Jose seemed
-% quite intent on.
+\usepackage[margin=25mm]{geometry}
 
 \newcommand{\mat}{\mathbf}
 \renewcommand{\b}{\mathbf}
@@ -561,15 +557,16 @@
     \begin{table}
         \centering
         \begin{tabular}{c|cccc}
-            \input{times.tex}
+            \input{table.tex}
         \end{tabular}
         \label{tab:times}
         \caption{
-            Sum of processing times for the filter over all traces in the
-            \citeauthor{brubaker2013lost} data set using different numbers of
-            particles. In each case, the filter produced position estimates at
-            10Hz for a total of 2320.1s (39 minutes) of traces. Statistics
-            produced using a single core of a 2.8GHz AMD Phenom II processor.
+            Sum of processing times and averaged HPE for the filter over all
+            traces in the \citeauthor{brubaker2013lost} data set using different
+            numbers of particles. In each case, the filter produced position
+            estimates at 10Hz for a total of 2320.1s (39 minutes) of traces.
+            Statistics produced using a single core of a 2.8GHz AMD Phenom II
+            processor.
         }
     \end{table}
 

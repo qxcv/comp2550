@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # See how long the algorithm takes with and without map information for
-# different numbers of particles
+# different numbers of particles. Note that this is single threaded in order to
+# produce a fair benchmark; if it were not single threaded, I would have merged
+# its functionality into bench_all.sh.
 
 PARTICLE_COUNTS=`echo {500..2000..500}`
 RUN="python2 run.py"
