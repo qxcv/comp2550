@@ -12,7 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-\usepackage[margin=24mm]{geometry}
+\usepackage[margin=23mm]{geometry}
 \usepackage[percent]{overpic}
 
 \newcommand{\mat}{\mathbf}
@@ -152,9 +152,9 @@
 
     As mentioned previously, particle filtering is a probabilistic localisation
     method that is well suited to map aided localisation. Internally, the
-    particle filter represents a distribution over possible vehicle states with
-    a fixed number of ``particles'', each of which represents a single sample
-    from the following distribution \citep{fox1999monte}:
+    particle maintains a fixed-size set of ``particles'', each of which
+    represents a single sample from the following distribution
+    \citep{fox1999monte}:
 
     \[
         p(s_t \mid o_t, a_{t-1}, o_{t-1}, a_{t-2}, \ldots, o_0)
@@ -168,13 +168,14 @@
         in some cases.
         \item[$o_t$] represents the set of observations made by the vehicle's
         sensors at time $t$.
-        \item[$a_t$] is the ``action'' taken by the vehicle at time $t$. Whilst
-        these actions can correspond to throttle or steering wheel settings, it
-        is also possible to consider actions to be more high level measurements
-        like the distance travelled by the wheels of a vehicle in a single time
-        step. Although these are technically sensory observations, we will soon
-        see that it is convenient to treat them separately to the other
-        observations $o_t$.
+        \item[$a_t$] is the action taken by the vehicle at time $t$. Whilst
+        these actions \emph{can} correspond to throttle or steering wheel
+        positions, it is also possible to define actions to be sensor
+        measurements---for instance, the distance travelled by the wheels of a
+        vehicle in a single time step. Although these sensory observations are
+        not ``actions'' in the strictest sense of the word, we will soon see
+        that it is convenient to treat them separately to the other observations
+        represented by $o_t$.
     \end{description}
 
     Over time, a particle filter updates its internal particle set using
@@ -186,12 +187,13 @@
     particle set are samples from a Gaussian centered on the first available GPS
     fix, with particle yaws distributed uniformly.
 
-    At each subsequent time step, the vehicle take an action $a_t$ to yield
-    state $s_{t+1}$. After this, it may make a subsequent sensory observation
-    $o_{t+1}$, which in our case will be a GPS fix. Using this new information,
-    we may produce a new particle set $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$
-    distributed according to $p(s_{t+1} \mid o_{t+1}, a_t, \ldots, o_0)$ from
-    our previous particle set using the following process:
+    At each subsequent time step $t$, the vehicle takes an action $a_t$ to yield
+    a new state $s_{t+1}$. After this, we may receive a subsequent sensory
+    observation $o_{t+1}$, which in our case will be a GPS fix. Using this new
+    information, we may produce a new particle set
+    $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$ distributed according to $p(s_{t+1}
+    \mid o_{t+1}, a_t, \ldots, o_0)$ from our previous particle set using the
+    following process:
 
     \begin{enumerate}
         \item \textbf{Predict:} A new set of particles
@@ -201,29 +203,35 @@
         \[
             {s_{t+1}^{(n)}}' \sim p(s_{t+1} \mid s_t^{(n)}, a_t)
         \]
-        \item \textbf{Update:} Every ${s_{t+1}^{(n)}}'$ is then assigned a
-        weight $w_{t+1}^{(n)}$ reflecting the likelihood of the most recent
-        observation $o_{t+1}$ in $s_{t+1}^{(n)}$:
+        \item \textbf{Update:} Every particle ${s_{t+1}^{(n)}}'$ is then
+        assigned a weight $w_{t+1}^{(n)}$ reflecting the likelihood of the most
+        recent observation $o_{t+1}$ in state $s_{t+1}^{(n)}$:
         \begin{equation}\label{eq:update}
             w_{t+1}^{(n)} = \tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')
         \end{equation}
-        Where $\tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')$ is the likelihood of the
-        observation $o_{t+1}$ being made in state $s_{t+1}^{(n)}$.
+        Where $\tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')$ is the (unnormalised)
+        likelihood of the observation $o_{t+1}$ being made in state
+        $s_{t+1}^{(n)}$.
         \item \textbf{Resample:} Finally, a new set of particles
         $\left\{s_{t+1}^{(n)}\right\}_{n=1}^N$ is produced by drawing $N$
         particles, with replacement, from
         $\left\{{s_{t+1}^{(n)}}'\right\}_{n=1}^N$ using the weights
         $\left\{w_{t+1}^{(n)}\right\}_{n=1}^N$. In some cases, this resampling
         step is omitted, and the weight set is instead carried over to the next
-        iteration, in which case the next set of particles will be calculates
-        using
+        iteration, in which case the weights for the next set of particles will
+        be calculated using the following equation rather than
+        Equation~\ref{eq:update}:
         \[
             w_{t+1}^{(n)} = w_t^{(n)} \tilde p(o_{t+1} \mid {s_{t+1}^{(n)}}')
         \]
-        in preference to Equation~\ref{eq:update}. In some cases, the resampling
-        step is only performed once the number of effective particles,
-        $N_\mathrm{eff} = \left(\sum_{n=1}^N {w_t^{(n)}}^2\right)^{-1}$ falls
-        below some threshold \citep{pf2002}.
+        Some authors choose to perform the resampling step only once the number
+        of effective particles, $N_\mathrm{eff}$, falls below some threshold
+        \citep{pf2002}, where $N_\mathrm{eff}$ is defined as:
+        \[
+            N_\mathrm{eff} = \left(\sum_{n=1}^N {w_t^{(n)}}^2\right)^{-1}
+        \]
+        We have opted to do this, with the threshold for $N_\mathrm{eff}$ set at
+        two thirds of the size of the particle set.
     \end{enumerate}
 
     Finally, the expected vehicle position at time $t+1$ can be expressed as:
@@ -241,7 +249,7 @@
     is, the state $s_{t+1}$ is dependent only on the state $s_t$, the action
     $a_t$ and the observation $o_{t+1}$ \citep{dellaert1999monte}. In
     Section~\ref{sec:odomunavail}, we will investigate a case in which this
-    property must be taken into consideration.
+    requirement is violated.
 
     \subsection{Basic particle filter configuration}
 
@@ -257,11 +265,8 @@
     application updates particles utilising the vehicle's forward speed $v_t$
     and angular velocity $\omega_t$ at time $t$. Concretely, each particle
     particle $s_t^{(n)} = (x_t^{(n)}, y_t^{(n)}, \theta_t^{(n)})^T$ is updated
-    using the following equations:
+    using the following Euler integration:
 
-    % TODO: These aren't physically accurate. Should either cite someone who
-    % does the same (wrong, but easy) thing or fix this problem by averaging
-    % forward speeds at different time steps
     \begin{align*}
         \theta_{t+1} &= \theta_t + \omega_t' \Delta t\\
         x_{t+1} &= x_t + v_t' \cos(\theta_t) \Delta t\\
@@ -283,7 +288,8 @@
 
     If a GPS fix at easting and northing $({f_x}_t, {f_y}_t)^T$ was observed
     between time steps $t$ and $t + 1$, we set the weight $w_{t+1}^{(n)}$
-    associated with the particle $s_{t+1}^{(n)} = (x_t, y_t, \theta_t)^T$ to:
+    associated with the particle $s_{t+1}^{(n)} = (x_{t+1}, y_{t+1},
+    \theta_{t+1})^T$ to:
 
     \begin{equation}\label{eq:gpsweight}
     \begin{split}
@@ -291,7 +297,7 @@
         \left(
             -\frac{1}{2}
             \left(
-                \begin{bmatrix}x_t\\y_t\end{bmatrix}
+                \begin{bmatrix}x_{t+1}\\y_{t+1}\end{bmatrix}
                 -
                 \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
             \right)^T
@@ -299,7 +305,7 @@
             \left.
             \Sigma^{-1}
             \left(
-                \begin{bmatrix}x_t\\y_t\end{bmatrix}
+                \begin{bmatrix}x_{t+1}\\y_{t+1}\end{bmatrix}
                 -
                 \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
             \right)
@@ -322,14 +328,13 @@
 
     If GPS data is temporarily unavailable, we simply initialise weights
     uniformly, rather than applying Equation~\ref{eq:gpsweight}. Intuitively,
-    this will cause particles to spread outwards according to the transition
-    distribution until GPS fixes become available again to decrease the weight
-    of particles far away from the vehicle's true position. This behaviour is
-    examined as part of the qualitative comparison performed in
-    Section~\ref{sec:results}.
+    this will cause the transition distribution to spread particles outwards
+    until GPS fixes become available again to decrease the weight of particles
+    far away from the vehicle's true position. This behaviour is examined as
+    part of the qualitative comparison performed in Section~\ref{sec:results}.
 
     Every time a GPS fix becomes available, we also choose to scatter a small
-    proportion (approximately 0.5\%) of particles in a normal distribution about
+    proportion (approximately 1\%) of particles in a normal distribution about
     the GPS fix. This ensures that the vehicle is able to re-localise itself
     correctly in the event that the particle filter's internal state estimate
     diverges too far from the vehicle's true position. Although there is no
@@ -346,14 +351,11 @@
     particle filtering process by extending each particle's state to include an
     associated road segment \citep{selloum2009lane,toledo2009fusing}, we have
     found that the fastest way of incorporating map data is by way of a
-    pseudo-likelihood during the particle filter's update step. Concretely, for
-    each particle $s_t^{(n)}$, we calculate the distance $d_t^{(n)}$ to the road
-    segment in the stored street map, then update the weight $w_t^{(n)}$
-    of the stored particle using:
+    pseudo-likelihood re-weighting during the particle filter's update step.
+    Concretely, for each particle $s_t^{(n)}$, we calculate the distance
+    $d_t^{(n)}$ to the nearest road segment in the stored street map, then
+    update the weight $w_t^{(n)}$ of the stored particle using:
 
-    % TODO: Update this when I'm finished. I'll probably choose a completely
-    % different pseudolikelihood before I'm done, since this one seems
-    % excessively restrictive (and leads to numerical issues).
     \begin{equation}\label{eq:mapweight}
         w_t^{(n)} \leftarrow \frac{w_t^{(n)}}{\left(1 + {d_t^{(n)}}^2\right)^{1.1}}
     \end{equation}
@@ -366,11 +368,11 @@
     vehicle is still able to localise itself when it is travelling on unmapped
     roads.
 
-    To ensure that the algorithm can still correctly localise a vehicle in the
-    absence of map information, our implementation does not perform map weight
-    update whenever more than 95\% of the particles are at least 15m from the
-    nearest roadway. This also allows the algorithm to perform localisation when
-    the vehicle briefly travels over an unmapped feature, as demonstrated in
+    To ensure that the algorithm can still localise a vehicle in the absence of
+    map information, our implementation does not perform map weight updates
+    whenever more than 95\% of the particles are at least 15m from the nearest
+    roadway. This also allows the algorithm to perform localisation when the
+    vehicle briefly travels over an unmapped feature, as demonstrated in
     Section~\ref{sec:qual}.
 
     % TODO: Can probably motivate this a little more by referring to SIR. Also,
@@ -394,16 +396,17 @@
     cease to work, so we must produce a new transition model and associated
     state representation which does not depend on odometry.
 
-    One alternative model would be to adopt a stationary transition
-    distribution, like a zero-mean Gaussian. Such a transition model would be
-    efficient and simple, but would violate the assumption that vehicle states
-    form a Markov chain, since clearly a vehicle which moves by a certain amount
-    and in a certain direction at one time step is most likely to move by a
-    similar amount and in a similar direction at the next. Concretely, violating
-    this assumption means that particles either move too little or too much at
-    each time step, depending on the vehicle's velocity.
+    One alternative model would be to adopt a stationary transition distribution
+    for particle positions, like a Gaussian centered on each particle. Such a
+    transition model would be efficient and simple, but would grossly violate
+    the assumption that vehicle states form a Markov chain, since clearly a
+    vehicle which moves by a certain amount and in a certain direction at one
+    time step is likely to move by a similar amount and in a similar direction
+    at the next. Concretely, violating this assumption means that particles
+    either move too little or too much at each time step, depending on the
+    vehicle's velocity.
 
-    In theory, the Markov state transition assumption can only be restored by
+    In theory, the Markov state transition assumption can only be satisfied by
     expanding the internal state representation to contain all relevant physical
     properties of the vehicle, including position, velocity, acceleration,
     heading, angular velocity, angular acceleration, and so on. This is, of
@@ -433,10 +436,8 @@
         \end{bmatrix}
     \]
 
-    % TODO: OMG I CAN DO AN AWESOME PLOT OF VELOCITY TRANSITION PROBABILITIES,
-    % THEN FIT A COVARIANCE TO IT!
     Where $(\epsilon_x, \epsilon_y) \sim \mathcal N(\b 0, \sigma^2 \b I)$ and
-    $\Delta_t$ is the time elapsed between the $s_t$ and $s_{t+1}$. We have
+    $\Delta t$ is the time elapsed between time steps $t$ and  $t + 1$. We have
     found that $\sigma^2 = \Delta t$ works well, although in general it should
     be possible to fit an appropriate Gaussian from training data.
 
@@ -451,7 +452,7 @@
     using more realistic consumer-grade localisation data, which unfortunately
     did not include a ground truth for use in numerical comparisons.
 
-    The code and data used to produce all figures and statistics in this report
+    The code and data used to produce all figures and statistics in this paper
     is available
     online.\footnote{\url{https://github.com/qxcv/comp2550/tree/master/project}}
 
