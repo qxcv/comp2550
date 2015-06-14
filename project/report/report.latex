@@ -462,20 +462,18 @@
     \citet{brubaker2013lost}, which includes a number of GPS traces along with
     OpenStreetMap data for the regions immediately surrounding the traces. The
     supplied dataset included exceptionally accurate RTK-GPS positioning data,
-    but no corresponding samples with a more representative noise model. As a
-    result, we had to use a synthetic noise model to benchmark the algorithm,
-    which included the following ``roughening'' steps:
+    but no samples from a consumer-grade GPS receiver. As a result, we had to
+    use a synthetic noise model to benchmark the algorithm, which included the
+    following ``roughening'' steps:
 
-    % TODO: Update this section with the parameters I *actually use* for the
-    % final comparison.
     \begin{enumerate}
         \item Downsampling of GPS-like positioning information from 10Hz to 1Hz.
         \item Addition of isotropic Gaussian-distributed white noise with zero
-        mean and variance $64\mathrm m^2$ to the positioning information.
+        mean and covariance $8^2\b I$ to the positioning information.
         \item Rescaling of reported speed by a small but random factor of at
         most 1\% in order to emulate a subtly miscalibrated odometer.
         \item Addition of Gaussian noise with zero mean and standard deviation
-        $4 \times 10^{-4}$ deg/$\mathrm s^2$ to the angular acceleration data.
+        $4 \times 10^{-4}$ deg/$\mathrm s$ to the angular velocity data.
     \end{enumerate}
 
     These parameters do not closely reflect the characteristics of real sensor
@@ -490,17 +488,17 @@
         \input{images/boxplot.pgf}
         \caption{Distribution of Horizontal Positioning Error (HPE) when using
         particle filtering with and without map information. Numbers at the top
-        of each column indicate mean HPE. HPE was measured over time 10Hz on
-        each of the 11 vehicle localisation traces provided by
+        of each column indicate mean HPE. HPE was measured at 10Hz on each of
+        the 11 vehicle localisation traces provided by
         \citet{brubaker2013lost}.}
         \label{fig:boxplot}
     \end{figure*}
 
     The results of this comparison are shown in Figure~\ref{fig:boxplot}.
     Clearly, map aided particle filtering offers a significant advantage over
-    plain particle filtering, with mean horizontal positioning error of the
-    map aided method usually around half that of the method with no map
-    information.
+    plain particle filtering, with the horizontal positioning error of the
+    map aided method falling to as low as half the horizontal positioning error
+    of the non-map-aided method.
 
     \begin{figure*}
         \centering
@@ -510,8 +508,8 @@
         particle filter (left) versus that induced by a non-map aided particle
         filter (right). In each diagram, the road network is represented by the
         blue lines, the particle filter estimate is represented by a blue
-        quadrilateral, the ground truth is represented by a green triangle, and
-        the particles associated with the particle filter are drawn as red
+        quadrilateral, the ground truth is represented by a green quadrilateral,
+        and the particles associated with the particle filter are drawn as red
         circles, with area directly proportional to weight. The red cross
         indicates the location of the most recent pseudo-GPS measurement.}
         \label{fig:latmove}
@@ -528,13 +526,16 @@
     affecting positioning error in the direction of the road, so a weighting
     step which constrains particles to positions near the road should yield a
     significant increase in particle filter performance
-    \citet{modsching2006field}.
+    \citep{modsching2006field}.
 
     \begin{figure*}
         \centering
         \includegraphics[width=0.6\textwidth]{images/wrong-road.png}
-        \caption{In this scenario, the map weighting has made particle
-        concentrate on two lanes on which the vehicle is not travelling.}
+        \caption{In this scenario, the map weighting has made particles
+        concentrate on two lanes in which the vehicle is not travelling. In
+        particular, the particle filter has produced a state estimate coinciding
+        with lanes going in the opposite direction to the vehicle's true
+        direction of travel.}
         \label{fig:wrong-road}
     \end{figure*}
 
@@ -544,7 +545,7 @@
     to produce predictions using thousands of particles at 10Hz. The current
     implementation, written in Python, is a proof-of-concept with few
     optimisations, so it is anticipated that even greater performance could be
-    achieved by moving to a lower level language. Many steps of the sub-tasks
+    achieved by moving to a lower level language. Many of the sub-tasks
     performed by the algorithm---updating particle weights, predicting particle
     positions, etc.---are trivial to parallelise, so moving to a multi-threaded
     architecture could also boost performance.
@@ -559,7 +560,7 @@
             Sum of processing times and averaged HPE for the filter over all
             traces in the \citeauthor{brubaker2013lost} data set using different
             numbers of particles. In each case, the filter produced position
-            estimates at 10Hz for a total of 2320.1s (39 minutes) of traces.
+            estimates at 10Hz for a total of 2320s (39 minutes) of traces.
             Statistics produced using a single core of a 2.8GHz AMD Phenom II
             processor.
         }
@@ -568,20 +569,19 @@
     \subsection{Qualitative tests}
     \label{sec:qual}
 
-    The qualitative assessment used a GPS trace kindly provided by J. Alvarez
-    (personal communication, May 12, 2015), which was produced from several
-    kilometers of urban driving, including a brief GPS outage corresponding to a
-    tunnel. The results of this test are presented in Figure~\ref{fig:qual}.
-    After the final GPS fix, the map aided particle filter ensures that
-    particles remain distributed along the lane on which the vehicle was
-    travelling. Even after merging with a second lane, the particles have
-    continued to travel forwards along the correct road, as would be expected
-    from a real vehicle. The non-map aided filter, on the other hand, continues
-    to provide a slightly less accurate state estimate, but it can be observed
-    the variance of the particle set of growing significantly over time. Without
-    a GPS or map weight in the update step, this noise will not be constrained,
-    so the particle filter will become less and less certain until it regains
-    GPS reception.
+    The qualitative assessment used a GPS trace kindly provided by J.
+    \'{A}lvarez (personal communication, May 12, 2015), which was produced from
+    several kilometers of urban driving, including a brief GPS outage as the
+    vehicle travelled through a tunnel. The results of this test are presented
+    in Figure~\ref{fig:qual}. After the final GPS fix, the map aided particle
+    filter ensures that particles remain distributed along the lane on which the
+    vehicle was travelling. Even after merging with a second lane, the particles
+    have continued to travel forwards along the correct road, as expected. The
+    non-map-aided filter, on the other hand, continues to provide a slightly
+    less accurate state estimate, but it can be observed that the variance of
+    its particle set is growing significantly over time. Without a GPS weight
+    for resampling, this noise will not be constrained, so the particle filter
+    will rapidly lose accuracy until the vehicle regains GPS reception.
 
     \begin{figure*}
     % See
@@ -615,25 +615,25 @@
     Time flows from left to right. The most recent GPS fix in each frame is
     shown as a red cross, whilst the particle filter's state estimate is shown
     as a blue triangle and its particles are shown as red circles, with the area
-    of each circle proportional to the corresponding particle's weight. The
-    network of blue lines represent the centrelines of road lanes.}
+    of each circle proportional to the corresponding particle's weight. The blue
+    lines denote the centrelines of road lanes.}
     \label{fig:qual}
     \end{figure*}
 
-    The results of a second qualitative comparison---this time with synthetic data from
-    \citeauthor{brubaker2013lost}---are presented in Figure~\ref{fig:off-map}.
-    The aim of this comparison was to demonstrate the behaviour of the filter
-    when the vehicle is no longer on the road network immediately after leaving
-    the road network ($t = 7.5$), we see that the accuracy of the state estimate
-    drops significantly, as the map weight decimates particles which are far
-    from the last road on which the vehicle was travelling. During the next
-    several seconds, a number of GPS fixes are received and some particles are
-    scattered around each fix. By $t = 12.5$, more than 95\% of the particles
-    are at least 15m from the nearest road, so map weights are no longer
-    incorporated in the particle filtering process. This increases accuracy
-    until $t = 17.5$, at which point map weights are incorporated again and the
-    filter begins to re-localise the vehicle as it had done before the vehicle
-    veered off the previous road.
+    The results of a second qualitative comparison---this time using
+    ``roughened'' synthetic data from \citeauthor{brubaker2013lost}---are
+    presented in Figure~\ref{fig:off-map}. The aim of this comparison was to
+    demonstrate the behaviour of the filter when the vehicle is not on the road
+    network. Immediately after leaving the road network ($t = 7.5$), we see that
+    the accuracy of the state estimate drops significantly, as the map weight
+    decimates particles which are far from the last road on which the vehicle
+    was travelling. During the next several seconds, a number of GPS fixes are
+    received and some particles are scattered around each fix. By $t = 12.5$,
+    more than 95\% of the particles are at least 15m from the nearest road, so
+    map weights are no longer incorporated in the particle filtering process.
+    This increases accuracy until $t = 17.5$, at which point map weights are
+    incorporated again and the filter begins to re-localise the vehicle as it
+    had done before the vehicle veered off the previous road.
 
     \begin{figure*}
     \centering
@@ -710,23 +710,24 @@
 
     \subsection{Shortcomings and possible improvements}
 
-    Unfortunately, the algorithms tendency to draw particles in towards the road
-    can, in some cases, decrease localisation performance. An example of this is
-    given in Figure~\ref{fig:wrong-road}: the particle filter has localised
-    itself on the left two lanes of the four lane road, but the vehicle is
-    actually travelling in one of the right lanes. Fixing this defect is
-    challenging, since GPS fixes and motion information alone does little to
-    reliably disambiguate between lanes which could be separated by as little as
-    three metres, especially when the mapped lane locations may be
-    inaccurate---as is almost certainly the case with some OpenStreetMap data.
-    Other authors have avoided this problem by using more accurate maps and
-    augmented GPS \citep{selloum2009lane,toledo2009fusing}. Another common
-    approach is to use first use a coarse localisation approach to determine
-    approximate which road the vehicle is on, then employ computer vision
-    algorithms to detect lane markings and/or curb locations
-    \citep{chausse2005vehicle,montemerlo2008junior} in order to localise the
-    vehicle \emph{within} the road. If sub-lane accuracy were required, then the
-    current algorithm would have to be extended using one of these approaches.
+    Unfortunately, the algorithm's tendency to draw particles in towards the
+    road can, in some cases, decrease localisation performance. An example of
+    this is given in Figure~\ref{fig:wrong-road}: the particle filter has
+    estimated that the vehicle is in one of the two left-hand lanes of the four
+    lane road, but the vehicle is actually travelling in one of the right-hand
+    lanes. Fixing this defect is challenging, since GPS fixes and motion
+    information alone do little to reliably disambiguate between lanes which
+    could be separated by as little as three metres, especially when the mapped
+    lane locations may be inaccurate---as is almost certainly the case with some
+    OpenStreetMap data. Other authors have avoided this problem by using more
+    accurate maps and augmented GPS \citep{selloum2009lane,toledo2009fusing}.
+    Another common approach is to first use a coarse localisation approach to
+    determine which road the vehicle is on, then employ computer vision
+    algorithms to detect lane markings and/or curb locations in order to
+    localise the vehicle \emph{within} the road
+    \citep{chausse2005vehicle,montemerlo2008junior}. If sub-lane accuracy were
+    required, then the current algorithm would have to be extended using one of
+    these approaches.
 
     Figure~\ref{fig:wrong-road} also points to another issue with the algorithm:
     bimodal particle distributions. Particle filtering typically attempts to
@@ -735,8 +736,8 @@
     multimodal, like when the distribution is split across two lanes of a road.
     In this case, \emph{any} single state estimate is inappropriate,
     \citep{dellaert1999monte}, but if a ``sensible'' state estimate is always
-    needed then it may help to apply clustering to the samples particles,
-    followed by taking the expectation of those particles.
+    needed then it may help to apply clustering to the particles, then to take
+    the expectation of the highest weighted cluster.
 
     At present, heading estimates are also difficult for the algorithm. Each
     particle includes a heading estimate for use in the prediction step of the
@@ -744,14 +745,14 @@
     drift of these heading estimates. At high speeds, incorporating the heading
     estimated by the GPS unit into the particle filter update step may help,
     although this estimate does become highly volatile at low speeds
-    \citep{ochieng2003map}. Furthermore, weighting particles by the mismatch between
-    their heading and that of the direction of traffic flow on the nearest road
-    segments might prevent scenarios like that depicted in
+    \citep{ochieng2003map}. Alternatively, weighting particles by the mismatch
+    between their heading and that of the direction of traffic flow on the
+    nearest road segments might prevent scenarios like that depicted in
     Figure~\ref{fig:wrong-road}, in which the majority of particles are
     travelling north, but are localised on lanes on which traffic can only go
     south! Unfortunately, incorporating this information would require
     additional manipulation of the street map, which could prove too expensive
-    for real-time application.
+    for real-time applications.
 
     Finally, the algorithm presented in this paper does not account for vehicle
     pitch, roll or altitude, nor for the elevation of the underlying road
@@ -761,7 +762,10 @@
     GPS fix \citep{quddus2007current}. The algorithm presented in this paper
     could be extended to account for pitch, roll and altitude by modifying the
     state representation to include these quantities, as well as making use of
-    attitude and altitude sensors during the particle filter update step.
+    attitude and altitude sensors during the particle filter update step. This
+    could improve localisation in mountainous regions, where the distance
+    travelled by the vehicle's wheels does not correspond well to the distance
+    travelled over the map.
 
     \section{Conclusion}
 
@@ -772,15 +776,12 @@
     network. By comparing the performance of particle filtering with and without
     this map update, we demonstrated that the use of map information can
     significantly improve localisation accuracy in scenarios where the vehicle
-    remains on a mapped feature. In contrast to earlier work, we showed that our
+    remains on the road network. In contrast to earlier work, we showed that our
     algorithm functions even with low-quality crowd-sourced maps and highly
-    noisy positioning sensors. Finally, we discussed some shortcomings of the
-    presented algorithm---including the fact that the algorithm fails to take
-    advantage of some information present in street maps, cannot achieve
-    sub-lane localisation accuracy, does not make use of external heading
-    observations, and does not track vehicle pitch, roll or altitude---and
-    proposed solutions to each.
+    noisy positioning sensors. Finally, we discussed and proposed solutions to
+    some shortcomings of the presented algorithm.
 
+    \newpage
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
 \end{document}
