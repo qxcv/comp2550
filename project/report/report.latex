@@ -22,18 +22,16 @@
     \title{Robust Map-Augmented Localisation Using Particle Filters\\
     {\Large COMP2550 Project Report}}
     \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}\\
-    Supervisor: Jos\'{e} M. \'{A}lvarez}
+    {\small Supervisor: Dr. Jos\'{e} M. \'{A}lvarez}}
     \date{\today}
 
     \maketitle
 
-    % TODO: Rewrite this once I figure out what the hell my report is actually
-    % about.
     \abstract{%
-        In this paper, we propose a particle filtering method which fuses GPS
-        fixes, odometry data, and the information in a digital street map to
-        localise a road vehicle with superior accuracy to methods based on GPS
-        and odometry alone. We demonstrate that our algorithm is robust to GPS
+        In this paper, we propose a particle filtering method which fuses GPS,
+        odometry, and the information in a digital street map to localise a road
+        vehicle with superior accuracy to methods based on GPS and odometry
+        alone. We demonstrate that our algorithm is robust to noise and GPS
         dropouts, and give a variant of the algorithm which dispenses with the
         requirement for odometry.
     }
@@ -43,17 +41,13 @@
     % TODO: Might want to use localisation of visually impaired users as another
     % example (which I did in my proposal).
 
-    Localisation is a critical task for intelligent transport systems, and
-    features in systems ranging from personal navigation devices
+    Localisation is a critical task for intelligent transportation systems, and
+    features in a variety of systems ranging from personal navigation devices
     \citep{white2000some} to self-driving cars \citep{levinson2011towards}.
     Accurate localisation data can also be used to augment vehicle-based systems
-    not directly related to navigation. For example, this work was motivated in
-    part by the visual road detection algorithm presented by
-    \citet{alvarez2014combining}, which projects road segments stored in a map
-    database into the field of view of a camera in order determine which pixels
-    produced by the camera are most likely to correspond to a road. Precise
-    information about the location of the vehicle is clearly of the utmost
-    importance in such systems.
+    not directly related to navigation, like visual road detection
+    \citep{alvarez2014combining}. Precise information about the location of the
+    vehicle is clearly of the utmost importance in such systems.
 
     This task is complicated by the noise present in sensor readings. Despite
     its usefulness, GPS is a major offender in this regard: GPS accuracy can
@@ -61,32 +55,17 @@
     \citep{modsching2006field}. Dead reckoning also suffers from significant
     errors, although unlike GPS error these tend to gradually increase over
     time. For instance, \citet{vlcek1993gps} report that low cost dead reckoning
-    systems---typically based on odometry and gyroscope data---yield errors of
-    between 2\% and 5\% of the distance travelled.
-
-%     TODO: Is it okay to do this? It's not plagiarism, but it may violate
-%     copyright. Should ask Steve or someone else who's likely to know. Maybe ANU
-%     has a specific policy here. If not, I'll just leave the image out, since
-%     it's not critical to the report.
-%     \begin{figure}
-%         \centering
-%         \includegraphics[width=0.45\textwidth]{images/drawil-et-al.png}
-%         \caption{Figure from \citet{drawil2013gps} demonstrating the GPS fixes
-%         produced by a receiver in a vehicle as the vehicle drove through a built
-%         up area. Grey lines indicate roads, whilst coloured dots indicate GPS
-%         fixes, coloured according to the output of an automated precision
-%         classifier.}
-%         \label{fig:drawil-et-al}
-%     \end{figure}
+    systems---typically based on odometry and gyroscope data---yield
+    localisation errors of between 2\% and 5\% of the distance travelled by the
+    vehicle.
 
     Fortunately, road vehicles in motion are almost always situated on public
-    roads, so it is possible to improve the accuracy of a localisation system by
-    taking into account the information about the public road network which is
-    present in a digital street map. With the advent of the OpenStreetMap
-    project\footnotemark---which provides, free of charge, detailed road network
-    maps covering most of the globe---use of map information in this way is
-    quickly becoming a cheap and convenient method of augmenting the accuracy of
-    existing localisation systems.
+    roads, so it is possible to improve localisation accuracy by taking into
+    account the information present in a street map. With the advent of the
+    OpenStreetMap project\footnotemark---which provides, free of charge,
+    detailed road network maps covering most of the globe---use of map
+    information in this way has become a cheap and convenient method of
+    augmenting the accuracy of existing localisation systems.
 
     \footnotetext{\url{http://www.openstreetmap.org/}}
 
@@ -103,76 +82,76 @@
 
     The approaches which presently dominate the map-assisted localisation
     literature are map matching methods which use sets of hand-crafted rules to
-    determine which road segment in a digital map a vehicle is most likely to be
+    determine which road segment in a street map a vehicle is most likely to be
     travelling on, then attempt to localise the vehicle within that road
     segment. Typically, these approaches work by first assigning a ``score'' to
-    each road segment in a digital street map based on the segment's distance
-    from the vehicle's estimated position, the segment's heading, and so on, and
-    then localise to the point on the highest scoring segment which is nearest
-    to the last GPS fix or Kalman filter state estimate
-    \citep{quddus2007current}.
+    each road segment in a street map based on the segment's distance from the
+    vehicle's estimated position, the segment's heading, and so on. After this,
+    they take the highest scoring segment, and localise to the point on that
+    segment which is nearest to the last GPS fix or Kalman filter state
+    estimate.
 
     These heuristic methods can achieve very high accuracy. For example,
     \citet{quddus2006high} reported that the road segment scoring portion of
-    their algorithm was able to correctly identify 99.2\% of the 4,605 road
-    segments in one of their data sets. However, such high accuracy is not
-    representative of all heuristic map matching
-    algorithms---\citeauthor{quddus2006high} reported previous algorithms
-    achieving 70\%-98\% segment identification accuracy where theirs achieved
-    99.2\%---and usually requires large sets of hand-tuned rules. Moving from a
-    rural to an urban environment, for instance, can sometimes reduce the
-    usefulness of these rules, necessitating the production of yet more rules
-    and heuristics for different environments \citep{velaga2012improving}.
-    Further, heuristic map-matching algorithms are highly sensitive to initial
-    conditions, as producing an incorrect first match will likely cause
-    subsequent matches to be incorrect due to the fact that heuristic algorithms
-    often assign low scores to road segments far away from previously matched
-    segments \citep{syed2004fuzzy}.
+    their algorithm was able to correctly identify which road segment their test
+    vehicle was travelling on with 99.2\% accuracy on a 4,605 segment map.
+    However, such high accuracy is not representative of all heuristic map
+    matching algorithms---\citeauthor{quddus2006high} reported previous
+    algorithms achieving 70\%-98\% segment identification accuracy on the same
+    data set for which theirs achieved 99.2\%---and usually requires large sets
+    of hand-tuned rules. Moving between urban, suburban and rural environments
+    can sometimes reduce the usefulness of these rules, necessitating the
+    production of yet more rules and heuristics for different environments
+    \citep{velaga2012improving}. Furthermore, heuristic map-matching algorithms
+    are highly sensitive to initial conditions, as producing an incorrect first
+    match will likely cause subsequent matches to be incorrect. This is due to
+    the fact that heuristic algorithms often assign low scores to road segments
+    far away from previously matched segments \citep{syed2004fuzzy}.
 
     Probabilistic approaches to map aided localisation manage to avoid some of
     the pitfalls of heuristic approaches. Rather than producing a single ``best
     guess'' of the vehicle's state at each time step, probabilistic methods
     internally maintain a probability distribution over all possible vehicle
-    states. This distribution may be updated sequentially, and used to produce
+    states. This distribution may be updated sequentially and used to produce
     the expectation of the vehicle's position at each time step. This approach
-    makes it straightforward to incorporate almost any kind of data: for
+    makes it straightforward to incorporate almost any kind of sensor data: for
     instance, \citet{brubaker2013lost} used a probabilistic approach based on
     Gaussian mixture models to localise a vehicle using only street map
     information and visual odometry---a feat which would be impossible with
-    traditional heuristic map matching approaches. Probabilistic approaches also
-    make it possible to relax the map matching assumption that the vehicle is
-    always on a mapped feature, as it is straightforward to expand  the modelled
-    distribution over possible vehicle states to cover both on-road and off-road
-    areas.
+    traditional heuristic map matching approaches, which rely on GPS.
+    Probabilistic approaches also make it possible to relax the map matching
+    assumption that the vehicle is always on a mapped feature, as it is
+    straightforward to expand  the modelled distribution over possible vehicle
+    states to cover both on-road and off-road positions.
 
     Particle filtering---also known as Monte Carlo localisation---is a popular
-    probabilistic localisation method which has been employed for map aided
+    probabilistic localisation method, and has been applied to map aided
     localisation in a number of different ways. \citet{chausse2005vehicle}
     applied a particle filter to fuse odometry, GPS, vision and the information
-    in a digital map, whilst \citet{selloum2009lane} and
-    \citet{toledo2009fusing} used particle filtering with odometry, GPS and map
-    information alone. In each instance, the authors reported excellent results,
-    with all algorithms providing lane-level positioning accuracy in some cases.
+    in a street map, whilst \citet{selloum2009lane} and \citet{toledo2009fusing}
+    used particle filtering with odometry, GPS and map information alone. In
+    each instance, the authors reported excellent results, with all algorithms
+    providing lane-level positioning accuracy most of the time.
 
-    Unfortunately, the aforementioned approaches to probabilistic map-aided
-    localisation both required sensors and information which are not always
-    available. In all three cases, the algorithms required extremely precise
-    maps offering a level of detail far beyond what could be expected of an
-    ordinary digital street map used for navigation. Furthermore,
+    Unfortunately, the aforementioned approaches to probabilistic map aided
+    localisation required sensors and types of maps which are not always
+    available. All three mentioned algorithms required extremely precise maps
+    offering a level of detail far beyond what could be expected of an ordinary
+    street map like those provided by OpenStreetMap. Furthermore,
     \citeauthor{selloum2009lane} and \citeauthor{toledo2009fusing} both assumed
     the availability of a service like the European Geostationary Navigation
     Overlay Service (EGNOS) to correct GPS errors, whilst
     \citeauthor{chausse2005vehicle} required that the vehicle be fitted with a
-    camera in order to achieve lane-level accuracy. These requirements are all
-    difficult to satisfy for low-cost systems and systems which operate in
-    remote regions, so one of our aims in this paper will be to dispense with
-    these onerous requirements.
+    camera in order to achieve lane-level accuracy. These constraints are all
+    difficult to satisfy in low-cost systems and systems which operate in remote
+    regions, so one of our aims in this paper will be to dispense with these
+    onerous requirements.
 
     \section{Our approach}\label{sec:algorithm}
     \subsection{Particle filtering}
 
     As mentioned previously, particle filtering is a probabilistic localisation
-    method that is well suited to map-aided localisation. Internally, the
+    method that is well suited to map aided localisation. Internally, the
     particle filter represents a distribution over possible vehicle states with
     a fixed number of ``particles'', each of which represents a single sample
     from the following distribution \citep{fox1999monte}:
@@ -307,17 +286,25 @@
     associated with the particle $s_{t+1}^{(n)} = (x_t, y_t, \theta_t)^T$ to:
 
     \begin{equation}\label{eq:gpsweight}
-        w_{t+1}^{(n)} = \exp\left(
-            -\frac{1}{2} \left(
+    \begin{split}
+        w_{t+1}^{(n)} = \exp
+        \left(
+            -\frac{1}{2}
+            \left(
                 \begin{bmatrix}x_t\\y_t\end{bmatrix}
                 -
                 \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
-            \right)^T \Sigma^{-1} \left(
+            \right)^T
+            \right.\\
+            \left.
+            \Sigma^{-1}
+            \left(
                 \begin{bmatrix}x_t\\y_t\end{bmatrix}
                 -
                 \begin{bmatrix}{f_x}_t\\{f_y}_t\end{bmatrix}
             \right)
         \right)
+    \end{split}
     \end{equation}
 
     This corresponds to an unnormalised Gaussian distribution with mean
@@ -361,7 +348,7 @@
     found that the fastest way of incorporating map data is by way of a
     pseudo-likelihood during the particle filter's update step. Concretely, for
     each particle $s_t^{(n)}$, we calculate the distance $d_t^{(n)}$ to the road
-    segment in the stored digital street map, then update the weight $w_t^{(n)}$
+    segment in the stored street map, then update the weight $w_t^{(n)}$
     of the stored particle using:
 
     % TODO: Update this when I'm finished. I'll probably choose a completely
@@ -494,7 +481,7 @@
     noise. In particular, as mentioned previously, real GPS error tends to be
     highly time-correlated, but with an unpredictable distribution. Nonetheless,
     this ``roughening'' process does an excellent job of illustrating the
-    difference in performance between plain particle filtering and map-aided
+    difference in performance between plain particle filtering and map aided
     particle filtering in the presence of non-ideal sensory input.
 
     \begin{figure*}
@@ -509,17 +496,17 @@
     \end{figure*}
 
     The results of this comparison are shown in Figure~\ref{fig:boxplot}.
-    Clearly, map-aided particle filtering offers a significant advantage over
+    Clearly, map aided particle filtering offers a significant advantage over
     plain particle filtering, with mean horizontal positioning error of the
-    map-aided method usually around half that of the method with no map
+    map aided method usually around half that of the method with no map
     information.
 
     \begin{figure*}
         \centering
         \includegraphics[width=0.4\textwidth]{images/map-spread.png}
         \includegraphics[width=0.4\textwidth]{images/no-map-spread.png}
-        \caption{Images showing the particle spread induced by a map-aided
-        particle filter (left) versus that induced by a non-map-aided particle
+        \caption{Images showing the particle spread induced by a map aided
+        particle filter (left) versus that induced by a non-map aided particle
         filter (right). In each diagram, the road network is represented by the
         blue lines, the particle filter estimate is represented by a blue
         quadrilateral, the ground truth is represented by a green triangle, and
@@ -584,11 +571,11 @@
     (personal communication, May 12, 2015), which was produced from several
     kilometers of urban driving, including a brief GPS outage corresponding to a
     tunnel. The results of this test are presented in Figure~\ref{fig:qual}.
-    After the final GPS fix, the map-aided particle filter ensures that
+    After the final GPS fix, the map aided particle filter ensures that
     particles remain distributed along the lane on which the vehicle was
     travelling. Even after merging with a second lane, the particles have
     continued to travel forwards along the correct road, as would be expected
-    from a real vehicle. The non-map-aided filter, on the other hand, continues
+    from a real vehicle. The non-map aided filter, on the other hand, continues
     to provide a slightly less accurate state estimate, but it can be observed
     the variance of the particle set of growing significantly over time. Without
     a GPS or map weight in the update step, this noise will not be constrained,
@@ -622,7 +609,7 @@
     {\small After initialisation} & {\small Entering tunnel} &
     \multicolumn{2}{c}{\small In tunnel; GPS unavailable}
     \end{tabular}
-    \caption{Qualitative comparison of the map-aided particle filter (top) with
+    \caption{Qualitative comparison of the map aided particle filter (top) with
     an equivalent particle filter not making use of map information (bottom).
     Time flows from left to right. The most recent GPS fix in each frame is
     shown as a red cross, whilst the particle filter's state estimate is shown
@@ -702,14 +689,14 @@
     \end{overpic}
     \\[-0.8ex]
     \end{tabular}
-    \caption{Evolution of the map-aided particle filter state estimate (blue)
+    \caption{Evolution of the map aided particle filter state estimate (blue)
     and particle set (red) as the ground truth vehicle position (green)
     traverses a section of the map with a missing road. Times given in seconds
     since first frame.}
     \label{fig:off-map}
     \end{figure*}
 
-    This experiment demonstrates that a map-aided particle filter is a poor
+    This experiment demonstrates that a map aided particle filter is a poor
     choice of localisation algorithm for applications in which the vehicle is
     likely leave the mapped road network frequently. Simultaneous Localisation
     and Mapping (SLAM)---where the internal map representation is updated to
@@ -756,13 +743,13 @@
     drift of these heading estimates. At high speeds, incorporating the heading
     estimated by the GPS unit into the particle filter update step may help,
     although this estimate does become highly volatile at low speeds
-    \citep{ochieng2003map}. Further, weighting particles by the mismatch between
+    \citep{ochieng2003map}. Furthermore, weighting particles by the mismatch between
     their heading and that of the direction of traffic flow on the nearest road
     segments might prevent scenarios like that depicted in
     Figure~\ref{fig:wrong-road}, in which the majority of particles are
     travelling north, but are localised on lanes on which traffic can only go
     south! Unfortunately, incorporating this information would require
-    additional manipulation of the digital map, which could prove too expensive
+    additional manipulation of the street map, which could prove too expensive
     for real-time application.
 
     Finally, the algorithm presented in this paper does not account for vehicle
@@ -788,7 +775,7 @@
     algorithm functions even with low-quality crowd-sourced maps and highly
     noisy positioning sensors. Finally, we discussed some shortcomings of the
     presented algorithm---including the fact that the algorithm fails to take
-    advantage of some information present in digital street maps, cannot achieve
+    advantage of some information present in street maps, cannot achieve
     sub-lane localisation accuracy, does not make use of external heading
     observations, and does not track vehicle pitch, roll or altitude---and
     proposed solutions to each.
