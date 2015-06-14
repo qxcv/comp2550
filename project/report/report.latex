@@ -546,8 +546,7 @@
         \centering
         \includegraphics[width=0.6\textwidth]{images/wrong-road.png}
         \caption{In this scenario, the map weighting has made particle
-        concentrate on two lanes on which the vehicle is not travelling, thus
-        \emph{increasing} positioning error.}
+        concentrate on two lanes on which the vehicle is not travelling.}
         \label{fig:wrong-road}
     \end{figure*}
 
@@ -712,7 +711,14 @@
 
     This experiment demonstrates that a map-aided particle filter is a poor
     choice of localisation algorithm for applications in which the vehicle is
-    likely leave the mapped road network frequently. % TODO: SLAM!
+    likely leave the mapped road network frequently. Simultaneous Localisation
+    and Mapping (SLAM)---where the internal map representation is updated to
+    correspond to the observed road location---is one potential fix for this
+    problem. However, this particular application is unusual in that the mapped
+    features are not directly observed in the same way that, for instance, a
+    wall might be observed by a laser range finder, which complicates the use of
+    SLAM. As a result, we have not incorporated any form of SLAM into the
+    algorithm.
 
     \subsection{Shortcomings and possible improvements}
 
@@ -771,7 +777,21 @@
 
     \section{Conclusion}
 
-    % TODO
+    In this paper, we presented a particle filter-based algorithm for localising
+    road vehicles using map data, GPS fixes and (optionally) odometry. In order
+    to incorporate map data, we introduced a particle weighting factor dependent
+    only on a given particle's distance to the nearest road in the mapped road
+    network. By comparing the performance of particle filtering with and without
+    this map update, we demonstrated that the use of map information can
+    significantly improve localisation accuracy in scenarios where the vehicle
+    remains on a mapped feature. In contrast to earlier work, we showed that our
+    algorithm functions even with low-quality crowd-sourced maps and highly
+    noisy positioning sensors. Finally, we discussed some shortcomings of the
+    presented algorithm---including the fact that the algorithm fails to take
+    advantage of some information present in digital street maps, cannot achieve
+    sub-lane localisation accuracy, does not make use of external heading
+    observations, and does not track vehicle pitch, roll or altitude---and
+    proposed solutions to each.
 
     \bibliography{citations}{}
     \bibliographystyle{abbrvnat}
