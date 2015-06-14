@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[a4paper,twocolumn]{article}
 \usepackage{%
     hyperref,xcolor,todonotes,tabularx,multirow,multicol,titling,grffile,
     amsmath,amssymb
@@ -12,7 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-\usepackage[margin=22mm]{geometry}
+\usepackage[margin=24mm]{geometry}
 \usepackage[percent]{overpic}
 
 \newcommand{\mat}{\mathbf}
@@ -21,7 +21,8 @@
 \begin{document}
     \title{Robust Map-Augmented Localisation Using Particle Filters\\
     {\Large COMP2550 Project Report}}
-    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}}
+    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}\\
+    Supervisor: Jos\'{e} M. \'{A}lvarez}
     \date{\today}
 
     \maketitle
@@ -250,8 +251,7 @@
 
     \[
         \mathbb E[s_{t+1}] \approx \begin{cases}
-            \frac{1}{N} \sum_{n=1}^N s_{t+1}^{(n)} & \text{if resampling was
-            performed}\\
+            \frac{1}{N} \sum_{n=1}^N s_{t+1}^{(n)} & \text{if resampled}\\
             \sum_{n=1}^N w_{t+1}^{(n)} s_{t+1}^{(n)} & \text{otherwise}
         \end{cases}
     \]
