@@ -12,7 +12,7 @@
     urlcolor={blue!80!black}
 }
 \usepackage[round]{natbib}
-\usepackage[margin=23mm]{geometry}
+\usepackage[margin=22.5mm]{geometry}
 \usepackage[percent]{overpic}
 
 \newcommand{\mat}{\mathbf}
@@ -21,8 +21,10 @@
 \begin{document}
     \title{Robust Map-Augmented Localisation Using Particle Filters\\
     {\Large COMP2550 Project Report}}
-    \author{Sam Toyer\\\texttt{u5568237@anu.edu.au}\\
-    {\small Supervisor: Dr. Jos\'{e} M. \'{A}lvarez}}
+    \author{Sam Toyer\thanks{
+        Supervisor: Dr. Jos\'{e} M. \'{A}lvarez
+    }\\
+    \texttt{u5568237@anu.edu.au}}
     \date{\today}
 
     \maketitle
@@ -42,12 +44,13 @@
     % example (which I did in my proposal).
 
     Localisation is a critical task for intelligent transportation systems, and
-    features in a variety of systems ranging from personal navigation devices
-    \citep{white2000some} to self-driving cars \citep{levinson2011towards}.
-    Accurate localisation data can also be used to augment vehicle-based systems
-    not directly related to navigation, like visual road detection
-    \citep{alvarez2014combining}. Precise information about the location of the
-    vehicle is clearly of the utmost importance in such systems.
+    features in a variety of applications ranging from personal navigation
+    devices \citep{white2000some} to self-driving cars
+    \citep{levinson2011towards}. Accurate localisation data can also be used to
+    augment vehicle-based systems not directly related to navigation, like
+    visual road detection \citep{alvarez2014combining}. Precise information
+    about the location of the vehicle is clearly of the utmost importance in
+    such systems.
 
     This task is complicated by the noise present in sensor readings. Despite
     its usefulness, GPS is a major offender in this regard: GPS accuracy can
@@ -80,7 +83,7 @@
 
     \section{Related work}
 
-    The approaches which presently dominate the map-assisted localisation
+    The approaches which presently dominate the map assisted localisation
     literature are map matching methods which use sets of hand-crafted rules to
     determine which road segment in a street map a vehicle is most likely to be
     travelling on, then attempt to localise the vehicle within that road
@@ -144,8 +147,10 @@
     \citeauthor{chausse2005vehicle} required that the vehicle be fitted with a
     camera in order for their algorithm to achieve lane-level accuracy. These
     constraints are all difficult to satisfy in low-cost systems and systems
-    which operate in remote regions, so one of our aims in this paper will be to
-    dispense with these onerous requirements.
+    which operate in remote regions. Thus, our goal in this paper will be to
+    produce an algorithm which retains the advantages of probabilistic map
+    matching whilst dispensing with the onerous requirements of previous
+    approaches.
 
     \section{Our approach}\label{sec:algorithm}
     \subsection{Particle filtering}
@@ -229,8 +234,8 @@
         \[
             N_\mathrm{eff} = \left(\sum_{n=1}^N {w_t^{(n)}}^2\right)^{-1}
         \]
-        We have opted to do this, with the threshold for $N_\mathrm{eff}$ set at
-        two thirds of the size of the particle set.
+        We have opted to set the threshold for $N_\mathrm{eff}$ at two thirds of
+        the size of the particle set.
     \end{enumerate}
 
     Finally, the expected vehicle position at time $t+1$ can be expressed as:
@@ -417,10 +422,10 @@
     heavily correlated over time, but we have nonetheless found that it produces
     acceptable results.
 
-    Formally, operating without odometry requires that we replace our previous
-    state vector $s = \left(x, y, \theta\right)^T$ with a new state vector $s =
+    Operating without odometry requires that we replace our previous state
+    vector $s = \left(x, y, \theta\right)^T$ with a new state vector $s =
     \left(x, y, v_x, v_y\right)^T$, where $v_x$ and $v_y$ are easting and
-    northing velocities, respectively. Given state $s_t$, our transition model
+    northing velocities, respectively. Given a state $s_t$, our transition model
     becomes:
 
     \begin{align*}
@@ -505,7 +510,9 @@
         quadrilateral, the ground truth is represented by a green quadrilateral,
         and the particles associated with the particle filter are drawn as red
         circles, with area directly proportional to weight. The red cross
-        indicates the location of the most recent pseudo-GPS measurement.}
+        indicates the location of the most recent pseudo-GPS measurement. For
+        scale, both the quadrilateral representing the ground truth and the
+        quadrilateral representing the state estimate are 15m wide.}
         \label{fig:latmove}
     \end{figure*}
 
@@ -607,10 +614,8 @@
     \end{tabular}
     \caption{Qualitative comparison of the map aided particle filter (top) with
     an equivalent particle filter not making use of map information (bottom).
-    Time flows from left to right. The most recent GPS fix in each frame is
-    shown as a red cross, whilst the particle filter's state estimate is shown
-    as a blue triangle and its particles are shown as red circles. The blue
-    lines denote road lanes.}
+    Time flows from left to right. Graphical conventions are the same as those
+    documented in Figure~\ref{fig:latmove}.}
     \label{fig:qual}
     \end{figure*}
 
@@ -672,7 +677,8 @@
     \caption{Evolution of the map aided particle filter state estimate (blue)
     and particle set (red) as the ground truth vehicle position (green)
     traverses a section of the map with a missing road. Times given in seconds
-    since first frame.}
+    since first frame. As before, graphical conventions are identical to those
+    of Figure~\ref{fig:latmove}.}
     \label{fig:off-map}
     \end{figure*}
 
@@ -723,8 +729,7 @@
     In this case, \emph{any} single state estimate will be misleading
     \citep{dellaert1999monte}. However, if a single state estimate is always
     needed, then it may help to apply clustering to the particles, then to take
-    the expectation of the highest weighted cluster. We leave this experiment as
-    an exercise for the reader.
+    the expectation of the highest weighted cluster.
 
     As mentioned in Section~\ref{sec:qual}, the algorithm's accuracy drops
     significantly when the vehicle is no longer travelling on a mapped road.
